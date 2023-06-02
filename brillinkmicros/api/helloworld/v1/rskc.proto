@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package rskc.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "brillinkmicros/api/hellowrold/v1;v1";
+option java_multiple_files = true;
+option java_outer_classname = "RskcProtoV1";
+option java_package = "dev.kratos.api.helloworld.v1";
+
+// rskc service definition.
+service Rskc {
+  rpc ListReportInfos(PaginationRequest) returns (ReportInfosResponse) {}
+  rpc GetReportContent(ReportContentRequest) returns (ReportContentResponse) {}
+}
+
+message ReportInfosResponse {
+  repeated ReportInfo report_infos = 1;
+  uint32 current_page = 2;
+  uint32 total = 3;
+}
+
+message PaginationRequest {
+  uint32 page_size = 1;
+  uint32 page_num = 2;
+}
+
+message ReportInfo {
+  // 报告id
+  string report_id = 1;
+  // 企业名称
+  string enterprise_name = 2;
+  // 企业统一信用社会代码
+  string unified_credit_id = 3;
+  // 报文更新月份
+  string data_collect_month = 4;
+  // 报告是否可用
+  bool is_available = 5;
+  // 报告生成时间 yyyy-MM-dd HH:mm:ss
+  string report_updated_time = 6;
+  // 报告状态码
+  int32 imp_status = 7;
+  // 英文报告状态码
+  string report_en_id = 8;
+}
+
+message ReportContentRequest {
+  string report_id = 1;
+  string lang = 2;
+}
+
+message ReportContentResponse {
+  // 报告内容
+  string content = 1;
+  string available = 2;
+}
