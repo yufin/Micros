@@ -3,12 +3,12 @@ server:
     addr: 0.0.0.0:8000
     timeout: 1s
   grpc:
-    addr: 0.0.0.0:9000
+    addr: 0.0.0.0:50051
     timeout: 1s
 data:
   database:
     driver: mysql
-    source: root:root@tcp(127.0.0.1:3306)/test
+    source: root:adminpassword@tcp(192.168.31.158:3306)/data_warehouse?charset=utf8mb4&parseTime=True&loc=Local&timeout=10000ms
   redis:
     addr: 127.0.0.1:6379
     read_timeout: 0.2s

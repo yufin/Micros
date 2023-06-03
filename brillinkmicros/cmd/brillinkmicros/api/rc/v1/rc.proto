@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package api.rc.v1;
+
+option go_package = "/api/rc/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.rc.v1";
+
+service Rc {
+	rpc CreateRc (CreateRcRequest) returns (CreateRcReply);
+	rpc UpdateRc (UpdateRcRequest) returns (UpdateRcReply);
+	rpc DeleteRc (DeleteRcRequest) returns (DeleteRcReply);
+	rpc GetRc (GetRcRequest) returns (GetRcReply);
+	rpc ListRc (ListRcRequest) returns (ListRcReply);
+}
+
+message CreateRcRequest {}
+message CreateRcReply {}
+
+message UpdateRcRequest {}
+message UpdateRcReply {}
+
+message DeleteRcRequest {}
+message DeleteRcReply {}
+
+message GetRcRequest {}
+message GetRcReply {}
+
+message ListRcRequest {}
+message ListRcReply {}

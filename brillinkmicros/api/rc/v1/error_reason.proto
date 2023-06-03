@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package api.rc.v1;
+
+option go_package = "brillinkmicros/api/rc/v1;v1";
+option java_multiple_files = true;
+option java_outer_classname = "RcProcessedContentV1";
+option java_package = "api.rc.v1";
+
+enum ErrorReason {
+  ID_UNSPECIFIED = 0;
+  NO_DATA_PERMISSION = 1;
+  ID_NOT_EXIST = 2;
+}
