@@ -39,7 +39,7 @@ func (uc *RcProcessedContentUsecase) GetById(ctx context.Context, id int64) (*Rc
 	return uc.repo.Get(ctx, id)
 }
 
-// GetUpToDateByContentId .
+// GetByContentIdUpToDate .
 // 使用RcProcessedContentRepo中定义的方法实现具体业务
 func (uc *RcProcessedContentUsecase) GetByContentIdUpToDate(ctx context.Context, contentId int64) (*RcProcessedContent, error) {
 	uc.log.WithContext(ctx).Infof("biz.GetList %v", contentId)

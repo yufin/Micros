@@ -40,8 +40,19 @@ func NewGormDB(c *conf.Data) (*gorm.DB, error) {
 
 // NewData .
 func NewData(logger log.Logger, db *gorm.DB) (*Data, func(), error) {
+	ndLog := log.NewHelper(logger)
+
 	cleanup := func() {
-		log.NewHelper(logger).Info("closing the data resources")
+		ndLog.Info("Closing the data resources")
+		sqlDb, err := db.DB()
+		if err != nil {
+			ndLog.Errorf("failed to get sqlDb obj while cleanup: %v", err)
+		}
+		if err := sqlDb.Close(); err != nil {
+			ndLog.Errorf("failed to close db: %v", err)
+		}
+		ndLog.Info("Data resource Closed")
 	}
+
 	return &Data{db: db}, cleanup, nil
 }
