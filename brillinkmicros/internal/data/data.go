@@ -13,7 +13,12 @@ import (
 
 // ProviderSet is data providers.
 // var ProviderSet = wire.NewSet(NewData, NewGreeterRepo)
-var ProviderSet = wire.NewSet(NewData, NewGormDB, NewRcProcessedContentRepo)
+var ProviderSet = wire.NewSet(
+	NewData,
+	NewGormDB,
+	NewRcProcessedContentRepo,
+	NewRcOriginContentRepo,
+)
 
 // Data .
 // wrapped database client

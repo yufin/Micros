@@ -19,16 +19,20 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	RcService_ListReportInfos_FullMethodName  = "/api.rc.v1.RcService/ListReportInfos"
-	RcService_GetReportContent_FullMethodName = "/api.rc.v1.RcService/GetReportContent"
+	RcService_ListReportInfos_FullMethodName       = "/api.rc.v1.RcService/ListReportInfos"
+	RcService_GetReportContent_FullMethodName      = "/api.rc.v1.RcService/GetReportContent"
+	RcService_RefreshReportContent_FullMethodName  = "/api.rc.v1.RcService/RefreshReportContent"
+	RcService_SetReportAdditionData_FullMethodName = "/api.rc.v1.RcService/SetReportAdditionData"
 )
 
 // RcServiceClient is the client API for RcService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RcServiceClient interface {
-	ListReportInfos(ctx context.Context, in *PaginationRequest, opts ...grpc.CallOption) (*ReportInfosResponse, error)
-	GetReportContent(ctx context.Context, in *ReportContentRequest, opts ...grpc.CallOption) (*ReportContentResponse, error)
+	ListReportInfos(ctx context.Context, in *PaginationReq, opts ...grpc.CallOption) (*ReportInfosResp, error)
+	GetReportContent(ctx context.Context, in *ReportContentReq, opts ...grpc.CallOption) (*ReportContentResp, error)
+	RefreshReportContent(ctx context.Context, in *ReportContentReq, opts ...grpc.CallOption) (*ReportContentResp, error)
+	SetReportAdditionData(ctx context.Context, in *SetAdditionDataReq, opts ...grpc.CallOption) (*SetAdditionDataResp, error)
 }
 
 type rcServiceClient struct {
@@ -39,8 +43,8 @@ func NewRcServiceClient(cc grpc.ClientConnInterface) RcServiceClient {
 	return &rcServiceClient{cc}
 }
 
-func (c *rcServiceClient) ListReportInfos(ctx context.Context, in *PaginationRequest, opts ...grpc.CallOption) (*ReportInfosResponse, error) {
-	out := new(ReportInfosResponse)
+func (c *rcServiceClient) ListReportInfos(ctx context.Context, in *PaginationReq, opts ...grpc.CallOption) (*ReportInfosResp, error) {
+	out := new(ReportInfosResp)
 	err := c.cc.Invoke(ctx, RcService_ListReportInfos_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -48,9 +52,27 @@ func (c *rcServiceClient) ListReportInfos(ctx context.Context, in *PaginationReq
 	return out, nil
 }
 
-func (c *rcServiceClient) GetReportContent(ctx context.Context, in *ReportContentRequest, opts ...grpc.CallOption) (*ReportContentResponse, error) {
-	out := new(ReportContentResponse)
+func (c *rcServiceClient) GetReportContent(ctx context.Context, in *ReportContentReq, opts ...grpc.CallOption) (*ReportContentResp, error) {
+	out := new(ReportContentResp)
 	err := c.cc.Invoke(ctx, RcService_GetReportContent_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *rcServiceClient) RefreshReportContent(ctx context.Context, in *ReportContentReq, opts ...grpc.CallOption) (*ReportContentResp, error) {
+	out := new(ReportContentResp)
+	err := c.cc.Invoke(ctx, RcService_RefreshReportContent_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *rcServiceClient) SetReportAdditionData(ctx context.Context, in *SetAdditionDataReq, opts ...grpc.CallOption) (*SetAdditionDataResp, error) {
+	out := new(SetAdditionDataResp)
+	err := c.cc.Invoke(ctx, RcService_SetReportAdditionData_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -61,8 +83,10 @@ func (c *rcServiceClient) GetReportContent(ctx context.Context, in *ReportConten
 // All implementations must embed UnimplementedRcServiceServer
 // for forward compatibility
 type RcServiceServer interface {
-	ListReportInfos(context.Context, *PaginationRequest) (*ReportInfosResponse, error)
-	GetReportContent(context.Context, *ReportContentRequest) (*ReportContentResponse, error)
+	ListReportInfos(context.Context, *PaginationReq) (*ReportInfosResp, error)
+	GetReportContent(context.Context, *ReportContentReq) (*ReportContentResp, error)
+	RefreshReportContent(context.Context, *ReportContentReq) (*ReportContentResp, error)
+	SetReportAdditionData(context.Context, *SetAdditionDataReq) (*SetAdditionDataResp, error)
 	mustEmbedUnimplementedRcServiceServer()
 }
 
@@ -70,11 +94,17 @@ type RcServiceServer interface {
 type UnimplementedRcServiceServer struct {
 }
 
-func (UnimplementedRcServiceServer) ListReportInfos(context.Context, *PaginationRequest) (*ReportInfosResponse, error) {
+func (UnimplementedRcServiceServer) ListReportInfos(context.Context, *PaginationReq) (*ReportInfosResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListReportInfos not implemented")
 }
-func (UnimplementedRcServiceServer) GetReportContent(context.Context, *ReportContentRequest) (*ReportContentResponse, error) {
+func (UnimplementedRcServiceServer) GetReportContent(context.Context, *ReportContentReq) (*ReportContentResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetReportContent not implemented")
+}
+func (UnimplementedRcServiceServer) RefreshReportContent(context.Context, *ReportContentReq) (*ReportContentResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RefreshReportContent not implemented")
+}
+func (UnimplementedRcServiceServer) SetReportAdditionData(context.Context, *SetAdditionDataReq) (*SetAdditionDataResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetReportAdditionData not implemented")
 }
 func (UnimplementedRcServiceServer) mustEmbedUnimplementedRcServiceServer() {}
 
@@ -90,7 +120,7 @@ func RegisterRcServiceServer(s grpc.ServiceRegistrar, srv RcServiceServer) {
 }
 
 func _RcService_ListReportInfos_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PaginationRequest)
+	in := new(PaginationReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -102,13 +132,13 @@ func _RcService_ListReportInfos_Handler(srv interface{}, ctx context.Context, de
 		FullMethod: RcService_ListReportInfos_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RcServiceServer).ListReportInfos(ctx, req.(*PaginationRequest))
+		return srv.(RcServiceServer).ListReportInfos(ctx, req.(*PaginationReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _RcService_GetReportContent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ReportContentRequest)
+	in := new(ReportContentReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -120,7 +150,43 @@ func _RcService_GetReportContent_Handler(srv interface{}, ctx context.Context, d
 		FullMethod: RcService_GetReportContent_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RcServiceServer).GetReportContent(ctx, req.(*ReportContentRequest))
+		return srv.(RcServiceServer).GetReportContent(ctx, req.(*ReportContentReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RcService_RefreshReportContent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReportContentReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RcServiceServer).RefreshReportContent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RcService_RefreshReportContent_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RcServiceServer).RefreshReportContent(ctx, req.(*ReportContentReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RcService_SetReportAdditionData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetAdditionDataReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RcServiceServer).SetReportAdditionData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RcService_SetReportAdditionData_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RcServiceServer).SetReportAdditionData(ctx, req.(*SetAdditionDataReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -139,6 +205,14 @@ var RcService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetReportContent",
 			Handler:    _RcService_GetReportContent_Handler,
+		},
+		{
+			MethodName: "RefreshReportContent",
+			Handler:    _RcService_RefreshReportContent_Handler,
+		},
+		{
+			MethodName: "SetReportAdditionData",
+			Handler:    _RcService_SetReportAdditionData_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

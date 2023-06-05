@@ -34,7 +34,9 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	}
 	rcProcessedContentRepo := data.NewRcProcessedContentRepo(dataData, logger)
 	rcProcessedContentUsecase := biz.NewRcProcessedContentUsecase(rcProcessedContentRepo, logger)
-	rcServiceService := service.NewRcServiceService(rcProcessedContentUsecase, logger)
+	rcOriginContentRepo := data.NewRcOriginContentRepo(dataData, logger)
+	rcOriginContentUsecase := biz.NewRcOriginContentUsecase(rcOriginContentRepo, logger)
+	rcServiceService := service.NewRcServiceService(rcProcessedContentUsecase, rcOriginContentUsecase, logger)
 	grpcServer := server.NewGRPCServer(confServer, rcServiceService, logger)
 	httpServer := server.NewHTTPServer(confServer, logger)
 	app := newApp(logger, grpcServer, httpServer)

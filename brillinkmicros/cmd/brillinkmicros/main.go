@@ -78,10 +78,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer app.Stop()
 	defer cleanup()
 
 	// start and wait for stop signal
 	if err := app.Run(); err != nil {
 		panic(err)
 	}
+
 }

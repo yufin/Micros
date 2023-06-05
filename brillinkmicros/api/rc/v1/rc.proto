@@ -9,24 +9,37 @@ option java_package = "api.rc.v1";
 
 
 service RcService {
-	rpc ListReportInfos(PaginationRequest) returns (ReportInfosResponse) {}
-	rpc GetReportContent(ReportContentRequest) returns (ReportContentResponse) {}
+	rpc ListReportInfos(PaginationReq) returns (ReportInfosResp) {}
+	rpc GetReportContent(ReportContentReq) returns (ReportContentResp) {}
+	rpc RefreshReportContent(ReportContentReq) returns (ReportContentResp) {}
+	rpc SetReportAdditionData(SetAdditionDataReq) returns (SetAdditionDataResp) {}
 }
 
-message ReportInfosResponse {
+message SetAdditionDataReq{
+	int64 content_id = 1;
+}
+
+message SetAdditionDataResp{
+	bool success = 1;
+	string msg = 2;
+}
+
+message ReportInfosResp {
 	repeated ReportInfo report_infos = 1;
-	uint32 current_page = 2;
-	uint32 total = 3;
+	uint32 page_num = 2;
+	uint32 page_size = 3;
+	uint32 total = 4;
+	uint32 total_page = 5;
 }
 
-message PaginationRequest {
+message PaginationReq {
 	uint32 page_size = 1;
 	uint32 page_num = 2;
 }
 
 message ReportInfo {
 	// 报告id
-	string report_id = 1;
+	int64 content_id = 1;
 	// 企业名称
 	string enterprise_name = 2;
 	// 企业统一信用社会代码
@@ -34,22 +47,34 @@ message ReportInfo {
 	// 报文更新月份
 	string data_collect_month = 4;
 	// 报告是否可用
-	bool is_available = 5;
+	bool available = 5;
 	// 报告生成时间 yyyy-MM-dd HH:mm:ss
-	string report_updated_time = 6;
+	string content_updated_time = 6;
 	// 报告状态码
 	int32 imp_status = 7;
-	// 英文报告状态码
-	string report_en_id = 8;
+	// 英文报告id
+	repeated ReportI18nInfo i18n_infos = 8;
 }
 
-message ReportContentRequest {
-	string report_id = 1;
+message ReportI18nInfo {
+	string lang = 1;
+	int64 content_id = 2;
+	bool available = 3;
+}
+
+message ReportContentReq {
+	int64 content_id = 1;
 	string lang = 2;
 }
 
-message ReportContentResponse {
+message ReportContentResp {
 	// 报告内容
 	string content = 1;
 	bool available = 2;
+}
+
+message RefreshReportContentResp {
+	bool msg_pub_success = 1;
+	string msg_pub_time = 2;
+	string msg = 3;
 }
