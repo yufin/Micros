@@ -59,7 +59,7 @@ func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *biz.Paginat
 
 	err = repo.data.db.
 		Raw(
-			fmt.Sprintf("select id as content_id, usc_id, `year_month` as data_collect_month, content as content, status_code, processed_id, processed_updated_at "+
+			fmt.Sprintf("select id as content_id, usc_id, enterprise_name,`year_month` as data_collect_month, content as content, status_code, processed_id, processed_updated_at "+
 				"from %s roc left join (select id as processed_id, content_id as processed_content_id, updated_at as processed_updated_at "+
 				"from (select *, row_number() over (partition by content_id order by updated_at desc ) as rn from %s) t where rn = 1) rpc "+
 				"on rpc.processed_content_id = roc.id limit ? offset ?", modelRoc.TableName(), modelRpc.TableName(),
@@ -78,4 +78,13 @@ func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *biz.Paginat
 		},
 		Data: &Infos,
 	}, nil
+}
+
+func (repo *RcOriginContentRepo) Get(ctx context.Context, id int64) (*biz.RcOriginContent, error) {
+	var modelRoc biz.RcOriginContent
+	err := repo.data.db.Table(modelRoc.TableName()).Where("id = ?", id).First(&modelRoc).Error
+	if err != nil {
+		return nil, err
+	}
+	return &modelRoc, nil
 }

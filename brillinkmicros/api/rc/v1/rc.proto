@@ -12,16 +12,47 @@ service RcService {
 	rpc ListReportInfos(PaginationReq) returns (ReportInfosResp) {}
 	rpc GetReportContent(ReportContentReq) returns (ReportContentResp) {}
 	rpc RefreshReportContent(ReportContentReq) returns (ReportContentResp) {}
-	rpc SetReportAdditionData(SetAdditionDataReq) returns (SetAdditionDataResp) {}
+	rpc SetReportDependencyData(SetDependencyDataReq) returns (SetDependencyDataResp) {}
+	rpc UpdateReportDependencyData(SetDependencyDataReq) returns (SetDependencyDataResp) {}
+	rpc GetReportDependencyData(GetDependencyDataReq) returns (GetDependencyDataResp) {}
 }
 
-message SetAdditionDataReq{
+message GetDependencyDataReq {
 	int64 content_id = 1;
 }
 
-message SetAdditionDataResp{
-	bool success = 1;
-	string msg = 2;
+message GetDependencyDataResp {
+	int64 content_id = 1;
+	int32 lh_qylx = 2;
+	int32 lh_cylwz = 3;
+	int32 lh_gdct = 4;
+	int32 lh_qybq = 5;
+	int32 lh_yhsx = 6;
+	int32 lh_sfsx = 7;
+	string addition_data = 8;
+}
+
+message SetDependencyDataReq{
+	int64 content_id = 1;
+	int32 lh_qylx = 2;
+	int32 lh_cylwz = 3;
+	int32 lh_gdct = 4;
+	int32 lh_qybq = 5;
+	int32 lh_yhsx = 6;
+	int32 lh_sfsx = 7;
+	string addition_data = 8;
+}
+
+message SetDependencyDataResp{
+	int64 content_id = 1;
+	int32 lh_qylx = 2;
+	int32 lh_cylwz = 3;
+	int32 lh_gdct = 4;
+	int32 lh_qybq = 5;
+	int32 lh_yhsx = 6;
+	int32 lh_sfsx = 7;
+	string addition_data = 8;
+	bool success = 9;
 }
 
 message ReportInfosResp {

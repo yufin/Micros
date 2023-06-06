@@ -57,9 +57,6 @@ func (repo *RcProcessedContentRepo) GetByContentIdUpToDate(ctx context.Context, 
 		Error
 	repo.log.WithContext(ctx).Infof("RcProcessedContentRepo biz.GetList %v", contentId)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
 		return nil, err
 	}
 	return dataRpc, nil

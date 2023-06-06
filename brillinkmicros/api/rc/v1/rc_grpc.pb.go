@@ -19,10 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	RcService_ListReportInfos_FullMethodName       = "/api.rc.v1.RcService/ListReportInfos"
-	RcService_GetReportContent_FullMethodName      = "/api.rc.v1.RcService/GetReportContent"
-	RcService_RefreshReportContent_FullMethodName  = "/api.rc.v1.RcService/RefreshReportContent"
-	RcService_SetReportAdditionData_FullMethodName = "/api.rc.v1.RcService/SetReportAdditionData"
+	RcService_ListReportInfos_FullMethodName            = "/api.rc.v1.RcService/ListReportInfos"
+	RcService_GetReportContent_FullMethodName           = "/api.rc.v1.RcService/GetReportContent"
+	RcService_RefreshReportContent_FullMethodName       = "/api.rc.v1.RcService/RefreshReportContent"
+	RcService_SetReportDependencyData_FullMethodName    = "/api.rc.v1.RcService/SetReportDependencyData"
+	RcService_UpdateReportDependencyData_FullMethodName = "/api.rc.v1.RcService/UpdateReportDependencyData"
+	RcService_GetReportDependencyData_FullMethodName    = "/api.rc.v1.RcService/GetReportDependencyData"
 )
 
 // RcServiceClient is the client API for RcService service.
@@ -32,7 +34,9 @@ type RcServiceClient interface {
 	ListReportInfos(ctx context.Context, in *PaginationReq, opts ...grpc.CallOption) (*ReportInfosResp, error)
 	GetReportContent(ctx context.Context, in *ReportContentReq, opts ...grpc.CallOption) (*ReportContentResp, error)
 	RefreshReportContent(ctx context.Context, in *ReportContentReq, opts ...grpc.CallOption) (*ReportContentResp, error)
-	SetReportAdditionData(ctx context.Context, in *SetAdditionDataReq, opts ...grpc.CallOption) (*SetAdditionDataResp, error)
+	SetReportDependencyData(ctx context.Context, in *SetDependencyDataReq, opts ...grpc.CallOption) (*SetDependencyDataResp, error)
+	UpdateReportDependencyData(ctx context.Context, in *SetDependencyDataReq, opts ...grpc.CallOption) (*SetDependencyDataResp, error)
+	GetReportDependencyData(ctx context.Context, in *GetDependencyDataReq, opts ...grpc.CallOption) (*GetDependencyDataResp, error)
 }
 
 type rcServiceClient struct {
@@ -70,9 +74,27 @@ func (c *rcServiceClient) RefreshReportContent(ctx context.Context, in *ReportCo
 	return out, nil
 }
 
-func (c *rcServiceClient) SetReportAdditionData(ctx context.Context, in *SetAdditionDataReq, opts ...grpc.CallOption) (*SetAdditionDataResp, error) {
-	out := new(SetAdditionDataResp)
-	err := c.cc.Invoke(ctx, RcService_SetReportAdditionData_FullMethodName, in, out, opts...)
+func (c *rcServiceClient) SetReportDependencyData(ctx context.Context, in *SetDependencyDataReq, opts ...grpc.CallOption) (*SetDependencyDataResp, error) {
+	out := new(SetDependencyDataResp)
+	err := c.cc.Invoke(ctx, RcService_SetReportDependencyData_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *rcServiceClient) UpdateReportDependencyData(ctx context.Context, in *SetDependencyDataReq, opts ...grpc.CallOption) (*SetDependencyDataResp, error) {
+	out := new(SetDependencyDataResp)
+	err := c.cc.Invoke(ctx, RcService_UpdateReportDependencyData_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *rcServiceClient) GetReportDependencyData(ctx context.Context, in *GetDependencyDataReq, opts ...grpc.CallOption) (*GetDependencyDataResp, error) {
+	out := new(GetDependencyDataResp)
+	err := c.cc.Invoke(ctx, RcService_GetReportDependencyData_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +108,9 @@ type RcServiceServer interface {
 	ListReportInfos(context.Context, *PaginationReq) (*ReportInfosResp, error)
 	GetReportContent(context.Context, *ReportContentReq) (*ReportContentResp, error)
 	RefreshReportContent(context.Context, *ReportContentReq) (*ReportContentResp, error)
-	SetReportAdditionData(context.Context, *SetAdditionDataReq) (*SetAdditionDataResp, error)
+	SetReportDependencyData(context.Context, *SetDependencyDataReq) (*SetDependencyDataResp, error)
+	UpdateReportDependencyData(context.Context, *SetDependencyDataReq) (*SetDependencyDataResp, error)
+	GetReportDependencyData(context.Context, *GetDependencyDataReq) (*GetDependencyDataResp, error)
 	mustEmbedUnimplementedRcServiceServer()
 }
 
@@ -103,8 +127,14 @@ func (UnimplementedRcServiceServer) GetReportContent(context.Context, *ReportCon
 func (UnimplementedRcServiceServer) RefreshReportContent(context.Context, *ReportContentReq) (*ReportContentResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RefreshReportContent not implemented")
 }
-func (UnimplementedRcServiceServer) SetReportAdditionData(context.Context, *SetAdditionDataReq) (*SetAdditionDataResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetReportAdditionData not implemented")
+func (UnimplementedRcServiceServer) SetReportDependencyData(context.Context, *SetDependencyDataReq) (*SetDependencyDataResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetReportDependencyData not implemented")
+}
+func (UnimplementedRcServiceServer) UpdateReportDependencyData(context.Context, *SetDependencyDataReq) (*SetDependencyDataResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateReportDependencyData not implemented")
+}
+func (UnimplementedRcServiceServer) GetReportDependencyData(context.Context, *GetDependencyDataReq) (*GetDependencyDataResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetReportDependencyData not implemented")
 }
 func (UnimplementedRcServiceServer) mustEmbedUnimplementedRcServiceServer() {}
 
@@ -173,20 +203,56 @@ func _RcService_RefreshReportContent_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RcService_SetReportAdditionData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SetAdditionDataReq)
+func _RcService_SetReportDependencyData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetDependencyDataReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RcServiceServer).SetReportAdditionData(ctx, in)
+		return srv.(RcServiceServer).SetReportDependencyData(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RcService_SetReportAdditionData_FullMethodName,
+		FullMethod: RcService_SetReportDependencyData_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RcServiceServer).SetReportAdditionData(ctx, req.(*SetAdditionDataReq))
+		return srv.(RcServiceServer).SetReportDependencyData(ctx, req.(*SetDependencyDataReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RcService_UpdateReportDependencyData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetDependencyDataReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RcServiceServer).UpdateReportDependencyData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RcService_UpdateReportDependencyData_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RcServiceServer).UpdateReportDependencyData(ctx, req.(*SetDependencyDataReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RcService_GetReportDependencyData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDependencyDataReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RcServiceServer).GetReportDependencyData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RcService_GetReportDependencyData_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RcServiceServer).GetReportDependencyData(ctx, req.(*GetDependencyDataReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -211,8 +277,16 @@ var RcService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _RcService_RefreshReportContent_Handler,
 		},
 		{
-			MethodName: "SetReportAdditionData",
-			Handler:    _RcService_SetReportAdditionData_Handler,
+			MethodName: "SetReportDependencyData",
+			Handler:    _RcService_SetReportDependencyData_Handler,
+		},
+		{
+			MethodName: "UpdateReportDependencyData",
+			Handler:    _RcService_UpdateReportDependencyData_Handler,
+		},
+		{
+			MethodName: "GetReportDependencyData",
+			Handler:    _RcService_GetReportDependencyData_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

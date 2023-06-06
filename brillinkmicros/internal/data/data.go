@@ -18,6 +18,7 @@ var ProviderSet = wire.NewSet(
 	NewGormDB,
 	NewRcProcessedContentRepo,
 	NewRcOriginContentRepo,
+	NewRcDependencyDataRepo,
 )
 
 // Data .

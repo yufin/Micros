@@ -1,11 +1,14 @@
 package service
 
 import (
-	pb "brillinkmicros/api/rc/v1"
 	"brillinkmicros/internal/biz"
-	"brillinkmicros/internal/service/util"
 	"context"
+	"fmt"
+	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
+	"gorm.io/gorm"
+
+	pb "brillinkmicros/api/rc/v1"
 )
 
 type RcServiceService struct {
@@ -13,13 +16,19 @@ type RcServiceService struct {
 	log                *log.Helper
 	rcProcessedContent *biz.RcProcessedContentUsecase
 	rcOriginContent    *biz.RcOriginContentUsecase
+	rcDependencyData   *biz.RcDependencyDataUsecase
 }
 
 func NewRcServiceService(
-	rpc *biz.RcProcessedContentUsecase, roc *biz.RcOriginContentUsecase, logger log.Logger) *RcServiceService {
+	rpc *biz.RcProcessedContentUsecase,
+	roc *biz.RcOriginContentUsecase,
+	rdd *biz.RcDependencyDataUsecase,
+	logger log.Logger,
+) *RcServiceService {
 	return &RcServiceService{
 		rcOriginContent:    roc,
 		rcProcessedContent: rpc,
+		rcDependencyData:   rdd,
 		log:                log.NewHelper(logger),
 	}
 }
@@ -37,15 +46,13 @@ func (s *RcServiceService) ListReportInfos(ctx context.Context, req *pb.Paginati
 	pbInfos := make([]*pb.ReportInfo, 0)
 	for _, v := range *infosResp.Data {
 		v := v
-		name, _ := util.ParseEnterpriseName(v.Content)
 		available := false
 		if v.ProcessedId != 0 {
 			available = true
 		}
-
 		info := &pb.ReportInfo{
 			ContentId:          v.ContentId,
-			EnterpriseName:     name,
+			EnterpriseName:     v.EnterpriseName,
 			UnifiedCreditId:    v.UscId,
 			DataCollectMonth:   v.DataCollectMonth,
 			Available:          available,
@@ -69,13 +76,13 @@ func (s *RcServiceService) ListReportInfos(ctx context.Context, req *pb.Paginati
 func (s *RcServiceService) GetReportContent(ctx context.Context, req *pb.ReportContentReq) (*pb.ReportContentResp, error) {
 	dataRpc, err := s.rcProcessedContent.GetByContentIdUpToDate(ctx, req.ContentId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return &pb.ReportContentResp{
+				Content:   "",
+				Available: false,
+			}, nil
+		}
 		return nil, err
-	}
-	if dataRpc == nil {
-		return &pb.ReportContentResp{
-			Content:   "",
-			Available: false,
-		}, nil
 	}
 	return &pb.ReportContentResp{
 		Content:   dataRpc.Content,
@@ -86,6 +93,95 @@ func (s *RcServiceService) GetReportContent(ctx context.Context, req *pb.ReportC
 func (s *RcServiceService) RefreshReportContent(ctx context.Context, req *pb.ReportContentReq) (*pb.ReportContentResp, error) {
 	return &pb.ReportContentResp{}, nil
 }
-func (s *RcServiceService) SetReportAdditionData(ctx context.Context, req *pb.SetAdditionDataReq) (*pb.SetAdditionDataResp, error) {
-	return &pb.SetAdditionDataResp{}, nil
+func (s *RcServiceService) SetReportDependencyData(ctx context.Context, req *pb.SetDependencyDataReq) (*pb.SetDependencyDataResp, error) {
+	dataRoc, err := s.rcOriginContent.Get(ctx, req.ContentId)
+	if err != nil {
+		return nil, err
+	}
+	insertReq := biz.RcDependencyData{
+		ContentId:       req.ContentId,
+		AttributedMonth: dataRoc.YearMonth,
+		UscId:           dataRoc.UscId,
+		LhQylx:          int(req.LhQylx),
+		LhCylwz:         int(req.LhCylwz),
+		LhGdct:          int(req.LhGdct),
+		LhQybq:          int(req.LhQybq),
+		LhYhsx:          int(req.LhYhsx),
+		LhSfsx:          int(req.LhSfsx),
+		AdditionData:    req.AdditionData,
+	}
+	_, err = s.rcDependencyData.Insert(ctx, &insertReq)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.SetDependencyDataResp{
+		ContentId:    insertReq.ContentId,
+		LhQylx:       req.LhQylx,
+		LhCylwz:      req.LhCylwz,
+		LhGdct:       req.LhGdct,
+		LhQybq:       req.LhQybq,
+		LhYhsx:       req.LhYhsx,
+		LhSfsx:       req.LhSfsx,
+		AdditionData: req.AdditionData,
+		Success:      true,
+	}, nil
+}
+func (s *RcServiceService) UpdateReportDependencyData(ctx context.Context, req *pb.SetDependencyDataReq) (*pb.SetDependencyDataResp, error) {
+	if req.ContentId == 0 {
+		return nil, errors.BadRequest("Empty ContentId", "contentId is required")
+	}
+	dataRdd, err := s.rcDependencyData.GetByContentId(ctx, req.ContentId)
+	if err != nil {
+		return nil, err
+	}
+
+	updateReq := biz.RcDependencyData{
+		BaseModel: biz.BaseModel{
+			Id: dataRdd.Id,
+		},
+		LhQylx:       int(req.LhQylx),
+		LhCylwz:      int(req.LhCylwz),
+		LhGdct:       int(req.LhGdct),
+		LhQybq:       int(req.LhQybq),
+		LhYhsx:       int(req.LhYhsx),
+		LhSfsx:       int(req.LhSfsx),
+		AdditionData: req.AdditionData,
+	}
+	newRddId, err := s.rcDependencyData.Update(ctx, &updateReq)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(newRddId)
+	newRdd, err := s.rcDependencyData.Get(ctx, newRddId)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.SetDependencyDataResp{
+		ContentId:    newRdd.ContentId,
+		LhQylx:       int32(newRdd.LhQylx),
+		LhCylwz:      int32(newRdd.LhCylwz),
+		LhGdct:       int32(newRdd.LhGdct),
+		LhQybq:       int32(newRdd.LhQybq),
+		LhYhsx:       int32(newRdd.LhYhsx),
+		LhSfsx:       int32(newRdd.LhSfsx),
+		AdditionData: newRdd.AdditionData,
+		Success:      true,
+	}, nil
+}
+
+func (s *RcServiceService) GetReportDependencyData(ctx context.Context, req *pb.GetDependencyDataReq) (*pb.GetDependencyDataResp, error) {
+	dataRoc, err := s.rcDependencyData.GetByContentId(ctx, req.ContentId)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.GetDependencyDataResp{
+		ContentId:    dataRoc.ContentId,
+		LhQylx:       int32(dataRoc.LhQylx),
+		LhCylwz:      int32(dataRoc.LhCylwz),
+		LhGdct:       int32(dataRoc.LhGdct),
+		LhQybq:       int32(dataRoc.LhQybq),
+		LhYhsx:       int32(dataRoc.LhYhsx),
+		LhSfsx:       int32(dataRoc.LhSfsx),
+		AdditionData: dataRoc.AdditionData,
+	}, nil
 }
