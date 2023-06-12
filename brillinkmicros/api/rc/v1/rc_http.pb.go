@@ -30,7 +30,7 @@ type RcServiceHTTPServer interface {
 	GetReportContent(context.Context, *ReportContentReq) (*ReportContentResp, error)
 	GetReportDependencyData(context.Context, *GetDependencyDataReq) (*GetDependencyDataResp, error)
 	ListReportInfos(context.Context, *PaginationReq) (*ReportInfosResp, error)
-	RefreshReportContent(context.Context, *ReportContentReq) (*ReportContentResp, error)
+	RefreshReportContent(context.Context, *ReportContentReq) (*RefreshReportContentResp, error)
 	SetReportDependencyData(context.Context, *SetDependencyDataReq) (*SetDependencyDataResp, error)
 	UpdateReportDependencyData(context.Context, *SetDependencyDataReq) (*SetDependencyDataResp, error)
 }
@@ -97,7 +97,7 @@ func _RcService_RefreshReportContent0_HTTP_Handler(srv RcServiceHTTPServer) func
 		if err != nil {
 			return err
 		}
-		reply := out.(*ReportContentResp)
+		reply := out.(*RefreshReportContentResp)
 		return ctx.Result(200, reply)
 	}
 }
@@ -163,7 +163,7 @@ type RcServiceHTTPClient interface {
 	GetReportContent(ctx context.Context, req *ReportContentReq, opts ...http.CallOption) (rsp *ReportContentResp, err error)
 	GetReportDependencyData(ctx context.Context, req *GetDependencyDataReq, opts ...http.CallOption) (rsp *GetDependencyDataResp, err error)
 	ListReportInfos(ctx context.Context, req *PaginationReq, opts ...http.CallOption) (rsp *ReportInfosResp, err error)
-	RefreshReportContent(ctx context.Context, req *ReportContentReq, opts ...http.CallOption) (rsp *ReportContentResp, err error)
+	RefreshReportContent(ctx context.Context, req *ReportContentReq, opts ...http.CallOption) (rsp *RefreshReportContentResp, err error)
 	SetReportDependencyData(ctx context.Context, req *SetDependencyDataReq, opts ...http.CallOption) (rsp *SetDependencyDataResp, err error)
 	UpdateReportDependencyData(ctx context.Context, req *SetDependencyDataReq, opts ...http.CallOption) (rsp *SetDependencyDataResp, err error)
 }
@@ -215,8 +215,8 @@ func (c *RcServiceHTTPClientImpl) ListReportInfos(ctx context.Context, in *Pagin
 	return &out, err
 }
 
-func (c *RcServiceHTTPClientImpl) RefreshReportContent(ctx context.Context, in *ReportContentReq, opts ...http.CallOption) (*ReportContentResp, error) {
-	var out ReportContentResp
+func (c *RcServiceHTTPClientImpl) RefreshReportContent(ctx context.Context, in *ReportContentReq, opts ...http.CallOption) (*RefreshReportContentResp, error) {
+	var out RefreshReportContentResp
 	pattern := "/micros/rc/v1/report/content/refresh"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationRcServiceRefreshReportContent))

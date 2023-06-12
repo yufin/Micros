@@ -4,6 +4,7 @@ import (
 	"brillinkmicros/internal/conf"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
+	"github.com/nats-io/nats.go"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"time"
@@ -11,20 +12,25 @@ import (
 
 // database wrapper
 
+var NatsConn *nats.Conn
+
+// Data .
+// wrapped database client
+
 // ProviderSet is data providers.
 // var ProviderSet = wire.NewSet(NewData, NewGreeterRepo)
 var ProviderSet = wire.NewSet(
 	NewData,
 	NewGormDB,
+	NewNatsConn,
 	NewRcProcessedContentRepo,
 	NewRcOriginContentRepo,
 	NewRcDependencyDataRepo,
 )
 
-// Data .
-// wrapped database client
 type Data struct {
 	db *gorm.DB
+	js nats.JetStreamContext
 }
 
 func NewGormDB(c *conf.Data) (*gorm.DB, error) {
@@ -44,8 +50,31 @@ func NewGormDB(c *conf.Data) (*gorm.DB, error) {
 	return db, nil
 }
 
+func NewNatsConn(c *conf.Data) (nats.JetStreamContext, error) {
+	uri := c.Nats.Uri
+	nc, err := nats.Connect(uri)
+	if err != nil {
+		return nil, err
+	}
+	NatsConn = nc
+	// init js
+	js, err := nc.JetStream()
+	if err != nil {
+		return nil, err
+	}
+	_, err = js.AddStream(&nats.StreamConfig{
+		Name:      "TASK",
+		Retention: nats.WorkQueuePolicy,
+		Subjects:  []string{"task.rskc.>"},
+	})
+	if err != nil {
+		return nil, err
+	}
+	return js, nil
+}
+
 // NewData .
-func NewData(logger log.Logger, db *gorm.DB) (*Data, func(), error) {
+func NewData(logger log.Logger, db *gorm.DB, js nats.JetStreamContext) (*Data, func(), error) {
 	ndLog := log.NewHelper(logger)
 
 	cleanup := func() {
@@ -57,8 +86,12 @@ func NewData(logger log.Logger, db *gorm.DB) (*Data, func(), error) {
 		if err := sqlDb.Close(); err != nil {
 			ndLog.Errorf("failed to close db: %v", err)
 		}
+		if err := NatsConn.Drain(); err != nil {
+			ndLog.Errorf("failed to drain nats: %v", err)
+		}
+
 		ndLog.Info("Data resource Closed")
 	}
 
-	return &Data{db: db}, cleanup, nil
+	return &Data{db: db, js: js}, cleanup, nil
 }

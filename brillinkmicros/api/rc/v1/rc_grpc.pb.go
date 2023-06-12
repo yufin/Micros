@@ -33,7 +33,7 @@ const (
 type RcServiceClient interface {
 	ListReportInfos(ctx context.Context, in *PaginationReq, opts ...grpc.CallOption) (*ReportInfosResp, error)
 	GetReportContent(ctx context.Context, in *ReportContentReq, opts ...grpc.CallOption) (*ReportContentResp, error)
-	RefreshReportContent(ctx context.Context, in *ReportContentReq, opts ...grpc.CallOption) (*ReportContentResp, error)
+	RefreshReportContent(ctx context.Context, in *ReportContentReq, opts ...grpc.CallOption) (*RefreshReportContentResp, error)
 	SetReportDependencyData(ctx context.Context, in *SetDependencyDataReq, opts ...grpc.CallOption) (*SetDependencyDataResp, error)
 	UpdateReportDependencyData(ctx context.Context, in *SetDependencyDataReq, opts ...grpc.CallOption) (*SetDependencyDataResp, error)
 	GetReportDependencyData(ctx context.Context, in *GetDependencyDataReq, opts ...grpc.CallOption) (*GetDependencyDataResp, error)
@@ -65,8 +65,8 @@ func (c *rcServiceClient) GetReportContent(ctx context.Context, in *ReportConten
 	return out, nil
 }
 
-func (c *rcServiceClient) RefreshReportContent(ctx context.Context, in *ReportContentReq, opts ...grpc.CallOption) (*ReportContentResp, error) {
-	out := new(ReportContentResp)
+func (c *rcServiceClient) RefreshReportContent(ctx context.Context, in *ReportContentReq, opts ...grpc.CallOption) (*RefreshReportContentResp, error) {
+	out := new(RefreshReportContentResp)
 	err := c.cc.Invoke(ctx, RcService_RefreshReportContent_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -107,7 +107,7 @@ func (c *rcServiceClient) GetReportDependencyData(ctx context.Context, in *GetDe
 type RcServiceServer interface {
 	ListReportInfos(context.Context, *PaginationReq) (*ReportInfosResp, error)
 	GetReportContent(context.Context, *ReportContentReq) (*ReportContentResp, error)
-	RefreshReportContent(context.Context, *ReportContentReq) (*ReportContentResp, error)
+	RefreshReportContent(context.Context, *ReportContentReq) (*RefreshReportContentResp, error)
 	SetReportDependencyData(context.Context, *SetDependencyDataReq) (*SetDependencyDataResp, error)
 	UpdateReportDependencyData(context.Context, *SetDependencyDataReq) (*SetDependencyDataResp, error)
 	GetReportDependencyData(context.Context, *GetDependencyDataReq) (*GetDependencyDataResp, error)
@@ -124,7 +124,7 @@ func (UnimplementedRcServiceServer) ListReportInfos(context.Context, *Pagination
 func (UnimplementedRcServiceServer) GetReportContent(context.Context, *ReportContentReq) (*ReportContentResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetReportContent not implemented")
 }
-func (UnimplementedRcServiceServer) RefreshReportContent(context.Context, *ReportContentReq) (*ReportContentResp, error) {
+func (UnimplementedRcServiceServer) RefreshReportContent(context.Context, *ReportContentReq) (*RefreshReportContentResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RefreshReportContent not implemented")
 }
 func (UnimplementedRcServiceServer) SetReportDependencyData(context.Context, *SetDependencyDataReq) (*SetDependencyDataResp, error) {

@@ -51,7 +51,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ReportContentResp'
+                                $ref: '#/components/schemas/RefreshReportContentResp'
                 default:
                     description: Default error response
                     content:
@@ -194,6 +194,15 @@ components:
                     description: The type of the serialized message.
             additionalProperties: true
             description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+        RefreshReportContentResp:
+            type: object
+            properties:
+                msgPubSuccess:
+                    type: boolean
+                msgPubTime:
+                    type: string
+                msg:
+                    type: string
         ReportContentReq:
             type: object
             properties:
@@ -206,7 +215,7 @@ components:
             type: object
             properties:
                 content:
-                    type: string
+                    type: object
                     description: 报告内容
                 available:
                     type: boolean
