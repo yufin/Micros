@@ -11,7 +11,7 @@ import (
 )
 
 // NewGRPCServer new a gRPC server.
-func NewGRPCServer(c *conf.Server, rpc *service.RcServiceService, logger log.Logger) *grpc.Server {
+func NewGRPCServer(c *conf.Server, rss *service.RcServiceService, logger log.Logger) *grpc.Server {
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
 			recovery.Recovery(),
@@ -27,6 +27,6 @@ func NewGRPCServer(c *conf.Server, rpc *service.RcServiceService, logger log.Log
 		opts = append(opts, grpc.Timeout(c.Grpc.Timeout.AsDuration()))
 	}
 	srv := grpc.NewServer(opts...)
-	v1.RegisterRcServiceServer(srv, rpc)
+	v1.RegisterRcServiceServer(srv, rss)
 	return srv
 }

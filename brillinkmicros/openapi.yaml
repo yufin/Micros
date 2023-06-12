@@ -3,8 +3,342 @@
 
 openapi: 3.0.3
 info:
-    title: ""
+    title: RcService API
     version: 0.0.1
-paths: {}
+paths:
+    /micros/rc/v1/report/content:
+        get:
+            tags:
+                - RcService
+            operationId: RcService_GetReportContent
+            parameters:
+                - name: contentId
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+                - name: lang
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ReportContentResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/rc/v1/report/content/refresh:
+        put:
+            tags:
+                - RcService
+            operationId: RcService_RefreshReportContent
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ReportContentReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ReportContentResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/rc/v1/report/dependency-data:
+        put:
+            tags:
+                - RcService
+            operationId: RcService_UpdateReportDependencyData
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SetDependencyDataReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SetDependencyDataResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        post:
+            tags:
+                - RcService
+            operationId: RcService_SetReportDependencyData
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SetDependencyDataReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SetDependencyDataResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/rc/v1/report/infos:
+        get:
+            tags:
+                - RcService
+            operationId: RcService_ListReportInfos
+            parameters:
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageNum
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ReportInfosResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /rc/v1/report/dependency-data:
+        get:
+            tags:
+                - RcService
+            operationId: RcService_GetReportDependencyData
+            parameters:
+                - name: contentId
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetDependencyDataResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
 components:
-    schemas: {}
+    schemas:
+        GetDependencyDataResp:
+            type: object
+            properties:
+                contentId:
+                    type: integer
+                    format: int64
+                lhQylx:
+                    type: integer
+                    format: int32
+                lhCylwz:
+                    type: integer
+                    format: int32
+                lhGdct:
+                    type: integer
+                    format: int32
+                lhQybq:
+                    type: integer
+                    format: int32
+                lhYhsx:
+                    type: integer
+                    format: int32
+                lhSfsx:
+                    type: integer
+                    format: int32
+                additionData:
+                    type: string
+        GoogleProtobufAny:
+            type: object
+            properties:
+                '@type':
+                    type: string
+                    description: The type of the serialized message.
+            additionalProperties: true
+            description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+        ReportContentReq:
+            type: object
+            properties:
+                contentId:
+                    type: integer
+                    format: int64
+                lang:
+                    type: string
+        ReportContentResp:
+            type: object
+            properties:
+                content:
+                    type: string
+                    description: 报告内容
+                available:
+                    type: boolean
+        ReportI18nInfo:
+            type: object
+            properties:
+                lang:
+                    type: string
+                contentId:
+                    type: integer
+                    format: int64
+                available:
+                    type: boolean
+        ReportInfo:
+            type: object
+            properties:
+                contentId:
+                    type: integer
+                    description: 报告id
+                    format: int64
+                enterpriseName:
+                    type: string
+                    description: 企业名称
+                unifiedCreditId:
+                    type: string
+                    description: 企业统一信用社会代码
+                dataCollectMonth:
+                    type: string
+                    description: 报文更新月份
+                available:
+                    type: boolean
+                    description: 报告是否可用
+                contentUpdatedTime:
+                    type: string
+                    description: 报告生成时间 yyyy-MM-dd HH:mm:ss
+                impStatus:
+                    type: integer
+                    description: 报告状态码
+                    format: int32
+                i18nInfos:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ReportI18nInfo'
+                    description: 英文报告id
+        ReportInfosResp:
+            type: object
+            properties:
+                reportInfos:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ReportInfo'
+                pageNum:
+                    type: integer
+                    format: uint32
+                pageSize:
+                    type: integer
+                    format: uint32
+                total:
+                    type: integer
+                    format: uint32
+                totalPage:
+                    type: integer
+                    format: uint32
+        SetDependencyDataReq:
+            type: object
+            properties:
+                contentId:
+                    type: integer
+                    format: int64
+                lhQylx:
+                    type: integer
+                    format: int32
+                lhCylwz:
+                    type: integer
+                    format: int32
+                lhGdct:
+                    type: integer
+                    format: int32
+                lhQybq:
+                    type: integer
+                    format: int32
+                lhYhsx:
+                    type: integer
+                    format: int32
+                lhSfsx:
+                    type: integer
+                    format: int32
+                additionData:
+                    type: string
+        SetDependencyDataResp:
+            type: object
+            properties:
+                contentId:
+                    type: integer
+                    format: int64
+                lhQylx:
+                    type: integer
+                    format: int32
+                lhCylwz:
+                    type: integer
+                    format: int32
+                lhGdct:
+                    type: integer
+                    format: int32
+                lhQybq:
+                    type: integer
+                    format: int32
+                lhYhsx:
+                    type: integer
+                    format: int32
+                lhSfsx:
+                    type: integer
+                    format: int32
+                additionData:
+                    type: string
+                success:
+                    type: boolean
+        Status:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    description: The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].
+                    format: int32
+                message:
+                    type: string
+                    description: A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
+                details:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GoogleProtobufAny'
+                    description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
+            description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
+tags:
+    - name: RcService

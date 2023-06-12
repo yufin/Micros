@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package api.rc.v1;
 
+import "google/api/annotations.proto";
+
 option go_package = "brillinkmicros/api/rc/v1;v1";
 option java_multiple_files = true;
 option java_outer_classname = "RcV1";
@@ -9,12 +11,46 @@ option java_package = "api.rc.v1";
 
 
 service RcService {
-	rpc ListReportInfos(PaginationReq) returns (ReportInfosResp) {}
-	rpc GetReportContent(ReportContentReq) returns (ReportContentResp) {}
-	rpc RefreshReportContent(ReportContentReq) returns (ReportContentResp) {}
-	rpc SetReportDependencyData(SetDependencyDataReq) returns (SetDependencyDataResp) {}
-	rpc UpdateReportDependencyData(SetDependencyDataReq) returns (SetDependencyDataResp) {}
-	rpc GetReportDependencyData(GetDependencyDataReq) returns (GetDependencyDataResp) {}
+
+	rpc ListReportInfos(PaginationReq) returns (ReportInfosResp) {
+		option (google.api.http) = {
+			get: "/micros/rc/v1/report/infos"
+		};
+	}
+
+	rpc GetReportContent(ReportContentReq) returns (ReportContentResp) {
+		option (google.api.http) = {
+			get: "/micros/rc/v1/report/content"
+		};
+	}
+
+	rpc RefreshReportContent(ReportContentReq) returns (ReportContentResp) {
+		option (google.api.http) = {
+			put: "/micros/rc/v1/report/content/refresh"
+			body: "*"
+		};
+	}
+
+	rpc SetReportDependencyData(SetDependencyDataReq) returns (SetDependencyDataResp) {
+		option (google.api.http) = {
+			post: "/micros/rc/v1/report/dependency-data"
+			body: "*
+		};
+	}
+
+	rpc UpdateReportDependencyData(SetDependencyDataReq) returns (SetDependencyDataResp) {
+		option (google.api.http) = {
+			put: "/micros/rc/v1/report/dependency-data"
+			body: "*"
+		};
+	}
+
+	rpc GetReportDependencyData(GetDependencyDataReq) returns (GetDependencyDataResp) {
+		option (google.api.http) = {
+			get: "/rc/v1/report/dependency-data"
+		};
+	}
+
 }
 
 message GetDependencyDataReq {
