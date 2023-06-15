@@ -12,8 +12,6 @@ import (
 
 // database wrapper
 
-var NatsConn *nats.Conn
-
 // Data .
 // wrapped database client
 
@@ -30,6 +28,10 @@ var ProviderSet = wire.NewSet(
 
 type Data struct {
 	db *gorm.DB
+	nw *NatsWrap
+}
+type NatsWrap struct {
+	nc *nats.Conn
 	js nats.JetStreamContext
 }
 
@@ -50,13 +52,12 @@ func NewGormDB(c *conf.Data) (*gorm.DB, error) {
 	return db, nil
 }
 
-func NewNatsConn(c *conf.Data) (nats.JetStreamContext, error) {
+func NewNatsConn(c *conf.Data) (*NatsWrap, error) {
 	uri := c.Nats.Uri
 	nc, err := nats.Connect(uri)
 	if err != nil {
 		return nil, err
 	}
-	NatsConn = nc
 	// init js
 	js, err := nc.JetStream()
 	if err != nil {
@@ -70,11 +71,14 @@ func NewNatsConn(c *conf.Data) (nats.JetStreamContext, error) {
 	if err != nil {
 		return nil, err
 	}
-	return js, nil
+	return &NatsWrap{
+		nc: nc,
+		js: js,
+	}, nil
 }
 
 // NewData .
-func NewData(logger log.Logger, db *gorm.DB, js nats.JetStreamContext) (*Data, func(), error) {
+func NewData(logger log.Logger, db *gorm.DB, nw *NatsWrap) (*Data, func(), error) {
 	ndLog := log.NewHelper(logger)
 
 	cleanup := func() {
@@ -86,12 +90,12 @@ func NewData(logger log.Logger, db *gorm.DB, js nats.JetStreamContext) (*Data, f
 		if err := sqlDb.Close(); err != nil {
 			ndLog.Errorf("failed to close db: %v", err)
 		}
-		if err := NatsConn.Drain(); err != nil {
+		if err := nw.nc.Drain(); err != nil {
 			ndLog.Errorf("failed to drain nats: %v", err)
 		}
 
 		ndLog.Info("Data resource Closed")
 	}
 
-	return &Data{db: db, js: js}, cleanup, nil
+	return &Data{db: db, nw: nw}, cleanup, nil
 }

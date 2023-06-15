@@ -9,6 +9,8 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"google.golang.org/protobuf/types/known/structpb"
 	"gorm.io/gorm"
+	"time"
+
 	//"github.com/gogo/protobuf/proto/protojson"
 	//"github.com/gogo/protobuf/proto/structpb"
 	pb "brillinkmicros/api/rc/v1"
@@ -100,8 +102,19 @@ func (s *RcServiceService) GetReportContent(ctx context.Context, req *pb.ReportC
 }
 
 func (s *RcServiceService) RefreshReportContent(ctx context.Context, req *pb.ReportContentReq) (*pb.RefreshReportContentResp, error) {
-	
-	return &pb.RefreshReportContentResp{}, nil
+	success, err := s.rcProcessedContent.RefreshReportContent(ctx, req.ContentId)
+	if err != nil {
+		return &pb.RefreshReportContentResp{
+			MsgPubSuccess: false,
+			MsgPubTime:    time.Now().Format("2006-01-02 15:04:05"),
+			Msg:           "",
+		}, err
+	}
+	return &pb.RefreshReportContentResp{
+		MsgPubSuccess: success,
+		MsgPubTime:    time.Now().Format("2006-01-02 15:04:05"),
+		Msg:           "",
+	}, nil
 }
 
 func (s *RcServiceService) SetReportDependencyData(ctx context.Context, req *pb.SetDependencyDataReq) (*pb.SetDependencyDataResp, error) {

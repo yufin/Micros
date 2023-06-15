@@ -28,11 +28,11 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	if err != nil {
 		return nil, nil, err
 	}
-	jetStreamContext, err := data.NewNatsConn(confData)
+	natsWrap, err := data.NewNatsConn(confData)
 	if err != nil {
 		return nil, nil, err
 	}
-	dataData, cleanup, err := data.NewData(logger, db, jetStreamContext)
+	dataData, cleanup, err := data.NewData(logger, db, natsWrap)
 	if err != nil {
 		return nil, nil, err
 	}

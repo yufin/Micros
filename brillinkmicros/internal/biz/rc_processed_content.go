@@ -21,6 +21,7 @@ func (*RcProcessedContent) TableName() string {
 type RcProcessedContentRepo interface {
 	Get(ctx context.Context, id int64) (*RcProcessedContent, error)
 	GetByContentIdUpToDate(ctx context.Context, contentId int64) (*RcProcessedContent, error)
+	RefreshReportContent(ctx context.Context, contentId int64) (bool, error)
 }
 
 type RcProcessedContentUsecase struct {
@@ -44,4 +45,10 @@ func (uc *RcProcessedContentUsecase) GetById(ctx context.Context, id int64) (*Rc
 func (uc *RcProcessedContentUsecase) GetByContentIdUpToDate(ctx context.Context, contentId int64) (*RcProcessedContent, error) {
 	uc.log.WithContext(ctx).Infof("biz.GetList %v", contentId)
 	return uc.repo.GetByContentIdUpToDate(ctx, contentId)
+}
+
+// RefreshReportContent .
+func (uc *RcProcessedContentUsecase) RefreshReportContent(ctx context.Context, contentId int64) (bool, error) {
+	uc.log.WithContext(ctx).Infof("biz.RefreshReportContent %v", contentId)
+	return uc.repo.RefreshReportContent(ctx, contentId)
 }

@@ -3,6 +3,7 @@ package data
 import (
 	"brillinkmicros/internal/biz"
 	"context"
+	"encoding/binary"
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"gorm.io/gorm"
@@ -60,4 +61,20 @@ func (repo *RcProcessedContentRepo) GetByContentIdUpToDate(ctx context.Context, 
 		return nil, err
 	}
 	return dataRpc, nil
+}
+
+func (repo *RcProcessedContentRepo) RefreshReportContent(ctx context.Context, contentId int64) (bool, error) {
+	err := func() error {
+		msg := make([]byte, 8)
+		binary.BigEndian.PutUint64(msg, uint64(contentId))
+		_, err := repo.data.nw.js.Publish("task.rskc.content.process.newId", msg)
+		if err != nil {
+			return err
+		}
+		return nil
+	}()
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
