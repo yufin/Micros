@@ -18,3 +18,8 @@ data:
 #    uri: "nats://dev:password@192.168.31.158:4222"
     uri: "nats://dev:password@192.168.44.169:4222"
     activate: true
+  blAuth:
+    client_id: "default"
+    client_secret: "admin123"
+    url: "http://192.168.44.169:48080"
+    path_check_token: "/admin-api/system/oauth2/check-token"

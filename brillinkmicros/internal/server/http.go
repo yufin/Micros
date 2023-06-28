@@ -3,6 +3,7 @@ package server
 import (
 	v1 "brillinkmicros/api/rc/v1"
 	"brillinkmicros/internal/conf"
+	"brillinkmicros/internal/midware"
 	"brillinkmicros/internal/service"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
@@ -11,11 +12,13 @@ import (
 )
 
 // NewHTTPServer new an HTTP server.
-func NewHTTPServer(c *conf.Server, rss *service.RcServiceService, logger log.Logger) *http.Server {
+func NewHTTPServer(c *conf.Server, confData *conf.Data, rss *service.RcServiceService, logger log.Logger) *http.Server {
 	openAPIhandler := openapiv2.NewHandler()
 	var opts = []http.ServerOption{
+		// 一个请求进入时的处理顺序为 Middleware 注册的顺序，而响应返回的处理顺序为注册顺序的倒序
 		http.Middleware(
 			recovery.Recovery(),
+			midware.BlAuth(confData),
 		),
 	}
 	if c.Http.Network != "" {

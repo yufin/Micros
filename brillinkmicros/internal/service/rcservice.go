@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v2/transport/http"
 	"google.golang.org/protobuf/types/known/structpb"
 	"gorm.io/gorm"
 	"time"
@@ -28,8 +29,7 @@ func NewRcServiceService(
 	rpc *biz.RcProcessedContentUsecase,
 	roc *biz.RcOriginContentUsecase,
 	rdd *biz.RcDependencyDataUsecase,
-	logger log.Logger,
-) *RcServiceService {
+	logger log.Logger) *RcServiceService {
 	return &RcServiceService{
 		rcOriginContent:    roc,
 		rcProcessedContent: rpc,
@@ -39,6 +39,13 @@ func NewRcServiceService(
 }
 
 func (s *RcServiceService) ListReportInfos(ctx context.Context, req *pb.PaginationReq) (*pb.ReportInfosResp, error) {
+
+	// get header data form req
+	httpReq, ok := http.RequestFromServerContext(ctx)
+	if ok {
+		fmt.Println(httpReq.Header.Get("bl-auth-user-data"))
+	}
+
 	pageReq := &biz.PaginationReq{
 		PageNum:  int(req.PageNum),
 		PageSize: int(req.PageSize),
@@ -194,6 +201,7 @@ func (s *RcServiceService) UpdateReportDependencyData(ctx context.Context, req *
 }
 
 func (s *RcServiceService) GetReportDependencyData(ctx context.Context, req *pb.GetDependencyDataReq) (*pb.GetDependencyDataResp, error) {
+
 	dataRoc, err := s.rcDependencyData.GetByContentId(ctx, req.ContentId)
 	if err != nil {
 		return nil, err

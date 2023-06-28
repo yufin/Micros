@@ -40,7 +40,14 @@ message Data {
     string uri = 1;
     bool activate = 2;
   }
+  message BlAuth {
+    string client_id = 1;
+    string client_secret = 2;
+    string url = 3;
+    string path_check_token = 4;
+  }
   Database database = 1;
   Redis redis = 2;
   Nats nats = 3;
+  BlAuth blAuth = 4;
 }

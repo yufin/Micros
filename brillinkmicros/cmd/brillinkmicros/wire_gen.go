@@ -44,7 +44,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	rcDependencyDataUsecase := biz.NewRcDependencyDataUsecase(rcDependencyDataRepo, logger)
 	rcServiceService := service.NewRcServiceService(rcProcessedContentUsecase, rcOriginContentUsecase, rcDependencyDataUsecase, logger)
 	grpcServer := server.NewGRPCServer(confServer, rcServiceService, logger)
-	httpServer := server.NewHTTPServer(confServer, rcServiceService, logger)
+	httpServer := server.NewHTTPServer(confServer, confData, rcServiceService, logger)
 	app := newApp(logger, grpcServer, httpServer)
 	return app, func() {
 		cleanup()
