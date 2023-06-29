@@ -25,7 +25,7 @@ func (repo *RcOriginContentRepo) GetPage(ctx context.Context, page *biz.Paginati
 	listRoc := make([]biz.RcOriginContent, 0)
 	var count int64
 	offset := (page.PageNum - 1) * page.PageSize
-	err := repo.data.db.
+	err := repo.data.Db.
 		Table(modelRoc.TableName()).
 		Find(&listRoc).
 		Offset(offset).Limit(page.PageSize).
@@ -52,12 +52,12 @@ func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *biz.Paginat
 	pageNum := int(math.Max(1, float64(page.PageNum)))
 	offset := (pageNum - 1) * page.PageSize
 	var count int64
-	err := repo.data.db.Table(modelRoc.TableName()).Count(&count).Error
+	err := repo.data.Db.Table(modelRoc.TableName()).Count(&count).Error
 	if err != nil {
 		return nil, err
 	}
 
-	err = repo.data.db.
+	err = repo.data.Db.
 		Raw(
 			fmt.Sprintf("select id as content_id, usc_id, enterprise_name,`year_month` as data_collect_month, content as content, status_code, processed_id, processed_updated_at "+
 				"from %s roc left join (select id as processed_id, content_id as processed_content_id, updated_at as processed_updated_at "+
@@ -82,7 +82,7 @@ func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *biz.Paginat
 
 func (repo *RcOriginContentRepo) Get(ctx context.Context, id int64) (*biz.RcOriginContent, error) {
 	var modelRoc biz.RcOriginContent
-	err := repo.data.db.Table(modelRoc.TableName()).Where("id = ?", id).First(&modelRoc).Error
+	err := repo.data.Db.Table(modelRoc.TableName()).Where("id = ?", id).First(&modelRoc).Error
 	if err != nil {
 		return nil, err
 	}

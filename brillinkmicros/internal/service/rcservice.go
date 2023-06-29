@@ -2,6 +2,7 @@ package service
 
 import (
 	"brillinkmicros/internal/biz"
+	"brillinkmicros/internal/midware"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -43,7 +44,8 @@ func (s *RcServiceService) ListReportInfos(ctx context.Context, req *pb.Paginati
 	// get header data form req
 	httpReq, ok := http.RequestFromServerContext(ctx)
 	if ok {
-		fmt.Println(httpReq.Header.Get("bl-auth-user-data"))
+		dataScope := httpReq.Header.Get(midware.BlDataScopeHeaderKey)
+		fmt.Println(dataScope)
 	}
 
 	pageReq := &biz.PaginationReq{

@@ -2,6 +2,7 @@ package midware
 
 import (
 	"brillinkmicros/internal/conf"
+	"brillinkmicros/internal/data"
 	"context"
 	"github.com/buger/jsonparser"
 	"github.com/go-kratos/kratos/v2/errors"
@@ -14,7 +15,9 @@ import (
 	"time"
 )
 
-func BlAuth(c *conf.Data) middleware.Middleware {
+const BlAuthHeaderKey = "BL-AUTH-DATA"
+
+func BlAuth(c *conf.Data, dt *data.Data) middleware.Middleware {
 	return func(handler middleware.Handler) middleware.Handler {
 		return func(ctx context.Context, req interface{}) (reply interface{}, err error) {
 			if tr, ok := transport.FromServerContext(ctx); ok {
@@ -35,7 +38,15 @@ func BlAuth(c *conf.Data) middleware.Middleware {
 					return nil, err
 				}
 
-				tr.RequestHeader().Set("bl-auth-user-data", string(data))
+				var dataScope string
+				dataScope, err = getScopesByAuthData(dt, data)
+				if err != nil {
+					return nil, errors.Newf(500, "Error Occ At DataScopeServer", err.Error())
+				}
+
+				//tr.RequestHeader().Set(BlAuthHeaderKey, string(data))
+				tr.RequestHeader().Set(BlDataScopeHeaderKey, dataScope)
+
 				// Do something on entering
 				//defer func() {
 				//	// Do something on exiting
@@ -62,7 +73,7 @@ func (t BlPortalOauth2) CheckToken(token string, clientId string, clientSecret s
 	}
 	req.URL.RawQuery = reqParams.Encode()
 	req.Header.Set("Accept", "*/*")
-	cli := &http.Client{Timeout: 3 * time.Second}
+	cli := &http.Client{Timeout: 10 * time.Second}
 	resp, err := cli.Do(req)
 	if err != nil {
 		return nil, err

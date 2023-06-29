@@ -21,7 +21,7 @@ func NewRcDependencyDataRepo(data *Data, logger log.Logger) biz.RcDependencyData
 
 func (repo *RcDependencyDataRepo) GetByContentId(ctx context.Context, contentId int64) (*biz.RcDependencyData, error) {
 	var modelRdd biz.RcDependencyData
-	err := repo.data.db.
+	err := repo.data.Db.
 		Table(modelRdd.TableName()).
 		Where("content_id = ?", contentId).
 		Order("updated_at desc").
@@ -35,7 +35,7 @@ func (repo *RcDependencyDataRepo) GetByContentId(ctx context.Context, contentId 
 
 func (repo *RcDependencyDataRepo) Get(ctx context.Context, id int64) (*biz.RcDependencyData, error) {
 	var modelRdd biz.RcDependencyData
-	err := repo.data.db.
+	err := repo.data.Db.
 		Table(modelRdd.TableName()).
 		Where("id = ?", id).
 		First(&modelRdd).
@@ -49,7 +49,7 @@ func (repo *RcDependencyDataRepo) Get(ctx context.Context, id int64) (*biz.RcDep
 func (repo *RcDependencyDataRepo) Insert(ctx context.Context, insertReq *biz.RcDependencyData) (int64, error) {
 	var modelRdd biz.RcDependencyData
 	insertReq.BaseModel.Gen()
-	err := repo.data.db.
+	err := repo.data.Db.
 		Table(modelRdd.TableName()).
 		Create(&insertReq).
 		Error
@@ -64,7 +64,7 @@ func (repo *RcDependencyDataRepo) Update(ctx context.Context, updateReq *biz.RcD
 	if updateReq.Id == 0 {
 		return 0, errors.BadRequest("Empty Id", "id is required")
 	}
-	err := repo.data.db.
+	err := repo.data.Db.
 		Table(modelRdd.TableName()).
 		Updates(&updateReq).Error
 	if err != nil {
@@ -79,7 +79,7 @@ func (repo *RcDependencyDataRepo) Delete(ctx context.Context, id int64) error {
 	if id == 0 {
 		return errors.BadRequest("Empty Id", "id is required")
 	}
-	err := repo.data.db.
+	err := repo.data.Db.
 		Table(modelRdd.TableName()).
 		Delete(&modelRdd, id).
 		Error

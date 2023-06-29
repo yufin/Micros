@@ -19,7 +19,7 @@ import (
 // var ProviderSet = wire.NewSet(NewData, NewGreeterRepo)
 var ProviderSet = wire.NewSet(
 	NewData,
-	NewGormDB,
+	NewDbs,
 	NewNatsConn,
 	NewRcProcessedContentRepo,
 	NewRcOriginContentRepo,
@@ -27,16 +27,21 @@ var ProviderSet = wire.NewSet(
 )
 
 type Data struct {
-	db *gorm.DB
-	nw *NatsWrap
+	Db   *gorm.DB
+	DbBl *gorm.DB
+	Nw   *NatsWrap
 }
 type NatsWrap struct {
 	nc *nats.Conn
 	js nats.JetStreamContext
 }
 
-func NewGormDB(c *conf.Data) (*gorm.DB, error) {
-	dsn := c.Database.Source
+type Dbs struct {
+	db   *gorm.DB
+	dbBl *gorm.DB
+}
+
+func NewGormDB(dsn string) (*gorm.DB, error) {
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, err
@@ -50,6 +55,21 @@ func NewGormDB(c *conf.Data) (*gorm.DB, error) {
 	sqlDB.SetMaxOpenConns(100)
 	sqlDB.SetConnMaxLifetime(time.Second * 30)
 	return db, nil
+}
+
+func NewDbs(c *conf.Data) (*Dbs, error) {
+	db, err := NewGormDB(c.Database.Source)
+	if err != nil {
+		return nil, err
+	}
+	dbBl, err := NewGormDB(c.BlAuth.Database.Source)
+	if err != nil {
+		return nil, err
+	}
+	return &Dbs{
+		db:   db,
+		dbBl: dbBl,
+	}, nil
 }
 
 func NewNatsConn(c *conf.Data) (*NatsWrap, error) {
@@ -78,18 +98,22 @@ func NewNatsConn(c *conf.Data) (*NatsWrap, error) {
 }
 
 // NewData .
-func NewData(logger log.Logger, db *gorm.DB, nw *NatsWrap) (*Data, func(), error) {
+func NewData(logger log.Logger, dbs *Dbs, nw *NatsWrap) (*Data, func(), error) {
 	ndLog := log.NewHelper(logger)
 
 	cleanup := func() {
 		ndLog.Info("Closing the data resources")
-		sqlDb, err := db.DB()
-		if err != nil {
-			ndLog.Errorf("failed to get sqlDb obj while cleanup: %v", err)
+		for _, db := range []*gorm.DB{dbs.db, dbs.dbBl} {
+			db := db
+			sqlDb, err := db.DB()
+			if err != nil {
+				ndLog.Errorf("failed to get sqlDb obj while cleanup: %v", err)
+			}
+			if err := sqlDb.Close(); err != nil {
+				ndLog.Errorf("failed to close db: %v", err)
+			}
 		}
-		if err := sqlDb.Close(); err != nil {
-			ndLog.Errorf("failed to close db: %v", err)
-		}
+
 		if err := nw.nc.Drain(); err != nil {
 			ndLog.Errorf("failed to drain nats: %v", err)
 		}
@@ -97,5 +121,5 @@ func NewData(logger log.Logger, db *gorm.DB, nw *NatsWrap) (*Data, func(), error
 		ndLog.Info("Data resource Closed")
 	}
 
-	return &Data{db: db, nw: nw}, cleanup, nil
+	return &Data{Db: dbs.db, DbBl: dbs.dbBl, Nw: nw}, cleanup, nil
 }

@@ -24,7 +24,7 @@ import (
 
 // wireApp init kratos application.
 func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*kratos.App, func(), error) {
-	db, err := data.NewGormDB(confData)
+	dbs, err := data.NewDbs(confData)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -32,7 +32,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	if err != nil {
 		return nil, nil, err
 	}
-	dataData, cleanup, err := data.NewData(logger, db, natsWrap)
+	dataData, cleanup, err := data.NewData(logger, dbs, natsWrap)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -44,7 +44,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	rcDependencyDataUsecase := biz.NewRcDependencyDataUsecase(rcDependencyDataRepo, logger)
 	rcServiceService := service.NewRcServiceService(rcProcessedContentUsecase, rcOriginContentUsecase, rcDependencyDataUsecase, logger)
 	grpcServer := server.NewGRPCServer(confServer, rcServiceService, logger)
-	httpServer := server.NewHTTPServer(confServer, confData, rcServiceService, logger)
+	httpServer := server.NewHTTPServer(confServer, dataData, confData, rcServiceService, logger)
 	app := newApp(logger, grpcServer, httpServer)
 	return app, func() {
 		cleanup()

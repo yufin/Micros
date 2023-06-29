@@ -45,6 +45,7 @@ message Data {
     string client_secret = 2;
     string url = 3;
     string path_check_token = 4;
+    Database database = 5;
   }
   Database database = 1;
   Redis redis = 2;

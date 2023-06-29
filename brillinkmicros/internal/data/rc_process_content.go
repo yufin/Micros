@@ -30,7 +30,7 @@ type RcProcessedContentRepo struct {
 // db operation
 func (repo *RcProcessedContentRepo) Get(ctx context.Context, id int64) (*biz.RcProcessedContent, error) {
 	var dataRpc *biz.RcProcessedContent
-	err := repo.data.db.
+	err := repo.data.Db.
 		Table(dataRpc.TableName()).
 		Where("id = ?", id).
 		First(&dataRpc).
@@ -50,7 +50,7 @@ func (repo *RcProcessedContentRepo) Get(ctx context.Context, id int64) (*biz.RcP
 // db operation
 func (repo *RcProcessedContentRepo) GetByContentIdUpToDate(ctx context.Context, contentId int64) (*biz.RcProcessedContent, error) {
 	var dataRpc *biz.RcProcessedContent
-	err := repo.data.db.
+	err := repo.data.Db.
 		Table(dataRpc.TableName()).
 		Where("content_id = ?", contentId).
 		Order("updated_at desc").
@@ -67,7 +67,7 @@ func (repo *RcProcessedContentRepo) RefreshReportContent(ctx context.Context, co
 	err := func() error {
 		msg := make([]byte, 8)
 		binary.BigEndian.PutUint64(msg, uint64(contentId))
-		_, err := repo.data.nw.js.Publish("task.rskc.content.process.newId", msg)
+		_, err := repo.data.Nw.js.Publish("task.rskc.content.process.newId", msg)
 		if err != nil {
 			return err
 		}

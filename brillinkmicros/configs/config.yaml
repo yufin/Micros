@@ -21,5 +21,8 @@ data:
   blAuth:
     client_id: "default"
     client_secret: "admin123"
-    url: "http://192.168.44.169:48080"
+    url: "http://192.168.44.169:9080"
     path_check_token: "/admin-api/system/oauth2/check-token"
+    database:
+      driver: mysql
+      source: root:123@qwe@tcp(10.0.203.71:3306)/ruoyi-vue-pro?charset=utf8mb4&parseTime=True&loc=Local&timeout=10000ms
