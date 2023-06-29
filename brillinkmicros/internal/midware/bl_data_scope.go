@@ -2,11 +2,8 @@ package midware
 
 import (
 	"brillinkmicros/internal/data"
-	"context"
 	"encoding/json"
 	"github.com/buger/jsonparser"
-	"github.com/go-kratos/kratos/v2/middleware"
-	"github.com/go-kratos/kratos/v2/transport"
 	"gorm.io/gorm"
 	"sort"
 )
@@ -22,109 +19,6 @@ type DataScopeResp struct {
 
 const BlDataScopeHeaderKey = "BL-DATA-SCOPES"
 const DataScopeFullAccess = "DATA-SCOPE-FullAccess"
-
-func BlDataScope(dt *data.Data) middleware.Middleware {
-	return func(handler middleware.Handler) middleware.Handler {
-		return func(ctx context.Context, req interface{}) (reply interface{}, err error) {
-			if tr, ok := transport.FromServerContext(ctx); ok {
-
-				authData := tr.RequestHeader().Get(BlAuthHeaderKey)
-				// authData to jsonBytes
-				authJson, err := json.Marshal(authData)
-				if err != nil {
-					return nil, err
-				}
-				userId, err := jsonparser.GetInt(authJson, "user_id")
-				if err != nil {
-					return nil, err
-				}
-				var dsp DataScopeResp
-				err = dt.DbBl.
-					Raw(`select user_id, role_id, dept_id, data_scope, data_scope_dept_ids, post_ids
-							from (select u.id as user_id, dept_id, role_id, post_ids
-								  from system_users u
-										   left join system_user_role ur on u.id = ur.user_id
-								  where user_id = 1 and u.deleted is false and ur.deleted is false) t
-									 left join system_role r on t.role_id = r.id where r.deleted is false
-							order by data_scope
-							limit 1;`, userId).
-					First(&dsp).
-					Error
-				if err != nil {
-					return nil, err
-				}
-
-				switch dsp.DataScope {
-				// java impl: PermissionServiceImpl
-				case 1:
-					// 全部数据权限
-					tr.RequestHeader().Set(BlDataScopeHeaderKey, DataScopeFullAccess)
-				case 2:
-					// 指定部门数据权限
-					scopeDeptIds := make([]int64, 0)
-					err = json.Unmarshal([]byte(dsp.DataScopeDeptIds), &scopeDeptIds)
-					if err != nil {
-						return nil, err
-					}
-
-					validUserIds, err := getUserIdsByDeptId(scopeDeptIds, dt.DbBl)
-					if err != nil {
-						return nil, err
-					}
-					validUserIdsArray, err := json.Marshal(validUserIds)
-					if err != nil {
-						return nil, err
-					}
-					tr.RequestHeader().Set(BlDataScopeHeaderKey, string(validUserIdsArray))
-
-				case 3:
-					// 本部门数据权限
-					validDeptIds, err := getUserIdsByDeptId([]int64{dsp.DeptId}, dt.DbBl)
-					if err != nil {
-						return nil, err
-					}
-					validUserIdsArray, err := json.Marshal(validDeptIds)
-					if err != nil {
-						return nil, err
-					}
-					tr.RequestHeader().Set(BlDataScopeHeaderKey, string(validUserIdsArray))
-
-				case 4:
-					// 本部门及以下数据权限
-					postIds := make([]int64, 0)
-					err = json.Unmarshal([]byte(dsp.PostIds), &postIds)
-					if err != nil {
-						return nil, err
-					}
-					validUserIds, err := getUserIdsByDeptIdUnderling(dsp.DeptId, postIds, dt.DbBl)
-					if err != nil {
-						return nil, err
-					}
-					validUserIdsArray, err := json.Marshal(validUserIds)
-					if err != nil {
-						return nil, err
-					}
-					tr.RequestHeader().Set(BlDataScopeHeaderKey, string(validUserIdsArray))
-
-				case 5:
-					// 仅本人数据权限
-					validUserId, err := json.Marshal([]int64{dsp.UserId})
-					if err != nil {
-						return nil, err
-					}
-					tr.RequestHeader().Set(BlDataScopeHeaderKey, string(validUserId))
-				}
-				// DataScope
-
-				// Do something on entering
-				//defer func() {
-				//	// Do something on exiting
-				//}()
-			}
-			return handler(ctx, req)
-		}
-	}
-}
 
 func getScopesByAuthData(dt *data.Data, authData []byte) (string, error) {
 	// authData to jsonBytes
