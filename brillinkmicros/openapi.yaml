@@ -67,7 +67,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/SetDependencyDataReq'
+                            $ref: '#/components/schemas/UpdateDependencyDataReq'
                 required: true
             responses:
                 "200":
@@ -85,12 +85,12 @@ paths:
         post:
             tags:
                 - RcService
-            operationId: RcService_SetReportDependencyData
+            operationId: RcService_InsertReportDependencyData
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/SetDependencyDataReq'
+                            $ref: '#/components/schemas/InsertDependencyDataReq'
                 required: true
             responses:
                 "200":
@@ -163,6 +163,9 @@ components:
         GetDependencyDataResp:
             type: object
             properties:
+                id:
+                    type: integer
+                    format: int64
                 contentId:
                     type: integer
                     format: int64
@@ -186,6 +189,10 @@ components:
                     format: int32
                 additionData:
                     type: string
+                createdAt:
+                    type: string
+                updatedAt:
+                    type: string
         GoogleProtobufAny:
             type: object
             properties:
@@ -194,10 +201,35 @@ components:
                     description: The type of the serialized message.
             additionalProperties: true
             description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+        InsertDependencyDataReq:
+            type: object
+            properties:
+                uscId:
+                    type: string
+                lhQylx:
+                    type: integer
+                    format: int32
+                lhCylwz:
+                    type: integer
+                    format: int32
+                lhGdct:
+                    type: integer
+                    format: int32
+                lhQybq:
+                    type: integer
+                    format: int32
+                lhYhsx:
+                    type: integer
+                    format: int32
+                lhSfsx:
+                    type: integer
+                    format: int32
+                additionData:
+                    type: string
         RefreshReportContentResp:
             type: object
             properties:
-                msgPubSuccess:
+                success:
                     type: boolean
                 msgPubTime:
                     type: string
@@ -279,60 +311,18 @@ components:
                 totalPage:
                     type: integer
                     format: uint32
-        SetDependencyDataReq:
-            type: object
-            properties:
-                contentId:
-                    type: integer
-                    format: int64
-                lhQylx:
-                    type: integer
-                    format: int32
-                lhCylwz:
-                    type: integer
-                    format: int32
-                lhGdct:
-                    type: integer
-                    format: int32
-                lhQybq:
-                    type: integer
-                    format: int32
-                lhYhsx:
-                    type: integer
-                    format: int32
-                lhSfsx:
-                    type: integer
-                    format: int32
-                additionData:
-                    type: string
         SetDependencyDataResp:
             type: object
             properties:
-                contentId:
-                    type: integer
-                    format: int64
-                lhQylx:
-                    type: integer
-                    format: int32
-                lhCylwz:
-                    type: integer
-                    format: int32
-                lhGdct:
-                    type: integer
-                    format: int32
-                lhQybq:
-                    type: integer
-                    format: int32
-                lhYhsx:
-                    type: integer
-                    format: int32
-                lhSfsx:
-                    type: integer
-                    format: int32
-                additionData:
-                    type: string
                 success:
                     type: boolean
+                isGenerated:
+                    type: boolean
+                code:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
         Status:
             type: object
             properties:
@@ -349,5 +339,31 @@ components:
                         $ref: '#/components/schemas/GoogleProtobufAny'
                     description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
             description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
+        UpdateDependencyDataReq:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                lhQylx:
+                    type: integer
+                    format: int32
+                lhCylwz:
+                    type: integer
+                    format: int32
+                lhGdct:
+                    type: integer
+                    format: int32
+                lhQybq:
+                    type: integer
+                    format: int32
+                lhYhsx:
+                    type: integer
+                    format: int32
+                lhSfsx:
+                    type: integer
+                    format: int32
+                additionData:
+                    type: string
 tags:
     - name: RcService

@@ -1,6 +1,7 @@
 package midware
 
 import (
+	"brillinkmicros/common"
 	"brillinkmicros/internal/data"
 	"encoding/json"
 	"github.com/buger/jsonparser"
@@ -17,92 +18,85 @@ type DataScopeResp struct {
 	DataScopeDeptIds string
 }
 
-const BlDataScopeHeaderKey = "BL-DATA-SCOPES"
-const DataScopeFullAccess = "DATA-SCOPE-FullAccess"
-
-func getScopesByAuthData(dt *data.Data, authData []byte) (string, error) {
+func getScopesByAuthData(dt *data.Data, authData []byte) (*common.DataScopeInfo, error) {
 	// authData to jsonBytes
 	userId, err := jsonparser.GetInt(authData, "user_id")
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	var dsp DataScopeResp
 	err = dt.DbBl.
 		Raw(`select user_id, role_id, dept_id, data_scope, data_scope_dept_ids, post_ids
-							from (select u.id as user_id, dept_id, role_id, post_ids
-								  from system_users u
-										   left join system_user_role ur on u.id = ur.user_id
-								  where user_id = ? and u.deleted is false and ur.deleted is false) t
-									 left join system_role r on t.role_id = r.id where r.deleted is false
-							order by data_scope
-							limit 1;`, userId).
+				from (select u.id as user_id, dept_id, role_id, post_ids
+					  from system_users u
+							   left join system_user_role ur on u.id = ur.user_id
+					  where user_id = ? and u.deleted is false and ur.deleted is false) t
+						 left join system_role r on t.role_id = r.id where r.deleted is false
+				order by data_scope
+				limit 1;`, userId).
 		First(&dsp).
 		Error
 	if err != nil {
-		return "", err
+		return nil, err
 	}
+
+	var dsi common.DataScopeInfo
+	dsi.UserId = userId
 
 	switch dsp.DataScope {
 	// java impl: PermissionServiceImpl
 	case 1:
 		// 全部数据权限
-		return DataScopeFullAccess, nil
+		dsi.AccessType = 1
+		return &dsi, nil
 	case 2:
 		// 指定部门数据权限
 		scopeDeptIds := make([]int64, 0)
 		err = json.Unmarshal([]byte(dsp.DataScopeDeptIds), &scopeDeptIds)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
 		validUserIds, err := getUserIdsByDeptId(scopeDeptIds, dt.DbBl)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
-		validUserIdsArray, err := json.Marshal(validUserIds)
-		if err != nil {
-			return "", err
-		}
-		return string(validUserIdsArray), nil
+		dsi.AccessType = 2
+		dsi.AccessibleIds = validUserIds
+		return &dsi, nil
 
 	case 3:
 		// 本部门数据权限
 		validDeptIds, err := getUserIdsByDeptId([]int64{dsp.DeptId}, dt.DbBl)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
-		validUserIdsArray, err := json.Marshal(validDeptIds)
-		if err != nil {
-			return "", err
-		}
-		return string(validUserIdsArray), nil
+		dsi.AccessType = 3
+		dsi.AccessibleIds = validDeptIds
+		return &dsi, nil
 
 	case 4:
 		// 本部门及以下数据权限
 		postIds := make([]int64, 0)
 		err = json.Unmarshal([]byte(dsp.PostIds), &postIds)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 		validUserIds, err := getUserIdsByDeptIdUnderling(dsp.DeptId, postIds, dt.DbBl)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
-		validUserIdsArray, err := json.Marshal(validUserIds)
-		if err != nil {
-			return "", err
-		}
-		return string(validUserIdsArray), nil
-
+		dsi.AccessType = 4
+		dsi.AccessibleIds = validUserIds
+		return &dsi, nil
 	case 5:
 		// 仅本人数据权限
-		validUserId, err := json.Marshal([]int64{dsp.UserId})
-		if err != nil {
-			return "", err
-		}
-		return string(validUserId), nil
+		dsi.AccessType = 5
+		dsi.AccessibleIds = []int64{userId}
+		return &dsi, err
 	}
-	return "[]", nil
+
+	return &dsi, nil
 }
 
 func getUserIdsByDeptId(deptIds []int64, db *gorm.DB) ([]int64, error) {

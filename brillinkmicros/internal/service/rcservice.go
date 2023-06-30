@@ -2,13 +2,11 @@ package service
 
 import (
 	"brillinkmicros/internal/biz"
-	"brillinkmicros/internal/midware"
 	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-kratos/kratos/v2/transport/http"
 	"google.golang.org/protobuf/types/known/structpb"
 	"gorm.io/gorm"
 	"time"
@@ -40,13 +38,6 @@ func NewRcServiceService(
 }
 
 func (s *RcServiceService) ListReportInfos(ctx context.Context, req *pb.PaginationReq) (*pb.ReportInfosResp, error) {
-
-	// get header data form req
-	httpReq, ok := http.RequestFromServerContext(ctx)
-	if ok {
-		dataScope := httpReq.Header.Get(midware.BlDataScopeHeaderKey)
-		fmt.Println(dataScope)
-	}
 
 	pageReq := &biz.PaginationReq{
 		PageNum:  int(req.PageNum),
@@ -114,63 +105,100 @@ func (s *RcServiceService) RefreshReportContent(ctx context.Context, req *pb.Rep
 	success, err := s.rcProcessedContent.RefreshReportContent(ctx, req.ContentId)
 	if err != nil {
 		return &pb.RefreshReportContentResp{
-			MsgPubSuccess: false,
-			MsgPubTime:    time.Now().Format("2006-01-02 15:04:05"),
-			Msg:           "",
+			Success:    false,
+			MsgPubTime: time.Now().Format("2006-01-02 15:04:05"),
+			Msg:        "",
 		}, err
 	}
 	return &pb.RefreshReportContentResp{
-		MsgPubSuccess: success,
-		MsgPubTime:    time.Now().Format("2006-01-02 15:04:05"),
-		Msg:           "",
+		Success:    success,
+		MsgPubTime: time.Now().Format("2006-01-02 15:04:05"),
+		Msg:        "",
 	}, nil
 }
 
-func (s *RcServiceService) SetReportDependencyData(ctx context.Context, req *pb.SetDependencyDataReq) (*pb.SetDependencyDataResp, error) {
-	dataRoc, err := s.rcOriginContent.Get(ctx, req.ContentId)
+func (s *RcServiceService) InsertReportDependencyData(ctx context.Context, req *pb.InsertDependencyDataReq) (*pb.SetDependencyDataResp, error) {
+
+	isInserted, err := s.rcDependencyData.CheckIsInsertDepdDataDuplicate(ctx, req.UscId)
 	if err != nil {
 		return nil, err
 	}
-	insertReq := biz.RcDependencyData{
-		ContentId:       req.ContentId,
-		AttributedMonth: dataRoc.YearMonth,
-		UscId:           dataRoc.UscId,
-		LhQylx:          int(req.LhQylx),
-		LhCylwz:         int(req.LhCylwz),
-		LhGdct:          int(req.LhGdct),
-		LhQybq:          int(req.LhQybq),
-		LhYhsx:          int(req.LhYhsx),
-		LhSfsx:          int(req.LhSfsx),
-		AdditionData:    req.AdditionData,
+	if isInserted {
+		return &pb.SetDependencyDataResp{
+			Success:     false,
+			IsGenerated: false,
+			Code:        200,
+			Msg:         "该企业风控参数已录入，请等待报告生成.",
+		}, nil
 	}
-	_, err = s.rcDependencyData.Insert(ctx, &insertReq)
+
+	contentIds, err := s.rcDependencyData.GetDefaultContentIdForInsertDependencyData(ctx, req.UscId)
 	if err != nil {
 		return nil, err
 	}
+	if len(contentIds) == 0 {
+		insertReq := biz.RcDependencyData{
+			UscId:        req.UscId,
+			LhQylx:       int(req.LhQylx),
+			LhCylwz:      int(req.LhCylwz),
+			LhGdct:       int(req.LhGdct),
+			LhQybq:       int(req.LhQybq),
+			LhYhsx:       int(req.LhYhsx),
+			LhSfsx:       int(req.LhSfsx),
+			AdditionData: req.AdditionData,
+		}
+		_, err = s.rcDependencyData.Insert(ctx, &insertReq)
+		if err != nil {
+			return nil, err
+		}
+		return &pb.SetDependencyDataResp{
+			Success:     true,
+			IsGenerated: false,
+			Code:        200,
+			Msg:         "",
+		}, nil
+	}
+
+	for _, contentId := range contentIds {
+		contentId := contentId
+		dataRoc, err := s.rcOriginContent.Get(ctx, contentId)
+		if err != nil {
+			return nil, err
+		}
+		insertReq := biz.RcDependencyData{
+			ContentId:       &contentId,
+			AttributedMonth: &dataRoc.YearMonth,
+			UscId:           dataRoc.UscId,
+			LhQylx:          int(req.LhQylx),
+			LhCylwz:         int(req.LhCylwz),
+			LhGdct:          int(req.LhGdct),
+			LhQybq:          int(req.LhQybq),
+			LhYhsx:          int(req.LhYhsx),
+			LhSfsx:          int(req.LhSfsx),
+			AdditionData:    req.AdditionData,
+		}
+		_, err = s.rcDependencyData.Insert(ctx, &insertReq)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return &pb.SetDependencyDataResp{
-		ContentId:    insertReq.ContentId,
-		LhQylx:       req.LhQylx,
-		LhCylwz:      req.LhCylwz,
-		LhGdct:       req.LhGdct,
-		LhQybq:       req.LhQybq,
-		LhYhsx:       req.LhYhsx,
-		LhSfsx:       req.LhSfsx,
-		AdditionData: req.AdditionData,
-		Success:      true,
+		Success:     true,
+		IsGenerated: true,
+		Code:        200,
+		Msg:         "",
 	}, nil
 }
-func (s *RcServiceService) UpdateReportDependencyData(ctx context.Context, req *pb.SetDependencyDataReq) (*pb.SetDependencyDataResp, error) {
-	if req.ContentId == 0 {
-		return nil, errors.BadRequest("Empty ContentId", "contentId is required")
-	}
-	dataRdd, err := s.rcDependencyData.GetByContentId(ctx, req.ContentId)
-	if err != nil {
-		return nil, err
+
+func (s *RcServiceService) UpdateReportDependencyData(ctx context.Context, req *pb.UpdateDependencyDataReq) (*pb.SetDependencyDataResp, error) {
+	if req.Id == 0 {
+		return nil, errors.BadRequest("Empty ContentId", "row id is required")
 	}
 
 	updateReq := biz.RcDependencyData{
 		BaseModel: biz.BaseModel{
-			Id: dataRdd.Id,
+			Id: req.Id,
 		},
 		LhQylx:       int(req.LhQylx),
 		LhCylwz:      int(req.LhCylwz),
@@ -185,20 +213,14 @@ func (s *RcServiceService) UpdateReportDependencyData(ctx context.Context, req *
 		return nil, err
 	}
 	fmt.Println(newRddId)
-	newRdd, err := s.rcDependencyData.Get(ctx, newRddId)
-	if err != nil {
-		return nil, err
-	}
+	//newRdd, err := s.rcDependencyData.Get(ctx, newRddId)
+	//if err != nil {
+	//	return nil, err
+	//}
 	return &pb.SetDependencyDataResp{
-		ContentId:    newRdd.ContentId,
-		LhQylx:       int32(newRdd.LhQylx),
-		LhCylwz:      int32(newRdd.LhCylwz),
-		LhGdct:       int32(newRdd.LhGdct),
-		LhQybq:       int32(newRdd.LhQybq),
-		LhYhsx:       int32(newRdd.LhYhsx),
-		LhSfsx:       int32(newRdd.LhSfsx),
-		AdditionData: newRdd.AdditionData,
-		Success:      true,
+		Success: true,
+		Code:    200,
+		Msg:     "success",
 	}, nil
 }
 
@@ -209,7 +231,8 @@ func (s *RcServiceService) GetReportDependencyData(ctx context.Context, req *pb.
 		return nil, err
 	}
 	return &pb.GetDependencyDataResp{
-		ContentId:    dataRoc.ContentId,
+		Id:           dataRoc.Id,
+		ContentId:    *dataRoc.ContentId,
 		LhQylx:       int32(dataRoc.LhQylx),
 		LhCylwz:      int32(dataRoc.LhCylwz),
 		LhGdct:       int32(dataRoc.LhGdct),

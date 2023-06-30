@@ -19,7 +19,6 @@ func NewHTTPServer(c *conf.Server, data *data.Data, confData *conf.Data, rss *se
 		// 一个请求进入时的处理顺序为 Middleware 注册的顺序，而响应返回的处理顺序为注册顺序的倒序
 		http.Middleware(
 			recovery.Recovery(),
-			//midware.BlDataScope(data),
 			midware.BlAuth(confData, data),
 		),
 	}

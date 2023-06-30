@@ -21,18 +21,18 @@ const _ = http.SupportPackageIsVersion1
 
 const OperationRcServiceGetReportContent = "/api.rc.v1.RcService/GetReportContent"
 const OperationRcServiceGetReportDependencyData = "/api.rc.v1.RcService/GetReportDependencyData"
+const OperationRcServiceInsertReportDependencyData = "/api.rc.v1.RcService/InsertReportDependencyData"
 const OperationRcServiceListReportInfos = "/api.rc.v1.RcService/ListReportInfos"
 const OperationRcServiceRefreshReportContent = "/api.rc.v1.RcService/RefreshReportContent"
-const OperationRcServiceSetReportDependencyData = "/api.rc.v1.RcService/SetReportDependencyData"
 const OperationRcServiceUpdateReportDependencyData = "/api.rc.v1.RcService/UpdateReportDependencyData"
 
 type RcServiceHTTPServer interface {
 	GetReportContent(context.Context, *ReportContentReq) (*ReportContentResp, error)
 	GetReportDependencyData(context.Context, *GetDependencyDataReq) (*GetDependencyDataResp, error)
+	InsertReportDependencyData(context.Context, *InsertDependencyDataReq) (*SetDependencyDataResp, error)
 	ListReportInfos(context.Context, *PaginationReq) (*ReportInfosResp, error)
 	RefreshReportContent(context.Context, *ReportContentReq) (*RefreshReportContentResp, error)
-	SetReportDependencyData(context.Context, *SetDependencyDataReq) (*SetDependencyDataResp, error)
-	UpdateReportDependencyData(context.Context, *SetDependencyDataReq) (*SetDependencyDataResp, error)
+	UpdateReportDependencyData(context.Context, *UpdateDependencyDataReq) (*SetDependencyDataResp, error)
 }
 
 func RegisterRcServiceHTTPServer(s *http.Server, srv RcServiceHTTPServer) {
@@ -40,7 +40,7 @@ func RegisterRcServiceHTTPServer(s *http.Server, srv RcServiceHTTPServer) {
 	r.GET("/micros/rc/v1/report/infos", _RcService_ListReportInfos0_HTTP_Handler(srv))
 	r.GET("/micros/rc/v1/report/content", _RcService_GetReportContent0_HTTP_Handler(srv))
 	r.PUT("/micros/rc/v1/report/content/refresh", _RcService_RefreshReportContent0_HTTP_Handler(srv))
-	r.POST("/micros/rc/v1/report/dependency-data", _RcService_SetReportDependencyData0_HTTP_Handler(srv))
+	r.POST("/micros/rc/v1/report/dependency-data", _RcService_InsertReportDependencyData0_HTTP_Handler(srv))
 	r.PUT("/micros/rc/v1/report/dependency-data", _RcService_UpdateReportDependencyData0_HTTP_Handler(srv))
 	r.GET("/rc/v1/report/dependency-data", _RcService_GetReportDependencyData0_HTTP_Handler(srv))
 }
@@ -102,15 +102,15 @@ func _RcService_RefreshReportContent0_HTTP_Handler(srv RcServiceHTTPServer) func
 	}
 }
 
-func _RcService_SetReportDependencyData0_HTTP_Handler(srv RcServiceHTTPServer) func(ctx http.Context) error {
+func _RcService_InsertReportDependencyData0_HTTP_Handler(srv RcServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in SetDependencyDataReq
+		var in InsertDependencyDataReq
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationRcServiceSetReportDependencyData)
+		http.SetOperation(ctx, OperationRcServiceInsertReportDependencyData)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.SetReportDependencyData(ctx, req.(*SetDependencyDataReq))
+			return srv.InsertReportDependencyData(ctx, req.(*InsertDependencyDataReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -123,13 +123,13 @@ func _RcService_SetReportDependencyData0_HTTP_Handler(srv RcServiceHTTPServer) f
 
 func _RcService_UpdateReportDependencyData0_HTTP_Handler(srv RcServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in SetDependencyDataReq
+		var in UpdateDependencyDataReq
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationRcServiceUpdateReportDependencyData)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.UpdateReportDependencyData(ctx, req.(*SetDependencyDataReq))
+			return srv.UpdateReportDependencyData(ctx, req.(*UpdateDependencyDataReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -162,10 +162,10 @@ func _RcService_GetReportDependencyData0_HTTP_Handler(srv RcServiceHTTPServer) f
 type RcServiceHTTPClient interface {
 	GetReportContent(ctx context.Context, req *ReportContentReq, opts ...http.CallOption) (rsp *ReportContentResp, err error)
 	GetReportDependencyData(ctx context.Context, req *GetDependencyDataReq, opts ...http.CallOption) (rsp *GetDependencyDataResp, err error)
+	InsertReportDependencyData(ctx context.Context, req *InsertDependencyDataReq, opts ...http.CallOption) (rsp *SetDependencyDataResp, err error)
 	ListReportInfos(ctx context.Context, req *PaginationReq, opts ...http.CallOption) (rsp *ReportInfosResp, err error)
 	RefreshReportContent(ctx context.Context, req *ReportContentReq, opts ...http.CallOption) (rsp *RefreshReportContentResp, err error)
-	SetReportDependencyData(ctx context.Context, req *SetDependencyDataReq, opts ...http.CallOption) (rsp *SetDependencyDataResp, err error)
-	UpdateReportDependencyData(ctx context.Context, req *SetDependencyDataReq, opts ...http.CallOption) (rsp *SetDependencyDataResp, err error)
+	UpdateReportDependencyData(ctx context.Context, req *UpdateDependencyDataReq, opts ...http.CallOption) (rsp *SetDependencyDataResp, err error)
 }
 
 type RcServiceHTTPClientImpl struct {
@@ -202,6 +202,19 @@ func (c *RcServiceHTTPClientImpl) GetReportDependencyData(ctx context.Context, i
 	return &out, err
 }
 
+func (c *RcServiceHTTPClientImpl) InsertReportDependencyData(ctx context.Context, in *InsertDependencyDataReq, opts ...http.CallOption) (*SetDependencyDataResp, error) {
+	var out SetDependencyDataResp
+	pattern := "/micros/rc/v1/report/dependency-data"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationRcServiceInsertReportDependencyData))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *RcServiceHTTPClientImpl) ListReportInfos(ctx context.Context, in *PaginationReq, opts ...http.CallOption) (*ReportInfosResp, error) {
 	var out ReportInfosResp
 	pattern := "/micros/rc/v1/report/infos"
@@ -228,20 +241,7 @@ func (c *RcServiceHTTPClientImpl) RefreshReportContent(ctx context.Context, in *
 	return &out, err
 }
 
-func (c *RcServiceHTTPClientImpl) SetReportDependencyData(ctx context.Context, in *SetDependencyDataReq, opts ...http.CallOption) (*SetDependencyDataResp, error) {
-	var out SetDependencyDataResp
-	pattern := "/micros/rc/v1/report/dependency-data"
-	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationRcServiceSetReportDependencyData))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, err
-}
-
-func (c *RcServiceHTTPClientImpl) UpdateReportDependencyData(ctx context.Context, in *SetDependencyDataReq, opts ...http.CallOption) (*SetDependencyDataResp, error) {
+func (c *RcServiceHTTPClientImpl) UpdateReportDependencyData(ctx context.Context, in *UpdateDependencyDataReq, opts ...http.CallOption) (*SetDependencyDataResp, error) {
 	var out SetDependencyDataResp
 	pattern := "/micros/rc/v1/report/dependency-data"
 	path := binding.EncodeURL(pattern, in, false)

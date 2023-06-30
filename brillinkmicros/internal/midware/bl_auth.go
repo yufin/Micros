@@ -1,9 +1,11 @@
 package midware
 
 import (
+	"brillinkmicros/common"
 	"brillinkmicros/internal/conf"
 	"brillinkmicros/internal/data"
 	"context"
+	"encoding/json"
 	"github.com/buger/jsonparser"
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/middleware"
@@ -15,7 +17,7 @@ import (
 	"time"
 )
 
-const BlAuthHeaderKey = "BL-AUTH-DATA"
+//const BlAuthHeaderKey = "BL-AUTH-DATA"
 
 func BlAuth(c *conf.Data, dt *data.Data) middleware.Middleware {
 	return func(handler middleware.Handler) middleware.Handler {
@@ -32,20 +34,22 @@ func BlAuth(c *conf.Data, dt *data.Data) middleware.Middleware {
 					return nil, errors.New(401, "invalid token", rawToken)
 				}
 				token := match[1]
-				var data []byte
-				data, err = oa.CheckToken(token, c.BlAuth.ClientId, c.BlAuth.ClientSecret)
+				var authData []byte
+				authData, err = oa.CheckToken(token, c.BlAuth.ClientId, c.BlAuth.ClientSecret)
 				if err != nil {
 					return nil, err
 				}
 
-				var dataScope string
-				dataScope, err = getScopesByAuthData(dt, data)
+				dsi, err := getScopesByAuthData(dt, authData)
 				if err != nil {
 					return nil, errors.Newf(500, "Error Occ At DataScopeServer", err.Error())
 				}
 
+				var dataScope []byte
+				dataScope, err = json.Marshal(dsi)
+
 				//tr.RequestHeader().Set(BlAuthHeaderKey, string(data))
-				tr.RequestHeader().Set(BlDataScopeHeaderKey, dataScope)
+				tr.RequestHeader().Set(common.BlDataScopeHeaderKey, string(dataScope))
 
 				// Do something on entering
 				//defer func() {

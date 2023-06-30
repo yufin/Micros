@@ -7,8 +7,9 @@ import (
 
 type RcDependencyData struct {
 	BaseModel
-	ContentId       int64
-	AttributedMonth string
+	Id              int64
+	ContentId       *int64
+	AttributedMonth *string
 	UscId           string
 	LhQylx          int
 	LhCylwz         int
@@ -28,7 +29,9 @@ type RcDependencyDataRepo interface {
 	Get(ctx context.Context, id int64) (*RcDependencyData, error)
 	Insert(ctx context.Context, insertReq *RcDependencyData) (int64, error)
 	Update(ctx context.Context, updateReq *RcDependencyData) (int64, error)
-	Delete(ctx context.Context, id int64) error
+	Delete(ctx context.Context, id int64) (bool, error)
+	GetDefaultContentIdForInsertDependencyData(ctx context.Context, uscId string) ([]int64, error)
+	CheckIsInsertDepdDataDuplicate(ctx context.Context, uscId string) (bool, error)
 }
 
 type RcDependencyDataUsecase struct {
@@ -60,7 +63,17 @@ func (uc *RcDependencyDataUsecase) Update(ctx context.Context, updateReq *RcDepe
 	return uc.repo.Update(ctx, updateReq)
 }
 
-func (uc *RcDependencyDataUsecase) Delete(ctx context.Context, id int64) error {
+func (uc *RcDependencyDataUsecase) Delete(ctx context.Context, id int64) (bool, error) {
 	uc.log.WithContext(ctx).Infof("biz.RcDependencyDataUsecase.Delete %d", id)
 	return uc.repo.Delete(ctx, id)
+}
+
+func (uc *RcDependencyDataUsecase) GetDefaultContentIdForInsertDependencyData(ctx context.Context, uscId string) ([]int64, error) {
+	uc.log.WithContext(ctx).Infof("biz.RcOriginContentUsecase.GetDefaultContentIdForInsertDependencyData %s", uscId)
+	return uc.repo.GetDefaultContentIdForInsertDependencyData(ctx, uscId)
+}
+
+func (uc *RcDependencyDataUsecase) CheckIsInsertDepdDataDuplicate(ctx context.Context, uscId string) (bool, error) {
+	uc.log.WithContext(ctx).Infof("biz.RcOriginContentUsecase.CheckIsInsertDepdDataDuplicate %s", uscId)
+	return uc.repo.CheckIsInsertDepdDataDuplicate(ctx, uscId)
 }

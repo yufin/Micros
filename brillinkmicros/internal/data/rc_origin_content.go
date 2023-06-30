@@ -1,6 +1,7 @@
 package data
 
 import (
+	"brillinkmicros/common"
 	"brillinkmicros/internal/biz"
 	"context"
 	"fmt"
@@ -46,14 +47,22 @@ func (repo *RcOriginContentRepo) GetPage(ctx context.Context, page *biz.Paginati
 }
 
 func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *biz.PaginationReq) (*biz.RcOriginContentInfosResp, error) {
+	dsi, err := common.ParseBlDataScope(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	var modelRoc biz.RcOriginContent
 	var modelRpc biz.RcProcessedContent
 	var Infos = make([]biz.RcOriginContentInfo, 0)
 	pageNum := int(math.Max(1, float64(page.PageNum)))
 	offset := (pageNum - 1) * page.PageSize
 	var count int64
-	err := repo.data.Db.Table(modelRoc.TableName()).Count(&count).Error
-	if err != nil {
+	if err := repo.data.Db.
+		Table(modelRoc.TableName()).
+		Scopes(ApplyBlDataScope(dsi)).
+		Count(&count).
+		Error; err != nil {
 		return nil, err
 	}
 
