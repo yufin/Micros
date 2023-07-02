@@ -6,7 +6,6 @@ import (
 	"context"
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
-	"time"
 )
 
 type RcDependencyDataRepo struct {
@@ -22,13 +21,36 @@ func NewRcDependencyDataRepo(data *Data, logger log.Logger) biz.RcDependencyData
 }
 
 func (repo *RcDependencyDataRepo) GetByContentId(ctx context.Context, contentId int64) (*biz.RcDependencyData, error) {
+	dsi, err := common.ParseBlDataScope(ctx)
+	if err != nil {
+		return nil, err
+	}
 	var modelRdd biz.RcDependencyData
-	err := repo.data.Db.
-		Table(modelRdd.TableName()).
-		Where("content_id = ?", contentId).
-		Order("updated_at desc").
-		First(&modelRdd).
-		Error
+	err = repo.data.Db.
+		Raw(
+			`WITH user_records AS (SELECT *, 1 AS sort_priority
+								  FROM rc_dependency_data
+								  WHERE content_id = ?
+									AND create_by = ?
+									and deleted_at is null),
+				 valid_records AS (SELECT *, 2 AS sort_priority
+								   FROM rc_dependency_data
+								   WHERE content_id = ?
+									 AND create_by IN (?)
+									 and deleted_at is null),
+				 combined_records AS (SELECT *
+									  FROM user_records
+									  UNION ALL
+									  SELECT *
+									  FROM valid_records
+									  WHERE NOT EXISTS (SELECT 1 FROM user_records))
+			SELECT *
+			FROM combined_records
+			ORDER BY sort_priority,
+					CASE WHEN sort_priority = 1 THEN created_at END DESC, 
+					CASE WHEN sort_priority = 2 THEN created_at END ASC
+			limit 1;`, contentId, dsi.UserId).
+		Scan(&modelRdd).Error
 	if err != nil {
 		return nil, err
 	}
@@ -77,9 +99,8 @@ func (repo *RcDependencyDataRepo) Update(ctx context.Context, updateReq *biz.RcD
 	if dsi.UserId != 0 {
 		updateReq.UpdateBy = &dsi.UserId
 	}
-	updatedAt := time.Now()
-	updateReq.UpdatedAt = &updatedAt
-
+	//updatedAt := time.Now()
+	//updateReq.UpdatedAt = &updatedAt
 	var modelRdd biz.RcDependencyData
 	if updateReq.Id == 0 {
 		return 0, errors.BadRequest("Empty Id", "id is required")

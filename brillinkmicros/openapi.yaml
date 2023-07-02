@@ -251,6 +251,8 @@ components:
                     description: 报告内容
                 available:
                     type: boolean
+                msg:
+                    type: string
         ReportI18nInfo:
             type: object
             properties:

@@ -7,14 +7,12 @@ import (
 )
 
 type RcOriginContent struct {
-	Id             int64
+	BaseModel
 	UscId          string
 	EnterpriseName string
 	YearMonth      string
 	Content        string
 	StatusCode     int
-	UpdatedAt      time.Time
-	CreatedAt      time.Time
 }
 
 func (*RcOriginContent) TableName() string {
@@ -35,7 +33,6 @@ type RcOriginContentInfo struct {
 	ContentId          int64
 	UscId              string
 	DataCollectMonth   string
-	Content            string
 	StatusCode         int
 	EnterpriseName     string
 	ProcessedId        int64

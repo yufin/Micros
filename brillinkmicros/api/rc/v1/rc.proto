@@ -148,6 +148,7 @@ message ReportContentResp {
 	// 报告内容
 	google.protobuf.Struct content = 1;
 	bool available = 2;
+	string msg = 3;
 }
 
 message RefreshReportContentResp {

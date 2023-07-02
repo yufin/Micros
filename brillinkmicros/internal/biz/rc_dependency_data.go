@@ -7,7 +7,6 @@ import (
 
 type RcDependencyData struct {
 	BaseModel
-	Id              int64
 	ContentId       *int64
 	AttributedMonth *string
 	UscId           string

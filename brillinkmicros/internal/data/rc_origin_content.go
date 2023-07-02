@@ -4,7 +4,6 @@ import (
 	"brillinkmicros/common"
 	"brillinkmicros/internal/biz"
 	"context"
-	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
 	"math"
 )
@@ -53,7 +52,6 @@ func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *biz.Paginat
 	}
 
 	var modelRoc biz.RcOriginContent
-	var modelRpc biz.RcProcessedContent
 	var Infos = make([]biz.RcOriginContentInfo, 0)
 	pageNum := int(math.Max(1, float64(page.PageNum)))
 	offset := (pageNum - 1) * page.PageSize
@@ -67,12 +65,35 @@ func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *biz.Paginat
 	}
 
 	err = repo.data.Db.
-		Raw(
-			fmt.Sprintf("select id as content_id, usc_id, enterprise_name,`year_month` as data_collect_month, content as content, status_code, processed_id, processed_updated_at "+
-				"from %s roc left join (select id as processed_id, content_id as processed_content_id, updated_at as processed_updated_at "+
-				"from (select *, row_number() over (partition by content_id order by updated_at desc ) as rn from %s) t where rn = 1) rpc "+
-				"on rpc.processed_content_id = roc.id limit ? offset ?", modelRoc.TableName(), modelRpc.TableName(),
-			), page.PageSize, offset).
+		Raw(`SELECT
+					roc.id AS content_id,
+					roc.usc_id,
+					roc.enterprise_name,
+					roc.year_month AS data_collect_month,
+					roc.status_code,
+					rpc.id AS processed_id,
+					rpc.updated_at AS processed_updated_at,
+					rdd.content_id,
+					rdd.create_by
+				FROM
+					rskc_origin_content roc
+				LEFT JOIN
+					(
+						SELECT
+							*,
+							ROW_NUMBER() OVER (PARTITION BY content_id ORDER BY updated_at DESC) AS rn
+						FROM
+							rskc_processed_content
+						WHERE
+							deleted_at IS NULL
+					) rpc ON rpc.content_id = roc.id AND rpc.rn = 1
+				INNER JOIN
+					rc_dependency_data rdd ON rdd.content_id = roc.id
+				WHERE
+					roc.deleted_at IS NULL
+					AND rdd.deleted_at IS NULL
+					AND rdd.create_by IN (1, 2, 3)
+				LIMIT 100 OFFSET 0;`, dsi.AccessibleIds, page.PageSize, offset).
 		Scan(&Infos).
 		Error
 	if err != nil {

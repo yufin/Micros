@@ -3,15 +3,12 @@ package biz
 import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
-	"time"
 )
 
 type RcProcessedContent struct {
-	Id        int64
+	BaseModel
 	ContentId int64
 	Content   string
-	UpdatedAt time.Time
-	CreatedAt time.Time
 }
 
 func (*RcProcessedContent) TableName() string {

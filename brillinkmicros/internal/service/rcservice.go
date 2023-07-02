@@ -8,7 +8,6 @@ import (
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"google.golang.org/protobuf/types/known/structpb"
-	"gorm.io/gorm"
 	"time"
 
 	//"github.com/gogo/protobuf/proto/protojson"
@@ -81,15 +80,16 @@ func (s *RcServiceService) ListReportInfos(ctx context.Context, req *pb.Paginati
 func (s *RcServiceService) GetReportContent(ctx context.Context, req *pb.ReportContentReq) (*pb.ReportContentResp, error) {
 	rpcData, err := s.rcProcessedContent.GetByContentIdUpToDate(ctx, req.ContentId)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return &pb.ReportContentResp{
-				Content:   nil,
-				Available: false,
-			}, nil
-		}
 		return nil, err
 	}
 	m := make(map[string]interface{})
+	if rpcData == nil {
+		return &pb.ReportContentResp{
+			Content:   nil,
+			Available: false,
+			Msg:       "没有权限查看该报告/报告未生成",
+		}, nil
+	}
 	if err = json.Unmarshal([]byte(rpcData.Content), &m); err != nil {
 		return nil, err
 	}
@@ -98,6 +98,7 @@ func (s *RcServiceService) GetReportContent(ctx context.Context, req *pb.ReportC
 	return &pb.ReportContentResp{
 		Content:   st,
 		Available: true,
+		Msg:       "",
 	}, nil
 }
 
@@ -225,20 +226,23 @@ func (s *RcServiceService) UpdateReportDependencyData(ctx context.Context, req *
 }
 
 func (s *RcServiceService) GetReportDependencyData(ctx context.Context, req *pb.GetDependencyDataReq) (*pb.GetDependencyDataResp, error) {
-
-	dataRoc, err := s.rcDependencyData.GetByContentId(ctx, req.ContentId)
+	// 优先返回本人创建数据,若无则返回dsi.AccessibleIds order by created_at asc
+	dataRdd, err := s.rcDependencyData.GetByContentId(ctx, req.ContentId)
 	if err != nil {
 		return nil, err
 	}
+	if dataRdd != nil {
+		return nil, err
+	}
 	return &pb.GetDependencyDataResp{
-		Id:           dataRoc.Id,
-		ContentId:    *dataRoc.ContentId,
-		LhQylx:       int32(dataRoc.LhQylx),
-		LhCylwz:      int32(dataRoc.LhCylwz),
-		LhGdct:       int32(dataRoc.LhGdct),
-		LhQybq:       int32(dataRoc.LhQybq),
-		LhYhsx:       int32(dataRoc.LhYhsx),
-		LhSfsx:       int32(dataRoc.LhSfsx),
-		AdditionData: dataRoc.AdditionData,
+		Id:           dataRdd.Id,
+		ContentId:    *dataRdd.ContentId,
+		LhQylx:       int32(dataRdd.LhQylx),
+		LhCylwz:      int32(dataRdd.LhCylwz),
+		LhGdct:       int32(dataRdd.LhGdct),
+		LhQybq:       int32(dataRdd.LhQybq),
+		LhYhsx:       int32(dataRdd.LhYhsx),
+		LhSfsx:       int32(dataRdd.LhSfsx),
+		AdditionData: dataRdd.AdditionData,
 	}, nil
 }

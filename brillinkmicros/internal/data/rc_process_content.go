@@ -1,9 +1,11 @@
 package data
 
 import (
+	"brillinkmicros/common"
 	"brillinkmicros/internal/biz"
 	"context"
 	"encoding/binary"
+	"fmt"
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"gorm.io/gorm"
@@ -49,15 +51,26 @@ func (repo *RcProcessedContentRepo) Get(ctx context.Context, id int64) (*biz.RcP
 // impl of biz.RcProcessedContentRepo GetList
 // db operation
 func (repo *RcProcessedContentRepo) GetByContentIdUpToDate(ctx context.Context, contentId int64) (*biz.RcProcessedContent, error) {
+	dsi, err := common.ParseBlDataScope(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	var dataRpc *biz.RcProcessedContent
-	err := repo.data.Db.
-		Table(dataRpc.TableName()).
-		Where("content_id = ?", contentId).
-		Order("updated_at desc").
+	err = repo.data.Db.
+		Table(fmt.Sprintf("%s as rpc", dataRpc.TableName())).
+		Select("rpc.*").
+		Joins("INNER JOIN rc_dependency_data AS rdd ON rpc.content_id = rdd.content_id").
+		Where("rdd.create_by IN (?)", dsi.AccessibleIds).
+		Order("rpc.updated_at").
 		First(&dataRpc).
 		Error
+
 	repo.log.WithContext(ctx).Infof("RcProcessedContentRepo biz.GetList %v", contentId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
 		return nil, err
 	}
 	return dataRpc, nil

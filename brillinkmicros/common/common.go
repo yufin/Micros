@@ -27,5 +27,15 @@ func ParseBlDataScope(ctx context.Context) (*DataScopeInfo, error) {
 	if err := json.Unmarshal([]byte(ds), &dsi); err != nil {
 		return nil, err
 	}
+
+	dsi.AccessibleIds = func(sli []int64, n int64) []int64 {
+		for _, value := range sli {
+			if value == n {
+				return sli
+			}
+		}
+		return append(sli, n)
+	}(dsi.AccessibleIds, dsi.UserId)
+
 	return &dsi, nil
 }
