@@ -61,6 +61,7 @@ func (repo *RcProcessedContentRepo) GetByContentIdUpToDate(ctx context.Context, 
 		Table(fmt.Sprintf("%s as rpc", dataRpc.TableName())).
 		Select("rpc.*").
 		Joins("INNER JOIN rc_dependency_data AS rdd ON rpc.content_id = rdd.content_id").
+		Where("rpc.content_id = ?", contentId).
 		Where("rdd.create_by IN (?)", dsi.AccessibleIds).
 		Order("rpc.updated_at").
 		First(&dataRpc).
