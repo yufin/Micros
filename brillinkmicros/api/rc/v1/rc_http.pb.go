@@ -31,7 +31,7 @@ type RcServiceHTTPServer interface {
 	GetReportDependencyData(context.Context, *GetDependencyDataReq) (*GetDependencyDataResp, error)
 	InsertReportDependencyData(context.Context, *InsertDependencyDataReq) (*SetDependencyDataResp, error)
 	ListReportInfos(context.Context, *PaginationReq) (*ReportInfosResp, error)
-	RefreshReportContent(context.Context, *ReportContentReq) (*RefreshReportContentResp, error)
+	RefreshReportContent(context.Context, *RefreshReportContentReq) (*RefreshReportContentResp, error)
 	UpdateReportDependencyData(context.Context, *UpdateDependencyDataReq) (*SetDependencyDataResp, error)
 }
 
@@ -42,7 +42,7 @@ func RegisterRcServiceHTTPServer(s *http.Server, srv RcServiceHTTPServer) {
 	r.PUT("/micros/rc/v1/report/content/refresh", _RcService_RefreshReportContent0_HTTP_Handler(srv))
 	r.POST("/micros/rc/v1/report/dependency-data", _RcService_InsertReportDependencyData0_HTTP_Handler(srv))
 	r.PUT("/micros/rc/v1/report/dependency-data", _RcService_UpdateReportDependencyData0_HTTP_Handler(srv))
-	r.GET("/rc/v1/report/dependency-data", _RcService_GetReportDependencyData0_HTTP_Handler(srv))
+	r.GET("/micros/rc/v1/report/dependency-data", _RcService_GetReportDependencyData0_HTTP_Handler(srv))
 }
 
 func _RcService_ListReportInfos0_HTTP_Handler(srv RcServiceHTTPServer) func(ctx http.Context) error {
@@ -85,13 +85,13 @@ func _RcService_GetReportContent0_HTTP_Handler(srv RcServiceHTTPServer) func(ctx
 
 func _RcService_RefreshReportContent0_HTTP_Handler(srv RcServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in ReportContentReq
+		var in RefreshReportContentReq
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationRcServiceRefreshReportContent)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.RefreshReportContent(ctx, req.(*ReportContentReq))
+			return srv.RefreshReportContent(ctx, req.(*RefreshReportContentReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -164,7 +164,7 @@ type RcServiceHTTPClient interface {
 	GetReportDependencyData(ctx context.Context, req *GetDependencyDataReq, opts ...http.CallOption) (rsp *GetDependencyDataResp, err error)
 	InsertReportDependencyData(ctx context.Context, req *InsertDependencyDataReq, opts ...http.CallOption) (rsp *SetDependencyDataResp, err error)
 	ListReportInfos(ctx context.Context, req *PaginationReq, opts ...http.CallOption) (rsp *ReportInfosResp, err error)
-	RefreshReportContent(ctx context.Context, req *ReportContentReq, opts ...http.CallOption) (rsp *RefreshReportContentResp, err error)
+	RefreshReportContent(ctx context.Context, req *RefreshReportContentReq, opts ...http.CallOption) (rsp *RefreshReportContentResp, err error)
 	UpdateReportDependencyData(ctx context.Context, req *UpdateDependencyDataReq, opts ...http.CallOption) (rsp *SetDependencyDataResp, err error)
 }
 
@@ -191,7 +191,7 @@ func (c *RcServiceHTTPClientImpl) GetReportContent(ctx context.Context, in *Repo
 
 func (c *RcServiceHTTPClientImpl) GetReportDependencyData(ctx context.Context, in *GetDependencyDataReq, opts ...http.CallOption) (*GetDependencyDataResp, error) {
 	var out GetDependencyDataResp
-	pattern := "/rc/v1/report/dependency-data"
+	pattern := "/micros/rc/v1/report/dependency-data"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationRcServiceGetReportDependencyData))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -228,7 +228,7 @@ func (c *RcServiceHTTPClientImpl) ListReportInfos(ctx context.Context, in *Pagin
 	return &out, err
 }
 
-func (c *RcServiceHTTPClientImpl) RefreshReportContent(ctx context.Context, in *ReportContentReq, opts ...http.CallOption) (*RefreshReportContentResp, error) {
+func (c *RcServiceHTTPClientImpl) RefreshReportContent(ctx context.Context, in *RefreshReportContentReq, opts ...http.CallOption) (*RefreshReportContentResp, error) {
 	var out RefreshReportContentResp
 	pattern := "/micros/rc/v1/report/content/refresh"
 	path := binding.EncodeURL(pattern, in, false)

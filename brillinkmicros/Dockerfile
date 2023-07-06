@@ -22,3 +22,5 @@ EXPOSE 9000
 VOLUME /data/conf
 
 CMD ["./server", "-conf", "/data/conf"]
+#docker image build -t rpc-server:1.1 .
+#docker run -p 50051:50051 rpc-server:1.1

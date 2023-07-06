@@ -49,7 +49,7 @@ func (repo *RcDependencyDataRepo) GetByContentId(ctx context.Context, contentId 
 			ORDER BY sort_priority,
 					CASE WHEN sort_priority = 1 THEN created_at END DESC, 
 					CASE WHEN sort_priority = 2 THEN created_at END ASC
-			limit 1;`, contentId, dsi.UserId).
+			limit 1;`, contentId, dsi.UserId, contentId, dsi.AccessibleIds).
 		Scan(&modelRdd).Error
 	if err != nil {
 		return nil, err

@@ -43,7 +43,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/ReportContentReq'
+                            $ref: '#/components/schemas/RefreshReportContentReq'
                 required: true
             responses:
                 "200":
@@ -59,6 +59,28 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Status'
     /micros/rc/v1/report/dependency-data:
+        get:
+            tags:
+                - RcService
+            operationId: RcService_GetReportDependencyData
+            parameters:
+                - name: contentId
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetDependencyDataResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
         put:
             tags:
                 - RcService
@@ -134,30 +156,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /rc/v1/report/dependency-data:
-        get:
-            tags:
-                - RcService
-            operationId: RcService_GetReportDependencyData
-            parameters:
-                - name: contentId
-                  in: query
-                  schema:
-                    type: integer
-                    format: int64
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/GetDependencyDataResp'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
 components:
     schemas:
         GetDependencyDataResp:
@@ -169,6 +167,8 @@ components:
                 contentId:
                     type: integer
                     format: int64
+                uscId:
+                    type: string
                 lhQylx:
                     type: integer
                     format: int32
@@ -215,17 +215,21 @@ components:
                 lhGdct:
                     type: integer
                     format: int32
-                lhQybq:
-                    type: integer
-                    format: int32
                 lhYhsx:
                     type: integer
+                    description: int32 lh_qybq = 5;
                     format: int32
                 lhSfsx:
                     type: integer
                     format: int32
                 additionData:
                     type: string
+        RefreshReportContentReq:
+            type: object
+            properties:
+                contentId:
+                    type: integer
+                    format: int64
         RefreshReportContentResp:
             type: object
             properties:
@@ -234,14 +238,6 @@ components:
                 msgPubTime:
                     type: string
                 msg:
-                    type: string
-        ReportContentReq:
-            type: object
-            properties:
-                contentId:
-                    type: integer
-                    format: int64
-                lang:
                     type: string
         ReportContentResp:
             type: object
@@ -356,11 +352,9 @@ components:
                 lhGdct:
                     type: integer
                     format: int32
-                lhQybq:
-                    type: integer
-                    format: int32
                 lhYhsx:
                     type: integer
+                    description: int32 lh_qybq = 6;
                     format: int32
                 lhSfsx:
                     type: integer

@@ -8,6 +8,7 @@ import (
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"google.golang.org/protobuf/types/known/structpb"
+	"strconv"
 	"time"
 
 	//"github.com/gogo/protobuf/proto/protojson"
@@ -102,7 +103,7 @@ func (s *RcServiceService) GetReportContent(ctx context.Context, req *pb.ReportC
 	}, nil
 }
 
-func (s *RcServiceService) RefreshReportContent(ctx context.Context, req *pb.ReportContentReq) (*pb.RefreshReportContentResp, error) {
+func (s *RcServiceService) RefreshReportContent(ctx context.Context, req *pb.RefreshReportContentReq) (*pb.RefreshReportContentResp, error) {
 	success, err := s.rcProcessedContent.RefreshReportContent(ctx, req.ContentId)
 	if err != nil {
 		return &pb.RefreshReportContentResp{
@@ -139,11 +140,11 @@ func (s *RcServiceService) InsertReportDependencyData(ctx context.Context, req *
 	}
 	if len(contentIds) == 0 {
 		insertReq := biz.RcDependencyData{
-			UscId:        req.UscId,
-			LhQylx:       int(req.LhQylx),
-			LhCylwz:      int(req.LhCylwz),
-			LhGdct:       int(req.LhGdct),
-			LhQybq:       int(req.LhQybq),
+			UscId:   req.UscId,
+			LhQylx:  int(req.LhQylx),
+			LhCylwz: int(req.LhCylwz),
+			LhGdct:  int(req.LhGdct),
+			//LhQybq:       int(req.LhQybq),
 			LhYhsx:       int(req.LhYhsx),
 			LhSfsx:       int(req.LhSfsx),
 			AdditionData: req.AdditionData,
@@ -173,10 +174,10 @@ func (s *RcServiceService) InsertReportDependencyData(ctx context.Context, req *
 			LhQylx:          int(req.LhQylx),
 			LhCylwz:         int(req.LhCylwz),
 			LhGdct:          int(req.LhGdct),
-			LhQybq:          int(req.LhQybq),
-			LhYhsx:          int(req.LhYhsx),
-			LhSfsx:          int(req.LhSfsx),
-			AdditionData:    req.AdditionData,
+			//LhQybq:          int(req.LhQybq),
+			LhYhsx:       int(req.LhYhsx),
+			LhSfsx:       int(req.LhSfsx),
+			AdditionData: req.AdditionData,
 		}
 		_, err = s.rcDependencyData.Insert(ctx, &insertReq)
 		if err != nil {
@@ -201,10 +202,10 @@ func (s *RcServiceService) UpdateReportDependencyData(ctx context.Context, req *
 		BaseModel: biz.BaseModel{
 			Id: req.Id,
 		},
-		LhQylx:       int(req.LhQylx),
-		LhCylwz:      int(req.LhCylwz),
-		LhGdct:       int(req.LhGdct),
-		LhQybq:       int(req.LhQybq),
+		LhQylx:  int(req.LhQylx),
+		LhCylwz: int(req.LhCylwz),
+		LhGdct:  int(req.LhGdct),
+		//LhQybq:       int(req.LhQybq),
 		LhYhsx:       int(req.LhYhsx),
 		LhSfsx:       int(req.LhSfsx),
 		AdditionData: req.AdditionData,
@@ -227,16 +228,21 @@ func (s *RcServiceService) UpdateReportDependencyData(ctx context.Context, req *
 
 func (s *RcServiceService) GetReportDependencyData(ctx context.Context, req *pb.GetDependencyDataReq) (*pb.GetDependencyDataResp, error) {
 	// 优先返回本人创建数据,若无则返回dsi.AccessibleIds order by created_at asc
-	dataRdd, err := s.rcDependencyData.GetByContentId(ctx, req.ContentId)
+	contentId, err := strconv.ParseInt(req.ContentId, 10, 64)
 	if err != nil {
 		return nil, err
 	}
-	if dataRdd != nil {
+	dataRdd, err := s.rcDependencyData.GetByContentId(ctx, contentId)
+	if err != nil {
+		return nil, err
+	}
+	if dataRdd == nil {
 		return nil, err
 	}
 	return &pb.GetDependencyDataResp{
 		Id:           dataRdd.Id,
 		ContentId:    *dataRdd.ContentId,
+		UscId:        dataRdd.UscId,
 		LhQylx:       int32(dataRdd.LhQylx),
 		LhCylwz:      int32(dataRdd.LhCylwz),
 		LhGdct:       int32(dataRdd.LhGdct),
@@ -244,5 +250,7 @@ func (s *RcServiceService) GetReportDependencyData(ctx context.Context, req *pb.
 		LhYhsx:       int32(dataRdd.LhYhsx),
 		LhSfsx:       int32(dataRdd.LhSfsx),
 		AdditionData: dataRdd.AdditionData,
+		CreatedAt:    dataRdd.CreatedAt.Format("2006-01-02 15:04:05"),
+		UpdatedAt:    dataRdd.UpdatedAt.Format("2006-01-02 15:04:05"),
 	}, nil
 }

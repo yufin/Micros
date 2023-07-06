@@ -92,8 +92,8 @@ func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *biz.Paginat
 				WHERE
 					roc.deleted_at IS NULL
 					AND rdd.deleted_at IS NULL
-					AND rdd.create_by IN (1, 2, 3)
-				LIMIT 100 OFFSET 0;`, dsi.AccessibleIds, page.PageSize, offset).
+					AND rdd.create_by IN (?)
+				LIMIT ? OFFSET ?;`, dsi.AccessibleIds, page.PageSize, offset).
 		Scan(&Infos).
 		Error
 	if err != nil {
