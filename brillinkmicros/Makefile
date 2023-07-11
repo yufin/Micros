@@ -49,6 +49,11 @@ api:
 build:
 	mkdir -p bin/ && go build -ldflags "-X main.Version=$(VERSION)" -o ./bin/ ./...
 
+	#mkdir -p bin/ && GOOS=$(TARGET_OS) GOARCH=$(TARGET_ARCH) go build -ldflags "-X main.Version=$(VERSION)" -o ./bin/ ./...
+	#mkdir -p bin/ && GOOS=$(GOOS) GOARCH=$(GOARCH) go build -ldflags "-X main.Version=$(VERSION)" -o ./bin/ ./...
+	#mkdir -p bin/ && GOOS=$(TARGET_OS) GOARCH=$(TARGET_ARCH) CGO_ENABLED=0 \
+#	CC=o64-clang CXX=o64-clang++ go build -ldflags "-X main.Version=$(VERSION)" -o ./bin/ ./...
+
 .PHONY: generate
 # generate
 generate:
@@ -80,4 +85,4 @@ help:
 	} \
 	{ lastLine = $$0 }' $(MAKEFILE_LIST)
 
-.DEFAULT_GOAL := help
+# ./brillinkmicros", "-conf", "/data/conf

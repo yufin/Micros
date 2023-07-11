@@ -3,6 +3,7 @@ module brillinkmicros
 go 1.18
 
 require (
+	github.com/buger/jsonparser v1.1.1
 	github.com/go-kratos/kratos/v2 v2.6.2
 	github.com/go-kratos/swagger-api v1.0.1
 	github.com/google/wire v0.5.0
@@ -17,7 +18,6 @@ require (
 )
 
 require (
-	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-kratos/aegis v0.2.0 // indirect
@@ -39,6 +39,7 @@ require (
 	github.com/nats-io/nats-server/v2 v2.9.18 // indirect
 	github.com/nats-io/nkeys v0.4.4 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
+	github.com/neo4j/neo4j-go-driver/v5 v5.10.0 // indirect
 	github.com/rakyll/statik v0.1.7 // indirect
 	go.opentelemetry.io/otel v1.7.0 // indirect
 	go.opentelemetry.io/otel/trace v1.7.0 // indirect

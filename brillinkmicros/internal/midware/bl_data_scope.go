@@ -1,8 +1,8 @@
 package midware
 
 import (
-	"brillinkmicros/common"
 	"brillinkmicros/internal/data"
+	"brillinkmicros/pkg"
 	"encoding/json"
 	"github.com/buger/jsonparser"
 	"gorm.io/gorm"
@@ -18,7 +18,7 @@ type DataScopeResp struct {
 	DataScopeDeptIds string
 }
 
-func getScopesByAuthData(dt *data.Data, authData []byte) (*common.DataScopeInfo, error) {
+func getScopesByAuthData(dt *data.Data, authData []byte) (*pkg.DataScopeInfo, error) {
 	// authData to jsonBytes
 	userId, err := jsonparser.GetInt(authData, "user_id")
 	if err != nil {
@@ -40,7 +40,7 @@ func getScopesByAuthData(dt *data.Data, authData []byte) (*common.DataScopeInfo,
 		return nil, err
 	}
 
-	var dsi common.DataScopeInfo
+	var dsi pkg.DataScopeInfo
 	dsi.UserId = userId
 
 	switch dsp.DataScope {

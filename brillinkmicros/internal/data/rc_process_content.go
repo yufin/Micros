@@ -1,8 +1,8 @@
 package data
 
 import (
-	"brillinkmicros/common"
 	"brillinkmicros/internal/biz"
+	"brillinkmicros/pkg"
 	"context"
 	"encoding/binary"
 	"fmt"
@@ -51,7 +51,7 @@ func (repo *RcProcessedContentRepo) Get(ctx context.Context, id int64) (*biz.RcP
 // impl of biz.RcProcessedContentRepo GetList
 // db operation
 func (repo *RcProcessedContentRepo) GetByContentIdUpToDate(ctx context.Context, contentId int64) (*biz.RcProcessedContent, error) {
-	dsi, err := common.ParseBlDataScope(ctx)
+	dsi, err := pkg.ParseBlDataScope(ctx)
 	if err != nil {
 		return nil, err
 	}

@@ -1,9 +1,9 @@
 package midware
 
 import (
-	"brillinkmicros/common"
 	"brillinkmicros/internal/conf"
 	"brillinkmicros/internal/data"
+	"brillinkmicros/pkg"
 	"context"
 	"encoding/json"
 	"github.com/buger/jsonparser"
@@ -49,7 +49,7 @@ func BlAuth(c *conf.Data, dt *data.Data) middleware.Middleware {
 				dataScope, err = json.Marshal(dsi)
 
 				//tr.RequestHeader().Set(BlAuthHeaderKey, string(data))
-				tr.RequestHeader().Set(common.BlDataScopeHeaderKey, string(dataScope))
+				tr.RequestHeader().Set(pkg.BlDataScopeHeaderKey, string(dataScope))
 
 				// Do something on entering
 				//defer func() {

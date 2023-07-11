@@ -1,8 +1,8 @@
 package data
 
 import (
-	"brillinkmicros/common"
 	"brillinkmicros/internal/biz"
+	"brillinkmicros/pkg"
 	"context"
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
@@ -21,7 +21,7 @@ func NewRcDependencyDataRepo(data *Data, logger log.Logger) biz.RcDependencyData
 }
 
 func (repo *RcDependencyDataRepo) GetByContentId(ctx context.Context, contentId int64) (*biz.RcDependencyData, error) {
-	dsi, err := common.ParseBlDataScope(ctx)
+	dsi, err := pkg.ParseBlDataScope(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (repo *RcDependencyDataRepo) Get(ctx context.Context, id int64) (*biz.RcDep
 }
 
 func (repo *RcDependencyDataRepo) Insert(ctx context.Context, insertReq *biz.RcDependencyData) (int64, error) {
-	dsi, err := common.ParseBlDataScope(ctx)
+	dsi, err := pkg.ParseBlDataScope(ctx)
 	if err != nil {
 		return 0, err
 	}
@@ -92,7 +92,7 @@ func (repo *RcDependencyDataRepo) Insert(ctx context.Context, insertReq *biz.RcD
 }
 
 func (repo *RcDependencyDataRepo) Update(ctx context.Context, updateReq *biz.RcDependencyData) (int64, error) {
-	dsi, err := common.ParseBlDataScope(ctx)
+	dsi, err := pkg.ParseBlDataScope(ctx)
 	if err != nil {
 		return 0, err
 	}
@@ -130,7 +130,7 @@ func (repo *RcDependencyDataRepo) Delete(ctx context.Context, id int64) (bool, e
 }
 
 func (repo *RcDependencyDataRepo) CheckIsInsertDepdDataDuplicate(ctx context.Context, uscId string) (bool, error) {
-	dsi, err := common.ParseBlDataScope(ctx)
+	dsi, err := pkg.ParseBlDataScope(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -150,7 +150,7 @@ func (repo *RcDependencyDataRepo) CheckIsInsertDepdDataDuplicate(ctx context.Con
 }
 
 func (repo *RcDependencyDataRepo) GetDefaultContentIdForInsertDependencyData(ctx context.Context, uscId string) ([]int64, error) {
-	dsi, err := common.ParseBlDataScope(ctx)
+	dsi, err := pkg.ParseBlDataScope(ctx)
 	if err != nil {
 		return nil, err
 	}

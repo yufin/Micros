@@ -1,8 +1,8 @@
 package data
 
 import (
-	"brillinkmicros/common"
 	"brillinkmicros/internal/biz"
+	"brillinkmicros/pkg"
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
 	"math"
@@ -46,7 +46,7 @@ func (repo *RcOriginContentRepo) GetPage(ctx context.Context, page *biz.Paginati
 }
 
 func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *biz.PaginationReq) (*biz.RcOriginContentInfosResp, error) {
-	dsi, err := common.ParseBlDataScope(ctx)
+	dsi, err := pkg.ParseBlDataScope(ctx)
 	if err != nil {
 		return nil, err
 	}

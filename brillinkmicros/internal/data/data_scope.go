@@ -1,13 +1,13 @@
 package data
 
 import (
-	"brillinkmicros/common"
+	"brillinkmicros/pkg"
 	"gorm.io/gorm"
 )
 
-func ApplyBlDataScope(dsi *common.DataScopeInfo) func(db *gorm.DB) *gorm.DB {
+func ApplyBlDataScope(dsi *pkg.DataScopeInfo) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		if dsi.AccessType == common.DataScopeFullAccess {
+		if dsi.AccessType == pkg.DataScopeFullAccess {
 			return db.Where("create_by IN (?)", dsi.AccessibleIds)
 		}
 		return db

@@ -104,6 +104,14 @@ func (s *RcServiceService) GetReportContent(ctx context.Context, req *pb.ReportC
 }
 
 func (s *RcServiceService) RefreshReportContent(ctx context.Context, req *pb.RefreshReportContentReq) (*pb.RefreshReportContentResp, error) {
+	if req.ContentId == 0 {
+		return &pb.RefreshReportContentResp{
+			Success:    false,
+			MsgPubTime: time.Now().Format("2006-01-02 15:04:05"),
+			Msg:        "contentId为空值",
+		}, nil
+	}
+
 	success, err := s.rcProcessedContent.RefreshReportContent(ctx, req.ContentId)
 	if err != nil {
 		return &pb.RefreshReportContentResp{
