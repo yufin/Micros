@@ -64,6 +64,7 @@ func (s *RcServiceService) ListReportInfos(ctx context.Context, req *pb.Paginati
 			Available:          available,
 			ContentUpdatedTime: v.ProcessedUpdatedAt.Format("2006-01-02 15:04:05"),
 			LhQylx:             int32(v.LhQylx),
+			DepId:              v.DepId,
 			// TODO: add i18n info
 		}
 		pbInfos = append(pbInfos, info)
@@ -104,8 +105,8 @@ func (s *RcServiceService) GetReportContent(ctx context.Context, req *pb.ReportC
 	}, nil
 }
 
-func (s *RcServiceService) GetReportContentNoDs(ctx context.Context, req *pb.ReportContentNoDsReq) (*pb.ReportContentResp, error) {
-	rpcData, err := s.rcProcessedContent.GetByContentIdUpToDateByUser(ctx, req.ContentId, req.UserId, 1)
+func (s *RcServiceService) GetReportContentNoDs(ctx context.Context, req *pb.ReportContentByDepIdReq) (*pb.ReportContentResp, error) {
+	rpcData, err := s.rcProcessedContent.GetContentUpToDateByDepId(ctx, req.DepId, 1)
 	if err != nil {
 		return nil, err
 	}
@@ -287,4 +288,9 @@ func (s *RcServiceService) GetReportDependencyData(ctx context.Context, req *pb.
 		CreatedAt:    dataRdd.CreatedAt.Format("2006-01-02 15:04:05"),
 		UpdatedAt:    dataRdd.UpdatedAt.Format("2006-01-02 15:04:05"),
 	}, nil
+}
+
+func (s *RcServiceService) GetReportPdfByDepId(ctx context.Context, req *pb.ReportContentByDepIdReq) (*pb.OssFileDownloadResp, error) {
+	// :TODO 添加oss下载方法
+	return nil, nil
 }

@@ -24,9 +24,16 @@ service RcService {
 		};
 	}
 
-	rpc GetReportContentNoDs(ReportContentNoDsReq) returns (ReportContentResp) {
+	rpc GetReportPdfByDepId(ReportContentByDepIdReq) returns (OssFileDownloadResp) {
 		option (google.api.http) = {
-			get: "/micros/rc/v1/report/content/no-ds"
+			get: "/micros/rc/v1/report/pdf"
+		};
+	}
+
+
+	rpc GetReportContentByDepIdNoDs(ReportContentByDepIdReq) returns (ReportContentResp) {
+		option (google.api.http) = {
+			get: "/micros/rc/v1/report/for-convert"
 		};
 	}
 
@@ -137,6 +144,8 @@ message ReportInfo {
 	int32 lh_qylx = 7;
 	// 英文报告id
 	repeated ReportI18nInfo i18n_infos = 8;
+	// rc_dependency_data.id
+	int64 dep_id = 9;
 }
 
 message ReportI18nInfo {
@@ -150,10 +159,9 @@ message ReportContentReq {
 	string lang = 2;
 }
 
-message ReportContentNoDsReq {
-	int64 content_id = 1;
+message ReportContentByDepIdReq {
+	int64 dep_id = 1;
 	string lang = 2;
-	int64 user_id = 3;
 }
 
 message ReportContentResp {
@@ -172,3 +180,9 @@ message RefreshReportContentResp {
 	string msg_pub_time = 2;
 	string msg = 3;
 }
+
+message OssFileDownloadResp {
+	string url = 1;
+	string created_at = 2;
+}
+

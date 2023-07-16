@@ -32,6 +32,7 @@ type RcOriginContentInfo struct {
 	LhQylx             int
 	EnterpriseName     string
 	ProcessedId        int64
+	DepId              int64
 	ProcessedUpdatedAt time.Time
 	UpdatedAt          time.Time
 	CreatedAt          time.Time

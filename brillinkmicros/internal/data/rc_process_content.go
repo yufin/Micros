@@ -81,7 +81,7 @@ func (repo *RcProcessedContentRepo) GetByContentIdUpToDate(ctx context.Context, 
 // GetByContentIdUpToDateByUser .
 // impl of biz.RcProcessedContentRepo GetList
 // db operation
-func (repo *RcProcessedContentRepo) GetByContentIdUpToDateByUser(ctx context.Context, contentId int64, userId int64, allowedUserId int64) (*dto.RcProcessedContent, error) {
+func (repo *RcProcessedContentRepo) GetContentUpToDateByDepId(ctx context.Context, depId int64, allowedUserId int64) (*dto.RcProcessedContent, error) {
 	dsi, err := pkg.ParseBlDataScope(ctx)
 	if err != nil {
 		return nil, err
@@ -94,14 +94,13 @@ func (repo *RcProcessedContentRepo) GetByContentIdUpToDateByUser(ctx context.Con
 		Table(fmt.Sprintf("%s as rpc", dataRpc.TableName())).
 		Select("rpc.*").
 		Joins("INNER JOIN rc_dependency_data AS rdd ON rpc.content_id = rdd.content_id").
-		Where("rpc.content_id = ?", contentId).
-		Where("rdd.create_by = ?", userId).
+		Where("rdd.id = ?", depId).
 		Order("rpc.updated_at desc").
 		Limit(1).
 		First(&dataRpc).
 		Error
 
-	repo.log.WithContext(ctx).Infof("RcProcessedContentRepo biz.GetList %v", contentId)
+	repo.log.WithContext(ctx).Infof("RcProcessedContentRepo biz.GetContentUpToDateByDepId %v", depId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil

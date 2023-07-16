@@ -75,7 +75,8 @@ func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *dto.Paginat
 					rpc.id AS processed_id,
 					rpc.updated_at AS processed_updated_at,
 					rdd.content_id,
-					rdd.create_by
+					rdd.create_by,
+					rdd.id as dep_id
 				FROM
 					rskc_origin_content roc
 				LEFT JOIN

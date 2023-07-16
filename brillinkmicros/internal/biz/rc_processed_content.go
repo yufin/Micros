@@ -10,7 +10,7 @@ type RcProcessedContentRepo interface {
 	Get(ctx context.Context, id int64) (*dto.RcProcessedContent, error)
 	GetByContentIdUpToDate(ctx context.Context, contentId int64) (*dto.RcProcessedContent, error)
 	RefreshReportContent(ctx context.Context, contentId int64) (bool, error)
-	GetByContentIdUpToDateByUser(ctx context.Context, contentId int64, userId int64, allowedUserId int64) (*dto.RcProcessedContent, error)
+	GetContentUpToDateByDepId(ctx context.Context, depId int64, allowedUserId int64) (*dto.RcProcessedContent, error)
 }
 
 type RcProcessedContentUsecase struct {
@@ -36,11 +36,11 @@ func (uc *RcProcessedContentUsecase) GetByContentIdUpToDate(ctx context.Context,
 	return uc.repo.GetByContentIdUpToDate(ctx, contentId)
 }
 
-// GetByContentIdUpToDateByUser .
+// GetContentUpToDateByDepId .
 // 使用RcProcessedContentRepo中定义的方法实现具体业务
-func (uc *RcProcessedContentUsecase) GetByContentIdUpToDateByUser(ctx context.Context, contentId int64, userId int64, allowedUserId int64) (*dto.RcProcessedContent, error) {
-	uc.log.WithContext(ctx).Infof("biz.GetByContentIdUpToDateByUser %v", contentId)
-	return uc.repo.GetByContentIdUpToDateByUser(ctx, contentId, userId, allowedUserId)
+func (uc *RcProcessedContentUsecase) GetContentUpToDateByDepId(ctx context.Context, depId int64, allowedUserId int64) (*dto.RcProcessedContent, error) {
+	uc.log.WithContext(ctx).Infof("biz.GetContentUpToDateByDepId %v", depId)
+	return uc.repo.GetContentUpToDateByDepId(ctx, depId, allowedUserId)
 }
 
 // RefreshReportContent .

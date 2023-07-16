@@ -19,13 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	RcService_ListReportInfos_FullMethodName            = "/api.rc.v1.RcService/ListReportInfos"
-	RcService_GetReportContent_FullMethodName           = "/api.rc.v1.RcService/GetReportContent"
-	RcService_GetReportContentNoDs_FullMethodName       = "/api.rc.v1.RcService/GetReportContentNoDs"
-	RcService_RefreshReportContent_FullMethodName       = "/api.rc.v1.RcService/RefreshReportContent"
-	RcService_InsertReportDependencyData_FullMethodName = "/api.rc.v1.RcService/InsertReportDependencyData"
-	RcService_UpdateReportDependencyData_FullMethodName = "/api.rc.v1.RcService/UpdateReportDependencyData"
-	RcService_GetReportDependencyData_FullMethodName    = "/api.rc.v1.RcService/GetReportDependencyData"
+	RcService_ListReportInfos_FullMethodName             = "/api.rc.v1.RcService/ListReportInfos"
+	RcService_GetReportContent_FullMethodName            = "/api.rc.v1.RcService/GetReportContent"
+	RcService_GetReportPdfByDepId_FullMethodName         = "/api.rc.v1.RcService/GetReportPdfByDepId"
+	RcService_GetReportContentByDepIdNoDs_FullMethodName = "/api.rc.v1.RcService/GetReportContentByDepIdNoDs"
+	RcService_RefreshReportContent_FullMethodName        = "/api.rc.v1.RcService/RefreshReportContent"
+	RcService_InsertReportDependencyData_FullMethodName  = "/api.rc.v1.RcService/InsertReportDependencyData"
+	RcService_UpdateReportDependencyData_FullMethodName  = "/api.rc.v1.RcService/UpdateReportDependencyData"
+	RcService_GetReportDependencyData_FullMethodName     = "/api.rc.v1.RcService/GetReportDependencyData"
 )
 
 // RcServiceClient is the client API for RcService service.
@@ -34,7 +35,8 @@ const (
 type RcServiceClient interface {
 	ListReportInfos(ctx context.Context, in *PaginationReq, opts ...grpc.CallOption) (*ReportInfosResp, error)
 	GetReportContent(ctx context.Context, in *ReportContentReq, opts ...grpc.CallOption) (*ReportContentResp, error)
-	GetReportContentNoDs(ctx context.Context, in *ReportContentNoDsReq, opts ...grpc.CallOption) (*ReportContentResp, error)
+	GetReportPdfByDepId(ctx context.Context, in *ReportContentByDepIdReq, opts ...grpc.CallOption) (*OssFileDownloadResp, error)
+	GetReportContentByDepIdNoDs(ctx context.Context, in *ReportContentByDepIdReq, opts ...grpc.CallOption) (*ReportContentResp, error)
 	RefreshReportContent(ctx context.Context, in *RefreshReportContentReq, opts ...grpc.CallOption) (*RefreshReportContentResp, error)
 	InsertReportDependencyData(ctx context.Context, in *InsertDependencyDataReq, opts ...grpc.CallOption) (*SetDependencyDataResp, error)
 	UpdateReportDependencyData(ctx context.Context, in *UpdateDependencyDataReq, opts ...grpc.CallOption) (*SetDependencyDataResp, error)
@@ -67,9 +69,18 @@ func (c *rcServiceClient) GetReportContent(ctx context.Context, in *ReportConten
 	return out, nil
 }
 
-func (c *rcServiceClient) GetReportContentNoDs(ctx context.Context, in *ReportContentNoDsReq, opts ...grpc.CallOption) (*ReportContentResp, error) {
+func (c *rcServiceClient) GetReportPdfByDepId(ctx context.Context, in *ReportContentByDepIdReq, opts ...grpc.CallOption) (*OssFileDownloadResp, error) {
+	out := new(OssFileDownloadResp)
+	err := c.cc.Invoke(ctx, RcService_GetReportPdfByDepId_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *rcServiceClient) GetReportContentByDepIdNoDs(ctx context.Context, in *ReportContentByDepIdReq, opts ...grpc.CallOption) (*ReportContentResp, error) {
 	out := new(ReportContentResp)
-	err := c.cc.Invoke(ctx, RcService_GetReportContentNoDs_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, RcService_GetReportContentByDepIdNoDs_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +129,8 @@ func (c *rcServiceClient) GetReportDependencyData(ctx context.Context, in *GetDe
 type RcServiceServer interface {
 	ListReportInfos(context.Context, *PaginationReq) (*ReportInfosResp, error)
 	GetReportContent(context.Context, *ReportContentReq) (*ReportContentResp, error)
-	GetReportContentNoDs(context.Context, *ReportContentNoDsReq) (*ReportContentResp, error)
+	GetReportPdfByDepId(context.Context, *ReportContentByDepIdReq) (*OssFileDownloadResp, error)
+	GetReportContentByDepIdNoDs(context.Context, *ReportContentByDepIdReq) (*ReportContentResp, error)
 	RefreshReportContent(context.Context, *RefreshReportContentReq) (*RefreshReportContentResp, error)
 	InsertReportDependencyData(context.Context, *InsertDependencyDataReq) (*SetDependencyDataResp, error)
 	UpdateReportDependencyData(context.Context, *UpdateDependencyDataReq) (*SetDependencyDataResp, error)
@@ -136,8 +148,11 @@ func (UnimplementedRcServiceServer) ListReportInfos(context.Context, *Pagination
 func (UnimplementedRcServiceServer) GetReportContent(context.Context, *ReportContentReq) (*ReportContentResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetReportContent not implemented")
 }
-func (UnimplementedRcServiceServer) GetReportContentNoDs(context.Context, *ReportContentNoDsReq) (*ReportContentResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetReportContentNoDs not implemented")
+func (UnimplementedRcServiceServer) GetReportPdfByDepId(context.Context, *ReportContentByDepIdReq) (*OssFileDownloadResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetReportPdfByDepId not implemented")
+}
+func (UnimplementedRcServiceServer) GetReportContentByDepIdNoDs(context.Context, *ReportContentByDepIdReq) (*ReportContentResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetReportContentByDepIdNoDs not implemented")
 }
 func (UnimplementedRcServiceServer) RefreshReportContent(context.Context, *RefreshReportContentReq) (*RefreshReportContentResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RefreshReportContent not implemented")
@@ -200,20 +215,38 @@ func _RcService_GetReportContent_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RcService_GetReportContentNoDs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ReportContentNoDsReq)
+func _RcService_GetReportPdfByDepId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReportContentByDepIdReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RcServiceServer).GetReportContentNoDs(ctx, in)
+		return srv.(RcServiceServer).GetReportPdfByDepId(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RcService_GetReportContentNoDs_FullMethodName,
+		FullMethod: RcService_GetReportPdfByDepId_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RcServiceServer).GetReportContentNoDs(ctx, req.(*ReportContentNoDsReq))
+		return srv.(RcServiceServer).GetReportPdfByDepId(ctx, req.(*ReportContentByDepIdReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RcService_GetReportContentByDepIdNoDs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReportContentByDepIdReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RcServiceServer).GetReportContentByDepIdNoDs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RcService_GetReportContentByDepIdNoDs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RcServiceServer).GetReportContentByDepIdNoDs(ctx, req.(*ReportContentByDepIdReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -306,8 +339,12 @@ var RcService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _RcService_GetReportContent_Handler,
 		},
 		{
-			MethodName: "GetReportContentNoDs",
-			Handler:    _RcService_GetReportContentNoDs_Handler,
+			MethodName: "GetReportPdfByDepId",
+			Handler:    _RcService_GetReportPdfByDepId_Handler,
+		},
+		{
+			MethodName: "GetReportContentByDepIdNoDs",
+			Handler:    _RcService_GetReportContentByDepIdNoDs_Handler,
 		},
 		{
 			MethodName: "RefreshReportContent",
