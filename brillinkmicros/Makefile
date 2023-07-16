@@ -49,17 +49,13 @@ api:
 build:
 	mkdir -p bin/ && go build -ldflags "-X main.Version=$(VERSION)" -o ./bin/ ./...
 
-	#mkdir -p bin/ && GOOS=$(TARGET_OS) GOARCH=$(TARGET_ARCH) go build -ldflags "-X main.Version=$(VERSION)" -o ./bin/ ./...
-	#mkdir -p bin/ && GOOS=$(GOOS) GOARCH=$(GOARCH) go build -ldflags "-X main.Version=$(VERSION)" -o ./bin/ ./...
-	#mkdir -p bin/ && GOOS=$(TARGET_OS) GOARCH=$(TARGET_ARCH) CGO_ENABLED=0 \
-#	CC=o64-clang CXX=o64-clang++ go build -ldflags "-X main.Version=$(VERSION)" -o ./bin/ ./...
-
 .PHONY: generate
 # generate
 generate:
 	go mod tidy
 	go get github.com/google/wire/cmd/wire@latest
 	go generate ./...
+	go mod tidy
 
 .PHONY: all
 # generate all

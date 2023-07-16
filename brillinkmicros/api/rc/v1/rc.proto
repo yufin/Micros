@@ -24,6 +24,12 @@ service RcService {
 		};
 	}
 
+	rpc GetReportContentNoDs(ReportContentNoDsReq) returns (ReportContentResp) {
+		option (google.api.http) = {
+			get: "/micros/rc/v1/report/content/no-ds"
+		};
+	}
+
 	rpc RefreshReportContent(RefreshReportContentReq) returns (RefreshReportContentResp) {
 		option (google.api.http) = {
 			put: "/micros/rc/v1/report/content/refresh"
@@ -70,7 +76,6 @@ message GetDependencyDataResp {
 	string addition_data = 10;
 	string created_at = 11;
 	string updated_at = 12;
-
 }
 
 message SetDependencyDataResp {
@@ -129,7 +134,7 @@ message ReportInfo {
 	// 报告生成时间 yyyy-MM-dd HH:mm:ss
 	string content_updated_time = 6;
 	// 报告状态码
-	int32 imp_status = 7;
+	int32 lh_qylx = 7;
 	// 英文报告id
 	repeated ReportI18nInfo i18n_infos = 8;
 }
@@ -143,6 +148,12 @@ message ReportI18nInfo {
 message ReportContentReq {
 	int64 content_id = 1;
 	string lang = 2;
+}
+
+message ReportContentNoDsReq {
+	int64 content_id = 1;
+	string lang = 2;
+	int64 user_id = 3;
 }
 
 message ReportContentResp {

@@ -32,7 +32,11 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	if err != nil {
 		return nil, nil, err
 	}
-	dataData, cleanup, err := data.NewData(logger, dbs, natsWrap)
+	neoCli, err := data.NewNeoCli(confData)
+	if err != nil {
+		return nil, nil, err
+	}
+	dataData, cleanup, err := data.NewData(logger, dbs, natsWrap, neoCli)
 	if err != nil {
 		return nil, nil, err
 	}

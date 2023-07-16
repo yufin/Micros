@@ -5,6 +5,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 	"github.com/nats-io/nats.go"
+	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"time"
@@ -21,24 +22,18 @@ var ProviderSet = wire.NewSet(
 	NewData,
 	NewDbs,
 	NewNatsConn,
+	NewNeoCli,
 	NewRcProcessedContentRepo,
 	NewRcOriginContentRepo,
 	NewRcDependencyDataRepo,
+	NewGraphNodeRepo,
 )
 
 type Data struct {
 	Db   *gorm.DB
 	DbBl *gorm.DB
 	Nw   *NatsWrap
-}
-type NatsWrap struct {
-	nc *nats.Conn
-	js nats.JetStreamContext
-}
-
-type Dbs struct {
-	db   *gorm.DB
-	dbBl *gorm.DB
+	Neo  *NeoCli
 }
 
 func NewGormDB(dsn string) (*gorm.DB, error) {
@@ -97,8 +92,16 @@ func NewNatsConn(c *conf.Data) (*NatsWrap, error) {
 	}, nil
 }
 
+func NewNeoCli(c *conf.Data) (*NeoCli, error) {
+	d, err := neo4j.NewDriverWithContext(c.Neo4J.Url, neo4j.BasicAuth(c.Neo4J.Username, c.Neo4J.Password, ""))
+	if err != nil {
+		return nil, err
+	}
+	return &NeoCli{Neo: d}, nil
+}
+
 // NewData .
-func NewData(logger log.Logger, dbs *Dbs, nw *NatsWrap) (*Data, func(), error) {
+func NewData(logger log.Logger, dbs *Dbs, nw *NatsWrap, neo *NeoCli) (*Data, func(), error) {
 	ndLog := log.NewHelper(logger)
 
 	cleanup := func() {
@@ -121,5 +124,10 @@ func NewData(logger log.Logger, dbs *Dbs, nw *NatsWrap) (*Data, func(), error) {
 		ndLog.Info("Data resource Closed")
 	}
 
-	return &Data{Db: dbs.db, DbBl: dbs.dbBl, Nw: nw}, cleanup, nil
+	return &Data{
+		Db:   dbs.db,
+		DbBl: dbs.dbBl,
+		Nw:   nw,
+		Neo:  neo,
+	}, cleanup, nil
 }

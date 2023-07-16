@@ -2,7 +2,7 @@ FROM golang:1.18 AS builder
 
 COPY . /src
 WORKDIR /src
-
+RUN go env -w GO111MODULE=on
 RUN GOPROXY=https://goproxy.cn make build
 
 FROM debian:stable-slim
@@ -30,7 +30,7 @@ EXPOSE 8000
 #EXPOSE 9000
 VOLUME /data/conf
 
-CMD ["./brillinkmicros", "-conf", "/data/conf"]
+CMD ["./server", "-conf", "/data/conf"]
 #docker image build -t blmicros-api .
 
 #docker run --name blmicros-api -p 8009:8000 -p 9000:9000 -v /Users/yufei/DockerVolume/blmicros/conf:/data/conf blmicros-api

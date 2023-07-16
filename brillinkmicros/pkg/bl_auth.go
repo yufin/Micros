@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"gorm.io/gorm"
 
 	"github.com/go-kratos/kratos/v2/transport/http"
 )
@@ -38,4 +39,13 @@ func ParseBlDataScope(ctx context.Context) (*DataScopeInfo, error) {
 	}(dsi.AccessibleIds, dsi.UserId)
 
 	return &dsi, nil
+}
+
+func ApplyBlDataScope(dsi *DataScopeInfo) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		if dsi.AccessType == DataScopeFullAccess {
+			return db.Where("create_by IN (?)", dsi.AccessibleIds)
+		}
+		return db
+	}
 }

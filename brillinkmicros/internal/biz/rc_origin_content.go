@@ -1,50 +1,15 @@
 package biz
 
 import (
+	"brillinkmicros/internal/biz/dto"
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
-	"time"
 )
 
-type RcOriginContent struct {
-	BaseModel
-	UscId          string
-	EnterpriseName string
-	YearMonth      string
-	Content        string
-	StatusCode     int
-}
-
-func (*RcOriginContent) TableName() string {
-	return "rskc_origin_content"
-}
-
-type RcOriginContentGetPageResp struct {
-	PaginationResp
-	Data *[]RcOriginContent
-}
-
-type RcOriginContentInfosResp struct {
-	PaginationResp
-	Data *[]RcOriginContentInfo
-}
-
-type RcOriginContentInfo struct {
-	ContentId          int64
-	UscId              string
-	DataCollectMonth   string
-	StatusCode         int
-	EnterpriseName     string
-	ProcessedId        int64
-	ProcessedUpdatedAt time.Time
-	UpdatedAt          time.Time
-	CreatedAt          time.Time
-}
-
 type RcOriginContentRepo interface {
-	GetPage(ctx context.Context, page *PaginationReq) (*RcOriginContentGetPageResp, error)
-	GetInfos(ctx context.Context, page *PaginationReq) (*RcOriginContentInfosResp, error)
-	Get(ctx context.Context, id int64) (*RcOriginContent, error)
+	GetPage(ctx context.Context, page *dto.PaginationReq) (*dto.RcOriginContentGetPageResp, error)
+	GetInfos(ctx context.Context, page *dto.PaginationReq) (*dto.RcOriginContentInfosResp, error)
+	Get(ctx context.Context, id int64) (*dto.RcOriginContent, error)
 }
 
 type RcOriginContentUsecase struct {
@@ -56,17 +21,17 @@ func NewRcOriginContentUsecase(repo RcOriginContentRepo, logger log.Logger) *RcO
 	return &RcOriginContentUsecase{repo: repo, log: log.NewHelper(logger)}
 }
 
-func (uc *RcOriginContentUsecase) GetPage(ctx context.Context, page *PaginationReq) (*RcOriginContentGetPageResp, error) {
+func (uc *RcOriginContentUsecase) GetPage(ctx context.Context, page *dto.PaginationReq) (*dto.RcOriginContentGetPageResp, error) {
 	uc.log.WithContext(ctx).Infof("biz.RcOriginContentUsecase.GetPage %d", page.PageNum)
 	return uc.repo.GetPage(ctx, page)
 }
 
-func (uc *RcOriginContentUsecase) GetInfos(ctx context.Context, page *PaginationReq) (*RcOriginContentInfosResp, error) {
+func (uc *RcOriginContentUsecase) GetInfos(ctx context.Context, page *dto.PaginationReq) (*dto.RcOriginContentInfosResp, error) {
 	uc.log.WithContext(ctx).Infof("biz.RcOriginContentUsecase.GetInfos %d", page.PageNum)
 	return uc.repo.GetInfos(ctx, page)
 }
 
-func (uc *RcOriginContentUsecase) Get(ctx context.Context, id int64) (*RcOriginContent, error) {
+func (uc *RcOriginContentUsecase) Get(ctx context.Context, id int64) (*dto.RcOriginContent, error) {
 	uc.log.WithContext(ctx).Infof("biz.RcOriginContentUsecase.Get %d", id)
 	return uc.repo.Get(ctx, id)
 }

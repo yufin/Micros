@@ -2,6 +2,7 @@ package data
 
 import (
 	"brillinkmicros/internal/biz"
+	"brillinkmicros/internal/biz/dto"
 	"brillinkmicros/pkg"
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
@@ -20,9 +21,9 @@ func NewRcOriginContentRepo(data *Data, logger log.Logger) biz.RcOriginContentRe
 	}
 }
 
-func (repo *RcOriginContentRepo) GetPage(ctx context.Context, page *biz.PaginationReq) (*biz.RcOriginContentGetPageResp, error) {
-	var modelRoc biz.RcOriginContent
-	listRoc := make([]biz.RcOriginContent, 0)
+func (repo *RcOriginContentRepo) GetPage(ctx context.Context, page *dto.PaginationReq) (*dto.RcOriginContentGetPageResp, error) {
+	var modelRoc dto.RcOriginContent
+	listRoc := make([]dto.RcOriginContent, 0)
 	var count int64
 	offset := (page.PageNum - 1) * page.PageSize
 	err := repo.data.Db.
@@ -34,8 +35,8 @@ func (repo *RcOriginContentRepo) GetPage(ctx context.Context, page *biz.Paginati
 	if err != nil {
 		return nil, err
 	}
-	return &biz.RcOriginContentGetPageResp{
-		PaginationResp: biz.PaginationResp{
+	return &dto.RcOriginContentGetPageResp{
+		PaginationResp: dto.PaginationResp{
 			Total:     count,
 			TotalPage: int(math.Ceil(float64(count) / float64(page.PageSize))),
 			PageNum:   page.PageNum,
@@ -45,20 +46,20 @@ func (repo *RcOriginContentRepo) GetPage(ctx context.Context, page *biz.Paginati
 	}, nil
 }
 
-func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *biz.PaginationReq) (*biz.RcOriginContentInfosResp, error) {
+func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *dto.PaginationReq) (*dto.RcOriginContentInfosResp, error) {
 	dsi, err := pkg.ParseBlDataScope(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	var modelRoc biz.RcOriginContent
-	var Infos = make([]biz.RcOriginContentInfo, 0)
+	var modelRoc dto.RcOriginContent
+	var Infos = make([]dto.RcOriginContentInfo, 0)
 	pageNum := int(math.Max(1, float64(page.PageNum)))
 	offset := (pageNum - 1) * page.PageSize
 	var count int64
 	if err := repo.data.Db.
 		Table(modelRoc.TableName()).
-		Scopes(ApplyBlDataScope(dsi)).
+		Scopes(pkg.ApplyBlDataScope(dsi)).
 		Count(&count).
 		Error; err != nil {
 		return nil, err
@@ -70,7 +71,7 @@ func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *biz.Paginat
 					roc.usc_id,
 					roc.enterprise_name,
 					roc.year_month AS data_collect_month,
-					roc.status_code,
+					rdd.lh_qylx,
 					rpc.id AS processed_id,
 					rpc.updated_at AS processed_updated_at,
 					rdd.content_id,
@@ -99,8 +100,8 @@ func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *biz.Paginat
 	if err != nil {
 		return nil, err
 	}
-	return &biz.RcOriginContentInfosResp{
-		PaginationResp: biz.PaginationResp{
+	return &dto.RcOriginContentInfosResp{
+		PaginationResp: dto.PaginationResp{
 			Total:     count,
 			TotalPage: int(math.Ceil(float64(count) / float64(page.PageSize))),
 			PageNum:   pageNum,
@@ -110,8 +111,8 @@ func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *biz.Paginat
 	}, nil
 }
 
-func (repo *RcOriginContentRepo) Get(ctx context.Context, id int64) (*biz.RcOriginContent, error) {
-	var modelRoc biz.RcOriginContent
+func (repo *RcOriginContentRepo) Get(ctx context.Context, id int64) (*dto.RcOriginContent, error) {
+	var modelRoc dto.RcOriginContent
 	err := repo.data.Db.Table(modelRoc.TableName()).Where("id = ?", id).First(&modelRoc).Error
 	if err != nil {
 		return nil, err

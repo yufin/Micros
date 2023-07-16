@@ -1,24 +1,16 @@
 package biz
 
 import (
+	"brillinkmicros/internal/biz/dto"
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
 )
 
-type RcProcessedContent struct {
-	BaseModel
-	ContentId int64
-	Content   string
-}
-
-func (*RcProcessedContent) TableName() string {
-	return "rskc_processed_content"
-}
-
 type RcProcessedContentRepo interface {
-	Get(ctx context.Context, id int64) (*RcProcessedContent, error)
-	GetByContentIdUpToDate(ctx context.Context, contentId int64) (*RcProcessedContent, error)
+	Get(ctx context.Context, id int64) (*dto.RcProcessedContent, error)
+	GetByContentIdUpToDate(ctx context.Context, contentId int64) (*dto.RcProcessedContent, error)
 	RefreshReportContent(ctx context.Context, contentId int64) (bool, error)
+	GetByContentIdUpToDateByUser(ctx context.Context, contentId int64, userId int64, allowedUserId int64) (*dto.RcProcessedContent, error)
 }
 
 type RcProcessedContentUsecase struct {
@@ -32,16 +24,23 @@ func NewRcProcessedContentUsecase(repo RcProcessedContentRepo, logger log.Logger
 
 // GetById .
 // 使用RcProcessedContentRepo中定义的方法实现具体业务
-func (uc *RcProcessedContentUsecase) GetById(ctx context.Context, id int64) (*RcProcessedContent, error) {
+func (uc *RcProcessedContentUsecase) GetById(ctx context.Context, id int64) (*dto.RcProcessedContent, error) {
 	uc.log.WithContext(ctx).Infof("biz.GetById %d", id)
 	return uc.repo.Get(ctx, id)
 }
 
 // GetByContentIdUpToDate .
 // 使用RcProcessedContentRepo中定义的方法实现具体业务
-func (uc *RcProcessedContentUsecase) GetByContentIdUpToDate(ctx context.Context, contentId int64) (*RcProcessedContent, error) {
-	uc.log.WithContext(ctx).Infof("biz.GetList %v", contentId)
+func (uc *RcProcessedContentUsecase) GetByContentIdUpToDate(ctx context.Context, contentId int64) (*dto.RcProcessedContent, error) {
+	uc.log.WithContext(ctx).Infof("biz.GetByContentIdUpToDate %v", contentId)
 	return uc.repo.GetByContentIdUpToDate(ctx, contentId)
+}
+
+// GetByContentIdUpToDateByUser .
+// 使用RcProcessedContentRepo中定义的方法实现具体业务
+func (uc *RcProcessedContentUsecase) GetByContentIdUpToDateByUser(ctx context.Context, contentId int64, userId int64, allowedUserId int64) (*dto.RcProcessedContent, error) {
+	uc.log.WithContext(ctx).Infof("biz.GetByContentIdUpToDateByUser %v", contentId)
+	return uc.repo.GetByContentIdUpToDateByUser(ctx, contentId, userId, allowedUserId)
 }
 
 // RefreshReportContent .

@@ -68,9 +68,9 @@ type BlPortalOauth2 struct {
 
 func (t BlPortalOauth2) CheckToken(token string, clientId string, clientSecret string) ([]byte, error) {
 	reqParams := url.Values{}
-	reqParams.Add("token", token)
-	reqParams.Add("client_id", clientId)
-	reqParams.Add("client_secret", clientSecret)
+	reqParams.Set("token", token)
+	reqParams.Set("client_id", clientId)
+	reqParams.Set("client_secret", clientSecret)
 	req, err := http.NewRequest("POST", t.url+t.pathCheckToken, nil)
 	if err != nil {
 		return nil, err

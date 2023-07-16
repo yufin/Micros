@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	RcService_ListReportInfos_FullMethodName            = "/api.rc.v1.RcService/ListReportInfos"
 	RcService_GetReportContent_FullMethodName           = "/api.rc.v1.RcService/GetReportContent"
+	RcService_GetReportContentNoDs_FullMethodName       = "/api.rc.v1.RcService/GetReportContentNoDs"
 	RcService_RefreshReportContent_FullMethodName       = "/api.rc.v1.RcService/RefreshReportContent"
 	RcService_InsertReportDependencyData_FullMethodName = "/api.rc.v1.RcService/InsertReportDependencyData"
 	RcService_UpdateReportDependencyData_FullMethodName = "/api.rc.v1.RcService/UpdateReportDependencyData"
@@ -33,6 +34,7 @@ const (
 type RcServiceClient interface {
 	ListReportInfos(ctx context.Context, in *PaginationReq, opts ...grpc.CallOption) (*ReportInfosResp, error)
 	GetReportContent(ctx context.Context, in *ReportContentReq, opts ...grpc.CallOption) (*ReportContentResp, error)
+	GetReportContentNoDs(ctx context.Context, in *ReportContentNoDsReq, opts ...grpc.CallOption) (*ReportContentResp, error)
 	RefreshReportContent(ctx context.Context, in *RefreshReportContentReq, opts ...grpc.CallOption) (*RefreshReportContentResp, error)
 	InsertReportDependencyData(ctx context.Context, in *InsertDependencyDataReq, opts ...grpc.CallOption) (*SetDependencyDataResp, error)
 	UpdateReportDependencyData(ctx context.Context, in *UpdateDependencyDataReq, opts ...grpc.CallOption) (*SetDependencyDataResp, error)
@@ -59,6 +61,15 @@ func (c *rcServiceClient) ListReportInfos(ctx context.Context, in *PaginationReq
 func (c *rcServiceClient) GetReportContent(ctx context.Context, in *ReportContentReq, opts ...grpc.CallOption) (*ReportContentResp, error) {
 	out := new(ReportContentResp)
 	err := c.cc.Invoke(ctx, RcService_GetReportContent_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *rcServiceClient) GetReportContentNoDs(ctx context.Context, in *ReportContentNoDsReq, opts ...grpc.CallOption) (*ReportContentResp, error) {
+	out := new(ReportContentResp)
+	err := c.cc.Invoke(ctx, RcService_GetReportContentNoDs_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -107,6 +118,7 @@ func (c *rcServiceClient) GetReportDependencyData(ctx context.Context, in *GetDe
 type RcServiceServer interface {
 	ListReportInfos(context.Context, *PaginationReq) (*ReportInfosResp, error)
 	GetReportContent(context.Context, *ReportContentReq) (*ReportContentResp, error)
+	GetReportContentNoDs(context.Context, *ReportContentNoDsReq) (*ReportContentResp, error)
 	RefreshReportContent(context.Context, *RefreshReportContentReq) (*RefreshReportContentResp, error)
 	InsertReportDependencyData(context.Context, *InsertDependencyDataReq) (*SetDependencyDataResp, error)
 	UpdateReportDependencyData(context.Context, *UpdateDependencyDataReq) (*SetDependencyDataResp, error)
@@ -123,6 +135,9 @@ func (UnimplementedRcServiceServer) ListReportInfos(context.Context, *Pagination
 }
 func (UnimplementedRcServiceServer) GetReportContent(context.Context, *ReportContentReq) (*ReportContentResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetReportContent not implemented")
+}
+func (UnimplementedRcServiceServer) GetReportContentNoDs(context.Context, *ReportContentNoDsReq) (*ReportContentResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetReportContentNoDs not implemented")
 }
 func (UnimplementedRcServiceServer) RefreshReportContent(context.Context, *RefreshReportContentReq) (*RefreshReportContentResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RefreshReportContent not implemented")
@@ -181,6 +196,24 @@ func _RcService_GetReportContent_Handler(srv interface{}, ctx context.Context, d
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(RcServiceServer).GetReportContent(ctx, req.(*ReportContentReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RcService_GetReportContentNoDs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReportContentNoDsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RcServiceServer).GetReportContentNoDs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RcService_GetReportContentNoDs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RcServiceServer).GetReportContentNoDs(ctx, req.(*ReportContentNoDsReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -271,6 +304,10 @@ var RcService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetReportContent",
 			Handler:    _RcService_GetReportContent_Handler,
+		},
+		{
+			MethodName: "GetReportContentNoDs",
+			Handler:    _RcService_GetReportContentNoDs_Handler,
 		},
 		{
 			MethodName: "RefreshReportContent",

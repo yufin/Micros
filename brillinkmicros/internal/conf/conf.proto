@@ -47,8 +47,14 @@ message Data {
     string path_check_token = 4;
     Database database = 5;
   }
+  message Neo4j {
+    string url = 1;
+    string username = 2;
+    string password = 3;
+  }
   Database database = 1;
   Redis redis = 2;
   Nats nats = 3;
   BlAuth blAuth = 4;
+  Neo4j neo4j = 5;
 }

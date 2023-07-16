@@ -1,0 +1,144 @@
+syntax = "proto3";
+
+package api.rc.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/struct.proto";
+
+option go_package = "brillinkmicros/api/graph/v1;v1";
+option java_multiple_files = true;
+option java_outer_classname = "GraphV1";
+option java_package = "api.graph.v1";
+
+
+service TreeGraph {
+	rpc GetNodeById(IdReq) returns (TreeNodeResp) {
+		option (google.api.http) = {
+			get: "/micros/graph/v1/tree/node"
+		};
+	}
+
+	rpc GetChildren(PgIdReq) returns (TreeNodesResp) {
+		option (google.api.http) = {
+			get: "/micros/graph/v1/tree/children"
+		};
+	}
+
+	rpc GetTitleAutoComplete(TitleAutoCompleteReq) returns (TitleAutoCompleteResp) {
+		option (google.api.http) = {
+			get: "/micros/graph/v1/tree/title-autocomplete"
+		};
+	}
+
+	rpc GetPathBetween(GetPathReq) returns (TreeNodeResp) {
+		option (google.api.http) = {
+			get: "/micros/graph/v1/tree/path"
+		};
+	}
+}
+
+
+message IdReq {
+	string id = 3;
+}
+
+message PgIdReq {
+	uint32 page_num = 1;
+	uint32 page_size = 2;
+	string id = 3;
+}
+
+message Node {
+	string id = 1;
+	string title = 3;
+	repeated string labels = 4;
+	google.protobuf.Struct data = 5;
+}
+
+message Edge {
+	string source = 1;
+	string target = 2;
+	string id = 3;
+	string label = 4;
+	google.protobuf.Struct data = 5;
+}
+
+message Net {
+	repeated Node nodes = 1;
+	repeated Edge edges = 2;
+}
+
+message TreeNode {
+	string entity_id = 1;
+	string id = 2;
+	string title = 3;
+	repeated string labels = 4;
+	int64 children_count = 5;
+	repeated TreeNode children = 6;
+}
+
+message NodeResp {
+	bool success = 1;
+	int64 code = 2;
+	string msg = 3;
+	Node data = 4;
+}
+
+message NodesResp {
+	uint64 total = 1;
+	uint64 current = 2;
+	uint64 page_size = 3;
+	bool success = 4;
+	int64 code = 5;
+	string msg = 6;
+	repeated Node data = 7;
+}
+
+message TreeNodeResp {
+	bool success = 1;
+	int64 code = 2;
+	string msg = 3;
+	TreeNode data = 4;
+}
+
+message TreeNodesResp {
+	uint64 total = 1;
+	uint64 current = 2;
+	uint64 page_size = 3;
+	bool success = 4;
+	int64 code = 5;
+	string msg = 6;
+	repeated TreeNode data = 7;
+}
+
+message NetResp {
+	bool success = 1;
+	int64 code = 2;
+	string msg = 3;
+	Net data = 4;
+}
+
+message TitleAutoCompleteReq {
+	uint64 page_num = 1;
+	uint64 page_size = 2;
+	string key_word = 3;
+}
+
+message TitleAutoCompleteResp {
+	message TitleAutoComplete {
+		string title = 1;
+		string id = 2;
+	}
+	uint64 total = 1;
+	uint64 current = 2;
+	uint64 page_size = 3;
+	bool success = 4;
+	int64 code = 5;
+	string msg = 6;
+	repeated TitleAutoComplete data = 7;
+}
+
+message GetPathReq {
+	string source_id = 1;
+	string target_id = 2;
+}

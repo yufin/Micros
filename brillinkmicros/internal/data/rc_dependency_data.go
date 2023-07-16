@@ -2,6 +2,7 @@ package data
 
 import (
 	"brillinkmicros/internal/biz"
+	"brillinkmicros/internal/biz/dto"
 	"brillinkmicros/pkg"
 	"context"
 	"github.com/go-kratos/kratos/v2/errors"
@@ -20,12 +21,12 @@ func NewRcDependencyDataRepo(data *Data, logger log.Logger) biz.RcDependencyData
 	}
 }
 
-func (repo *RcDependencyDataRepo) GetByContentId(ctx context.Context, contentId int64) (*biz.RcDependencyData, error) {
+func (repo *RcDependencyDataRepo) GetByContentId(ctx context.Context, contentId int64) (*dto.RcDependencyData, error) {
 	dsi, err := pkg.ParseBlDataScope(ctx)
 	if err != nil {
 		return nil, err
 	}
-	var modelRdd biz.RcDependencyData
+	var modelRdd dto.RcDependencyData
 	err = repo.data.Db.
 		Raw(
 			`WITH user_records AS (SELECT *, 1 AS sort_priority
@@ -57,8 +58,8 @@ func (repo *RcDependencyDataRepo) GetByContentId(ctx context.Context, contentId 
 	return &modelRdd, nil
 }
 
-func (repo *RcDependencyDataRepo) Get(ctx context.Context, id int64) (*biz.RcDependencyData, error) {
-	var modelRdd biz.RcDependencyData
+func (repo *RcDependencyDataRepo) Get(ctx context.Context, id int64) (*dto.RcDependencyData, error) {
+	var modelRdd dto.RcDependencyData
 	err := repo.data.Db.
 		Table(modelRdd.TableName()).
 		Where("id = ?", id).
@@ -70,7 +71,7 @@ func (repo *RcDependencyDataRepo) Get(ctx context.Context, id int64) (*biz.RcDep
 	return &modelRdd, nil
 }
 
-func (repo *RcDependencyDataRepo) Insert(ctx context.Context, insertReq *biz.RcDependencyData) (int64, error) {
+func (repo *RcDependencyDataRepo) Insert(ctx context.Context, insertReq *dto.RcDependencyData) (int64, error) {
 	dsi, err := pkg.ParseBlDataScope(ctx)
 	if err != nil {
 		return 0, err
@@ -79,7 +80,7 @@ func (repo *RcDependencyDataRepo) Insert(ctx context.Context, insertReq *biz.RcD
 		insertReq.CreateBy = &dsi.UserId
 	}
 
-	var modelRdd biz.RcDependencyData
+	var modelRdd dto.RcDependencyData
 	insertReq.BaseModel.Gen()
 	err = repo.data.Db.
 		Table(modelRdd.TableName()).
@@ -91,7 +92,7 @@ func (repo *RcDependencyDataRepo) Insert(ctx context.Context, insertReq *biz.RcD
 	return insertReq.Id, nil
 }
 
-func (repo *RcDependencyDataRepo) Update(ctx context.Context, updateReq *biz.RcDependencyData) (int64, error) {
+func (repo *RcDependencyDataRepo) Update(ctx context.Context, updateReq *dto.RcDependencyData) (int64, error) {
 	dsi, err := pkg.ParseBlDataScope(ctx)
 	if err != nil {
 		return 0, err
@@ -101,7 +102,7 @@ func (repo *RcDependencyDataRepo) Update(ctx context.Context, updateReq *biz.RcD
 	}
 	//updatedAt := time.Now()
 	//updateReq.UpdatedAt = &updatedAt
-	var modelRdd biz.RcDependencyData
+	var modelRdd dto.RcDependencyData
 	if updateReq.Id == 0 {
 		return 0, errors.BadRequest("Empty Id", "id is required")
 	}
@@ -115,7 +116,7 @@ func (repo *RcDependencyDataRepo) Update(ctx context.Context, updateReq *biz.RcD
 }
 
 func (repo *RcDependencyDataRepo) Delete(ctx context.Context, id int64) (bool, error) {
-	var modelRdd biz.RcDependencyData
+	var modelRdd dto.RcDependencyData
 	if id == 0 {
 		return false, errors.BadRequest("Empty Id", "id is required")
 	}
@@ -134,7 +135,7 @@ func (repo *RcDependencyDataRepo) CheckIsInsertDepdDataDuplicate(ctx context.Con
 	if err != nil {
 		return false, err
 	}
-	var model biz.RcDependencyData
+	var model dto.RcDependencyData
 	var count int64
 	err = repo.data.Db.
 		Table(model.TableName()).

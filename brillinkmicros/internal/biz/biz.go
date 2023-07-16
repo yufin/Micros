@@ -7,4 +7,5 @@ var ProviderSet = wire.NewSet(
 	NewRcProcessedContentUsecase,
 	NewRcOriginContentUsecase,
 	NewRcDependencyDataUsecase,
+	NewGraphNodeUsecase,
 )

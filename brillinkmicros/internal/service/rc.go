@@ -2,6 +2,7 @@ package service
 
 import (
 	"brillinkmicros/internal/biz"
+	"brillinkmicros/internal/biz/dto"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -39,7 +40,7 @@ func NewRcServiceService(
 
 func (s *RcServiceService) ListReportInfos(ctx context.Context, req *pb.PaginationReq) (*pb.ReportInfosResp, error) {
 
-	pageReq := &biz.PaginationReq{
+	pageReq := &dto.PaginationReq{
 		PageNum:  int(req.PageNum),
 		PageSize: int(req.PageSize),
 	}
@@ -62,7 +63,7 @@ func (s *RcServiceService) ListReportInfos(ctx context.Context, req *pb.Paginati
 			DataCollectMonth:   v.DataCollectMonth,
 			Available:          available,
 			ContentUpdatedTime: v.ProcessedUpdatedAt.Format("2006-01-02 15:04:05"),
-			ImpStatus:          int32(v.StatusCode),
+			LhQylx:             int32(v.LhQylx),
 			// TODO: add i18n info
 		}
 		pbInfos = append(pbInfos, info)
@@ -80,6 +81,31 @@ func (s *RcServiceService) ListReportInfos(ctx context.Context, req *pb.Paginati
 
 func (s *RcServiceService) GetReportContent(ctx context.Context, req *pb.ReportContentReq) (*pb.ReportContentResp, error) {
 	rpcData, err := s.rcProcessedContent.GetByContentIdUpToDate(ctx, req.ContentId)
+	if err != nil {
+		return nil, err
+	}
+	m := make(map[string]interface{})
+	if rpcData == nil {
+		return &pb.ReportContentResp{
+			Content:   nil,
+			Available: false,
+			Msg:       "没有权限查看该报告/报告未生成",
+		}, nil
+	}
+	if err = json.Unmarshal([]byte(rpcData.Content), &m); err != nil {
+		return nil, err
+	}
+	var st *structpb.Struct
+	st, err = structpb.NewStruct(m)
+	return &pb.ReportContentResp{
+		Content:   st,
+		Available: true,
+		Msg:       "",
+	}, nil
+}
+
+func (s *RcServiceService) GetReportContentNoDs(ctx context.Context, req *pb.ReportContentNoDsReq) (*pb.ReportContentResp, error) {
+	rpcData, err := s.rcProcessedContent.GetByContentIdUpToDateByUser(ctx, req.ContentId, req.UserId, 1)
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +173,7 @@ func (s *RcServiceService) InsertReportDependencyData(ctx context.Context, req *
 		return nil, err
 	}
 	if len(contentIds) == 0 {
-		insertReq := biz.RcDependencyData{
+		insertReq := dto.RcDependencyData{
 			UscId:   req.UscId,
 			LhQylx:  int(req.LhQylx),
 			LhCylwz: int(req.LhCylwz),
@@ -175,7 +201,7 @@ func (s *RcServiceService) InsertReportDependencyData(ctx context.Context, req *
 		if err != nil {
 			return nil, err
 		}
-		insertReq := biz.RcDependencyData{
+		insertReq := dto.RcDependencyData{
 			ContentId:       &contentId,
 			AttributedMonth: &dataRoc.YearMonth,
 			UscId:           dataRoc.UscId,
@@ -206,8 +232,8 @@ func (s *RcServiceService) UpdateReportDependencyData(ctx context.Context, req *
 		return nil, errors.BadRequest("Empty ContentId", "row id is required")
 	}
 
-	updateReq := biz.RcDependencyData{
-		BaseModel: biz.BaseModel{
+	updateReq := dto.RcDependencyData{
+		BaseModel: dto.BaseModel{
 			Id: req.Id,
 		},
 		LhQylx:  int(req.LhQylx),
