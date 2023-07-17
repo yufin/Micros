@@ -1,7 +1,8 @@
 package server
 
 import (
-	v1 "brillinkmicros/api/rc/v1"
+	gv1 "brillinkmicros/api/graph/v1"
+	rcv1 "brillinkmicros/api/rc/v1"
 	"brillinkmicros/internal/conf"
 	"brillinkmicros/internal/data"
 	"brillinkmicros/internal/midware"
@@ -13,7 +14,7 @@ import (
 )
 
 // NewHTTPServer new an HTTP server.
-func NewHTTPServer(c *conf.Server, data *data.Data, confData *conf.Data, rss *service.RcServiceService, logger log.Logger) *http.Server {
+func NewHTTPServer(c *conf.Server, data *data.Data, confData *conf.Data, rss *service.RcServiceService, tgs *service.TreeGraphServiceService, logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		// 一个请求进入时的处理顺序为 Middleware 注册的顺序，而响应返回的处理顺序为注册顺序的倒序
 		http.Middleware(
@@ -34,6 +35,7 @@ func NewHTTPServer(c *conf.Server, data *data.Data, confData *conf.Data, rss *se
 	openAPIHandler := openapiv2.NewHandler()
 	srv.HandlePrefix("/q/", openAPIHandler)
 	log.Infof("SwaggerUI DOC: %s/q/swagger-ui/", c.Http.Addr)
-	v1.RegisterRcServiceHTTPServer(srv, rss)
+	rcv1.RegisterRcServiceHTTPServer(srv, rss)
+	gv1.RegisterTreeGraphServiceHTTPServer(srv, tgs)
 	return srv
 }

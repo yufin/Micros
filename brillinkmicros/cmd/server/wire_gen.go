@@ -32,11 +32,11 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	if err != nil {
 		return nil, nil, err
 	}
-	neoCli, err := data.NewNeoCli(confData)
+	driverWithContext, err := data.NewNeoCli(confData)
 	if err != nil {
 		return nil, nil, err
 	}
-	dataData, cleanup, err := data.NewData(logger, dbs, natsWrap, neoCli)
+	dataData, cleanup, err := data.NewData(logger, dbs, natsWrap, driverWithContext)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -48,7 +48,10 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	rcDependencyDataUsecase := biz.NewRcDependencyDataUsecase(rcDependencyDataRepo, logger)
 	rcServiceService := service.NewRcServiceService(rcProcessedContentUsecase, rcOriginContentUsecase, rcDependencyDataUsecase, logger)
 	grpcServer := server.NewGRPCServer(confServer, rcServiceService, logger)
-	httpServer := server.NewHTTPServer(confServer, dataData, confData, rcServiceService, logger)
+	graphNodeRepo := data.NewGraphNodeRepo(dataData, logger)
+	graphNodeUsecase := biz.NewGraphNodeUsecase(graphNodeRepo, logger)
+	treeGraphServiceService := service.NewTreeGraphServiceService(graphNodeUsecase, logger)
+	httpServer := server.NewHTTPServer(confServer, dataData, confData, rcServiceService, treeGraphServiceService, logger)
 	app := newApp(logger, grpcServer, httpServer)
 	return app, func() {
 		cleanup()

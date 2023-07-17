@@ -44,7 +44,7 @@ func RegisterRcServiceHTTPServer(s *http.Server, srv RcServiceHTTPServer) {
 	r.GET("/micros/rc/v1/report/infos", _RcService_ListReportInfos0_HTTP_Handler(srv))
 	r.GET("/micros/rc/v1/report/content", _RcService_GetReportContent0_HTTP_Handler(srv))
 	r.GET("/micros/rc/v1/report/pdf", _RcService_GetReportPdfByDepId0_HTTP_Handler(srv))
-	r.GET("/micros/rc/v1/report/for-convert", _RcService_GetReportContentByDepIdNoDs0_HTTP_Handler(srv))
+	r.GET("/micros/rc/v1/report/internal/for-convert", _RcService_GetReportContentByDepIdNoDs0_HTTP_Handler(srv))
 	r.PUT("/micros/rc/v1/report/content/refresh", _RcService_RefreshReportContent0_HTTP_Handler(srv))
 	r.POST("/micros/rc/v1/report/dependency-data", _RcService_InsertReportDependencyData0_HTTP_Handler(srv))
 	r.PUT("/micros/rc/v1/report/dependency-data", _RcService_UpdateReportDependencyData0_HTTP_Handler(srv))
@@ -237,7 +237,7 @@ func (c *RcServiceHTTPClientImpl) GetReportContent(ctx context.Context, in *Repo
 
 func (c *RcServiceHTTPClientImpl) GetReportContentByDepIdNoDs(ctx context.Context, in *ReportContentByDepIdReq, opts ...http.CallOption) (*ReportContentResp, error) {
 	var out ReportContentResp
-	pattern := "/micros/rc/v1/report/for-convert"
+	pattern := "/micros/rc/v1/report/internal/for-convert"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationRcServiceGetReportContentByDepIdNoDs))
 	opts = append(opts, http.PathTemplate(pattern))

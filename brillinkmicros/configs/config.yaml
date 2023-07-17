@@ -20,7 +20,8 @@ data:
   blAuth:
     client_id: "default"
     client_secret: "admin123"
-    url: "http://10.0.232.22:9080"
+#    url: "http://10.0.232.22:9080"
+    url: "http://192.168.44.169:9080"
     path_check_token: "/admin-api/system/oauth2/check-token"
     database:
       driver: mysql

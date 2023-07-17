@@ -19,200 +19,200 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	TreeGraph_GetNodeById_FullMethodName          = "/api.rc.v1.TreeGraph/GetNodeById"
-	TreeGraph_GetChildren_FullMethodName          = "/api.rc.v1.TreeGraph/GetChildren"
-	TreeGraph_GetTitleAutoComplete_FullMethodName = "/api.rc.v1.TreeGraph/GetTitleAutoComplete"
-	TreeGraph_GetPathBetween_FullMethodName       = "/api.rc.v1.TreeGraph/GetPathBetween"
+	TreeGraphService_GetNodeById_FullMethodName          = "/api.rc.v1.TreeGraphService/GetNodeById"
+	TreeGraphService_GetChildren_FullMethodName          = "/api.rc.v1.TreeGraphService/GetChildren"
+	TreeGraphService_GetTitleAutoComplete_FullMethodName = "/api.rc.v1.TreeGraphService/GetTitleAutoComplete"
+	TreeGraphService_GetPathBetween_FullMethodName       = "/api.rc.v1.TreeGraphService/GetPathBetween"
 )
 
-// TreeGraphClient is the client API for TreeGraph service.
+// TreeGraphServiceClient is the client API for TreeGraphService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type TreeGraphClient interface {
+type TreeGraphServiceClient interface {
 	GetNodeById(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*TreeNodeResp, error)
 	GetChildren(ctx context.Context, in *PgIdReq, opts ...grpc.CallOption) (*TreeNodesResp, error)
 	GetTitleAutoComplete(ctx context.Context, in *TitleAutoCompleteReq, opts ...grpc.CallOption) (*TitleAutoCompleteResp, error)
 	GetPathBetween(ctx context.Context, in *GetPathReq, opts ...grpc.CallOption) (*TreeNodeResp, error)
 }
 
-type treeGraphClient struct {
+type treeGraphServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewTreeGraphClient(cc grpc.ClientConnInterface) TreeGraphClient {
-	return &treeGraphClient{cc}
+func NewTreeGraphServiceClient(cc grpc.ClientConnInterface) TreeGraphServiceClient {
+	return &treeGraphServiceClient{cc}
 }
 
-func (c *treeGraphClient) GetNodeById(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*TreeNodeResp, error) {
+func (c *treeGraphServiceClient) GetNodeById(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*TreeNodeResp, error) {
 	out := new(TreeNodeResp)
-	err := c.cc.Invoke(ctx, TreeGraph_GetNodeById_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, TreeGraphService_GetNodeById_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *treeGraphClient) GetChildren(ctx context.Context, in *PgIdReq, opts ...grpc.CallOption) (*TreeNodesResp, error) {
+func (c *treeGraphServiceClient) GetChildren(ctx context.Context, in *PgIdReq, opts ...grpc.CallOption) (*TreeNodesResp, error) {
 	out := new(TreeNodesResp)
-	err := c.cc.Invoke(ctx, TreeGraph_GetChildren_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, TreeGraphService_GetChildren_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *treeGraphClient) GetTitleAutoComplete(ctx context.Context, in *TitleAutoCompleteReq, opts ...grpc.CallOption) (*TitleAutoCompleteResp, error) {
+func (c *treeGraphServiceClient) GetTitleAutoComplete(ctx context.Context, in *TitleAutoCompleteReq, opts ...grpc.CallOption) (*TitleAutoCompleteResp, error) {
 	out := new(TitleAutoCompleteResp)
-	err := c.cc.Invoke(ctx, TreeGraph_GetTitleAutoComplete_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, TreeGraphService_GetTitleAutoComplete_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *treeGraphClient) GetPathBetween(ctx context.Context, in *GetPathReq, opts ...grpc.CallOption) (*TreeNodeResp, error) {
+func (c *treeGraphServiceClient) GetPathBetween(ctx context.Context, in *GetPathReq, opts ...grpc.CallOption) (*TreeNodeResp, error) {
 	out := new(TreeNodeResp)
-	err := c.cc.Invoke(ctx, TreeGraph_GetPathBetween_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, TreeGraphService_GetPathBetween_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// TreeGraphServer is the server API for TreeGraph service.
-// All implementations must embed UnimplementedTreeGraphServer
+// TreeGraphServiceServer is the server API for TreeGraphService service.
+// All implementations must embed UnimplementedTreeGraphServiceServer
 // for forward compatibility
-type TreeGraphServer interface {
+type TreeGraphServiceServer interface {
 	GetNodeById(context.Context, *IdReq) (*TreeNodeResp, error)
 	GetChildren(context.Context, *PgIdReq) (*TreeNodesResp, error)
 	GetTitleAutoComplete(context.Context, *TitleAutoCompleteReq) (*TitleAutoCompleteResp, error)
 	GetPathBetween(context.Context, *GetPathReq) (*TreeNodeResp, error)
-	mustEmbedUnimplementedTreeGraphServer()
+	mustEmbedUnimplementedTreeGraphServiceServer()
 }
 
-// UnimplementedTreeGraphServer must be embedded to have forward compatible implementations.
-type UnimplementedTreeGraphServer struct {
+// UnimplementedTreeGraphServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedTreeGraphServiceServer struct {
 }
 
-func (UnimplementedTreeGraphServer) GetNodeById(context.Context, *IdReq) (*TreeNodeResp, error) {
+func (UnimplementedTreeGraphServiceServer) GetNodeById(context.Context, *IdReq) (*TreeNodeResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetNodeById not implemented")
 }
-func (UnimplementedTreeGraphServer) GetChildren(context.Context, *PgIdReq) (*TreeNodesResp, error) {
+func (UnimplementedTreeGraphServiceServer) GetChildren(context.Context, *PgIdReq) (*TreeNodesResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetChildren not implemented")
 }
-func (UnimplementedTreeGraphServer) GetTitleAutoComplete(context.Context, *TitleAutoCompleteReq) (*TitleAutoCompleteResp, error) {
+func (UnimplementedTreeGraphServiceServer) GetTitleAutoComplete(context.Context, *TitleAutoCompleteReq) (*TitleAutoCompleteResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTitleAutoComplete not implemented")
 }
-func (UnimplementedTreeGraphServer) GetPathBetween(context.Context, *GetPathReq) (*TreeNodeResp, error) {
+func (UnimplementedTreeGraphServiceServer) GetPathBetween(context.Context, *GetPathReq) (*TreeNodeResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPathBetween not implemented")
 }
-func (UnimplementedTreeGraphServer) mustEmbedUnimplementedTreeGraphServer() {}
+func (UnimplementedTreeGraphServiceServer) mustEmbedUnimplementedTreeGraphServiceServer() {}
 
-// UnsafeTreeGraphServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to TreeGraphServer will
+// UnsafeTreeGraphServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to TreeGraphServiceServer will
 // result in compilation errors.
-type UnsafeTreeGraphServer interface {
-	mustEmbedUnimplementedTreeGraphServer()
+type UnsafeTreeGraphServiceServer interface {
+	mustEmbedUnimplementedTreeGraphServiceServer()
 }
 
-func RegisterTreeGraphServer(s grpc.ServiceRegistrar, srv TreeGraphServer) {
-	s.RegisterService(&TreeGraph_ServiceDesc, srv)
+func RegisterTreeGraphServiceServer(s grpc.ServiceRegistrar, srv TreeGraphServiceServer) {
+	s.RegisterService(&TreeGraphService_ServiceDesc, srv)
 }
 
-func _TreeGraph_GetNodeById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _TreeGraphService_GetNodeById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(IdReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TreeGraphServer).GetNodeById(ctx, in)
+		return srv.(TreeGraphServiceServer).GetNodeById(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TreeGraph_GetNodeById_FullMethodName,
+		FullMethod: TreeGraphService_GetNodeById_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TreeGraphServer).GetNodeById(ctx, req.(*IdReq))
+		return srv.(TreeGraphServiceServer).GetNodeById(ctx, req.(*IdReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TreeGraph_GetChildren_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _TreeGraphService_GetChildren_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PgIdReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TreeGraphServer).GetChildren(ctx, in)
+		return srv.(TreeGraphServiceServer).GetChildren(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TreeGraph_GetChildren_FullMethodName,
+		FullMethod: TreeGraphService_GetChildren_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TreeGraphServer).GetChildren(ctx, req.(*PgIdReq))
+		return srv.(TreeGraphServiceServer).GetChildren(ctx, req.(*PgIdReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TreeGraph_GetTitleAutoComplete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _TreeGraphService_GetTitleAutoComplete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(TitleAutoCompleteReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TreeGraphServer).GetTitleAutoComplete(ctx, in)
+		return srv.(TreeGraphServiceServer).GetTitleAutoComplete(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TreeGraph_GetTitleAutoComplete_FullMethodName,
+		FullMethod: TreeGraphService_GetTitleAutoComplete_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TreeGraphServer).GetTitleAutoComplete(ctx, req.(*TitleAutoCompleteReq))
+		return srv.(TreeGraphServiceServer).GetTitleAutoComplete(ctx, req.(*TitleAutoCompleteReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TreeGraph_GetPathBetween_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _TreeGraphService_GetPathBetween_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetPathReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TreeGraphServer).GetPathBetween(ctx, in)
+		return srv.(TreeGraphServiceServer).GetPathBetween(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TreeGraph_GetPathBetween_FullMethodName,
+		FullMethod: TreeGraphService_GetPathBetween_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TreeGraphServer).GetPathBetween(ctx, req.(*GetPathReq))
+		return srv.(TreeGraphServiceServer).GetPathBetween(ctx, req.(*GetPathReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// TreeGraph_ServiceDesc is the grpc.ServiceDesc for TreeGraph service.
+// TreeGraphService_ServiceDesc is the grpc.ServiceDesc for TreeGraphService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var TreeGraph_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "api.rc.v1.TreeGraph",
-	HandlerType: (*TreeGraphServer)(nil),
+var TreeGraphService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "api.rc.v1.TreeGraphService",
+	HandlerType: (*TreeGraphServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "GetNodeById",
-			Handler:    _TreeGraph_GetNodeById_Handler,
+			Handler:    _TreeGraphService_GetNodeById_Handler,
 		},
 		{
 			MethodName: "GetChildren",
-			Handler:    _TreeGraph_GetChildren_Handler,
+			Handler:    _TreeGraphService_GetChildren_Handler,
 		},
 		{
 			MethodName: "GetTitleAutoComplete",
-			Handler:    _TreeGraph_GetTitleAutoComplete_Handler,
+			Handler:    _TreeGraphService_GetTitleAutoComplete_Handler,
 		},
 		{
 			MethodName: "GetPathBetween",
-			Handler:    _TreeGraph_GetPathBetween_Handler,
+			Handler:    _TreeGraphService_GetPathBetween_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

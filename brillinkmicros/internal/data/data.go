@@ -2,6 +2,7 @@ package data
 
 import (
 	"brillinkmicros/internal/conf"
+	"context"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 	"github.com/nats-io/nats.go"
@@ -33,7 +34,7 @@ type Data struct {
 	Db   *gorm.DB
 	DbBl *gorm.DB
 	Nw   *NatsWrap
-	Neo  *NeoCli
+	Neo  neo4j.DriverWithContext
 }
 
 func NewGormDB(dsn string) (*gorm.DB, error) {
@@ -92,16 +93,21 @@ func NewNatsConn(c *conf.Data) (*NatsWrap, error) {
 	}, nil
 }
 
-func NewNeoCli(c *conf.Data) (*NeoCli, error) {
+func NewNeoCli(c *conf.Data) (neo4j.DriverWithContext, error) {
 	d, err := neo4j.NewDriverWithContext(c.Neo4J.Url, neo4j.BasicAuth(c.Neo4J.Username, c.Neo4J.Password, ""))
 	if err != nil {
 		return nil, err
 	}
-	return &NeoCli{Neo: d}, nil
+	connErr := d.VerifyConnectivity(context.Background())
+	if connErr != nil {
+		return nil, connErr
+	}
+
+	return d, nil
 }
 
 // NewData .
-func NewData(logger log.Logger, dbs *Dbs, nw *NatsWrap, neo *NeoCli) (*Data, func(), error) {
+func NewData(logger log.Logger, dbs *Dbs, nw *NatsWrap, neo neo4j.DriverWithContext) (*Data, func(), error) {
 	ndLog := log.NewHelper(logger)
 
 	cleanup := func() {

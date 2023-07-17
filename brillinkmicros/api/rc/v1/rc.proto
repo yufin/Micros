@@ -33,7 +33,7 @@ service RcService {
 
 	rpc GetReportContentByDepIdNoDs(ReportContentByDepIdReq) returns (ReportContentResp) {
 		option (google.api.http) = {
-			get: "/micros/rc/v1/report/for-convert"
+			get: "/micros/rc/v1/report/internal/for-convert"
 		};
 	}
 

@@ -18,24 +18,23 @@ type Dbs struct {
 	dbBl *gorm.DB
 }
 
-type NeoCli struct {
-	Neo neo4j.DriverWithContext
-}
+func CypherQuery(driver neo4j.DriverWithContext, ctx context.Context, cypher string, params map[string]any) ([]neo4j.Record, error) {
+	//ctxTemp := context.Background()
+	session := driver.NewSession(context.Background(), neo4j.SessionConfig{AccessMode: neo4j.AccessModeRead})
 
-func (t *NeoCli) CypherQuery(ctx context.Context, cypher string, params map[string]any) ([]neo4j.Record, error) {
-	session := t.Neo.NewSession(ctx, neo4j.SessionConfig{AccessMode: neo4j.AccessModeRead})
-	defer func(session neo4j.SessionWithContext, ctx context.Context) {
-		err := session.Close(ctx)
+	defer func(session neo4j.SessionWithContext, ctxTemp context.Context) {
+		err := session.Close(ctxTemp)
 		if err != nil {
 			log.Errorf("Error closing Neo4j session: %v", err)
 		}
-	}(session, ctx)
-	result, err := session.Run(ctx, cypher, params)
+	}(session, context.Background())
+
+	result, err := session.Run(context.Background(), cypher, params)
 	if err != nil {
 		return nil, err
 	}
 	var output []neo4j.Record
-	for result.Next(ctx) {
+	for result.Next(context.Background()) {
 		record := result.Record()
 		output = append(output, *record)
 	}

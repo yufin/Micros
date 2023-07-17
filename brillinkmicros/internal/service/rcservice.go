@@ -105,7 +105,7 @@ func (s *RcServiceService) GetReportContent(ctx context.Context, req *pb.ReportC
 	}, nil
 }
 
-func (s *RcServiceService) GetReportContentNoDs(ctx context.Context, req *pb.ReportContentByDepIdReq) (*pb.ReportContentResp, error) {
+func (s *RcServiceService) GetReportContentByDepIdNoDs(ctx context.Context, req *pb.ReportContentByDepIdReq) (*pb.ReportContentResp, error) {
 	rpcData, err := s.rcProcessedContent.GetContentUpToDateByDepId(ctx, req.DepId, 1)
 	if err != nil {
 		return nil, err
