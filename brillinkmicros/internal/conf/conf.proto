@@ -52,9 +52,16 @@ message Data {
     string username = 2;
     string password = 3;
   }
+  message Minio {
+    string endpoint = 1;
+    string access_key = 2;
+    string secret_key = 3;
+    bool use_ssl = 4;
+  }
   Database database = 1;
   Redis redis = 2;
   Nats nats = 3;
   BlAuth blAuth = 4;
   Neo4j neo4j = 5;
+  Minio minio = 6;
 }

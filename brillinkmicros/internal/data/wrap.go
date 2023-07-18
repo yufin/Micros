@@ -9,13 +9,13 @@ import (
 )
 
 type NatsWrap struct {
-	nc *nats.Conn
-	js nats.JetStreamContext
+	Nc *nats.Conn
+	Js nats.JetStreamContext
 }
 
 type Dbs struct {
-	db   *gorm.DB
-	dbBl *gorm.DB
+	Db   *gorm.DB
+	DbBl *gorm.DB
 }
 
 func CypherQuery(driver neo4j.DriverWithContext, ctx context.Context, cypher string, params map[string]any) ([]neo4j.Record, error) {

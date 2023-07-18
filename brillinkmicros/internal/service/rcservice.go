@@ -9,6 +9,7 @@ import (
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"google.golang.org/protobuf/types/known/structpb"
+	"gorm.io/gorm"
 	"strconv"
 	"time"
 
@@ -23,17 +24,23 @@ type RcServiceService struct {
 	rcProcessedContent *biz.RcProcessedContentUsecase
 	rcOriginContent    *biz.RcOriginContentUsecase
 	rcDependencyData   *biz.RcDependencyDataUsecase
+	rcReportOss        *biz.RcReportOssUsecase
+	ossMetadata        *biz.OssMetadataUsecase
 }
 
 func NewRcServiceService(
 	rpc *biz.RcProcessedContentUsecase,
 	roc *biz.RcOriginContentUsecase,
 	rdd *biz.RcDependencyDataUsecase,
+	omd *biz.OssMetadataUsecase,
+	rro *biz.RcReportOssUsecase,
 	logger log.Logger) *RcServiceService {
 	return &RcServiceService{
 		rcOriginContent:    roc,
 		rcProcessedContent: rpc,
 		rcDependencyData:   rdd,
+		rcReportOss:        rro,
+		ossMetadata:        omd,
 		log:                log.NewHelper(logger),
 	}
 }
@@ -183,6 +190,7 @@ func (s *RcServiceService) InsertReportDependencyData(ctx context.Context, req *
 			LhYhsx:       int(req.LhYhsx),
 			LhSfsx:       int(req.LhSfsx),
 			AdditionData: req.AdditionData,
+			StatusCode:   0,
 		}
 		_, err = s.rcDependencyData.Insert(ctx, &insertReq)
 		if err != nil {
@@ -292,5 +300,36 @@ func (s *RcServiceService) GetReportDependencyData(ctx context.Context, req *pb.
 
 func (s *RcServiceService) GetReportPdfByDepId(ctx context.Context, req *pb.ReportContentByDepIdReq) (*pb.OssFileDownloadResp, error) {
 	// :TODO 添加oss下载方法
-	return nil, nil
+	r, err := s.rcDependencyData.Get(ctx, req.DepId)
+	if err != nil {
+		if errors.Is(gorm.ErrRecordNotFound, err) {
+			return &pb.OssFileDownloadResp{
+				Available: false,
+				Msg:       "没有权限下载该报告",
+			}, nil
+		}
+		return nil, err
+	}
+	fmt.Println(r)
+	ossId, err := s.rcReportOss.GetOssIdUptoDateByDepId(ctx, req.DepId)
+	if err != nil {
+		return nil, err
+	}
+
+	meta, err := s.ossMetadata.GetById(ctx, ossId)
+	if err != nil {
+		return nil, err
+	}
+	fileName := "report.pdf"
+	preUrl, err := s.ossMetadata.GetDownloadUrlByObjName(ctx, fileName, meta)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.OssFileDownloadResp{
+		Available: false,
+		Msg:       "",
+		Url:       preUrl.String(),
+		CreatedAt: meta.CreatedAt.Format("2006-01-02 15:04:05"),
+	}, nil
 }

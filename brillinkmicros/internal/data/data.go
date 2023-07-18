@@ -2,9 +2,12 @@ package data
 
 import (
 	"brillinkmicros/internal/conf"
+	"brillinkmicros/pkg/miniocli"
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/nats-io/nats.go"
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 	"gorm.io/driver/mysql"
@@ -24,20 +27,24 @@ var ProviderSet = wire.NewSet(
 	NewDbs,
 	NewNatsConn,
 	NewNeoCli,
+	NewMinioClient,
 	NewRcProcessedContentRepo,
 	NewRcOriginContentRepo,
 	NewRcDependencyDataRepo,
 	NewGraphNodeRepo,
+	NewRcReportOssRepo,
+	NewOssMetadataRepo,
 )
 
 type Data struct {
-	Db   *gorm.DB
-	DbBl *gorm.DB
-	Nw   *NatsWrap
-	Neo  neo4j.DriverWithContext
+	Db       *gorm.DB
+	DbBl     *gorm.DB
+	Nw       *NatsWrap
+	Neo      neo4j.DriverWithContext
+	MinioCli *miniocli.MinioClient
 }
 
-func NewGormDB(dsn string) (*gorm.DB, error) {
+func newGormDB(dsn string) (*gorm.DB, error) {
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, err
@@ -53,18 +60,31 @@ func NewGormDB(dsn string) (*gorm.DB, error) {
 	return db, nil
 }
 
-func NewDbs(c *conf.Data) (*Dbs, error) {
-	db, err := NewGormDB(c.Database.Source)
+func NewMinioClient(c *conf.Data) (*miniocli.MinioClient, error) {
+	moCli, err := minio.New(c.Minio.Endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(c.Minio.AccessKey, c.Minio.SecretKey, ""),
+		Secure: c.Minio.UseSsl,
+	})
 	if err != nil {
 		return nil, err
 	}
-	dbBl, err := NewGormDB(c.BlAuth.Database.Source)
+	return &miniocli.MinioClient{
+		Cli: moCli,
+	}, nil
+}
+
+func NewDbs(c *conf.Data) (*Dbs, error) {
+	db, err := newGormDB(c.Database.Source)
+	if err != nil {
+		return nil, err
+	}
+	dbBl, err := newGormDB(c.BlAuth.Database.Source)
 	if err != nil {
 		return nil, err
 	}
 	return &Dbs{
-		db:   db,
-		dbBl: dbBl,
+		Db:   db,
+		DbBl: dbBl,
 	}, nil
 }
 
@@ -88,8 +108,8 @@ func NewNatsConn(c *conf.Data) (*NatsWrap, error) {
 		return nil, err
 	}
 	return &NatsWrap{
-		nc: nc,
-		js: js,
+		Nc: nc,
+		Js: js,
 	}, nil
 }
 
@@ -107,12 +127,12 @@ func NewNeoCli(c *conf.Data) (neo4j.DriverWithContext, error) {
 }
 
 // NewData .
-func NewData(logger log.Logger, dbs *Dbs, nw *NatsWrap, neo neo4j.DriverWithContext) (*Data, func(), error) {
+func NewData(logger log.Logger, dbs *Dbs, nw *NatsWrap, neo neo4j.DriverWithContext, miCli *miniocli.MinioClient) (*Data, func(), error) {
 	ndLog := log.NewHelper(logger)
 
 	cleanup := func() {
 		ndLog.Info("Closing the data resources")
-		for _, db := range []*gorm.DB{dbs.db, dbs.dbBl} {
+		for _, db := range []*gorm.DB{dbs.Db, dbs.DbBl} {
 			db := db
 			sqlDb, err := db.DB()
 			if err != nil {
@@ -123,7 +143,7 @@ func NewData(logger log.Logger, dbs *Dbs, nw *NatsWrap, neo neo4j.DriverWithCont
 			}
 		}
 
-		if err := nw.nc.Drain(); err != nil {
+		if err := nw.Nc.Drain(); err != nil {
 			ndLog.Errorf("failed to drain nats: %v", err)
 		}
 
@@ -131,9 +151,10 @@ func NewData(logger log.Logger, dbs *Dbs, nw *NatsWrap, neo neo4j.DriverWithCont
 	}
 
 	return &Data{
-		Db:   dbs.db,
-		DbBl: dbs.dbBl,
-		Nw:   nw,
-		Neo:  neo,
+		Db:       dbs.Db,
+		DbBl:     dbs.DbBl,
+		Nw:       nw,
+		Neo:      neo,
+		MinioCli: miCli,
 	}, cleanup, nil
 }

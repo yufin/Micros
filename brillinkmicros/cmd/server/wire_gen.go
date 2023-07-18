@@ -36,7 +36,11 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	if err != nil {
 		return nil, nil, err
 	}
-	dataData, cleanup, err := data.NewData(logger, dbs, natsWrap, driverWithContext)
+	minioClient, err := data.NewMinioClient(confData)
+	if err != nil {
+		return nil, nil, err
+	}
+	dataData, cleanup, err := data.NewData(logger, dbs, natsWrap, driverWithContext, minioClient)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -46,7 +50,11 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	rcOriginContentUsecase := biz.NewRcOriginContentUsecase(rcOriginContentRepo, logger)
 	rcDependencyDataRepo := data.NewRcDependencyDataRepo(dataData, logger)
 	rcDependencyDataUsecase := biz.NewRcDependencyDataUsecase(rcDependencyDataRepo, logger)
-	rcServiceService := service.NewRcServiceService(rcProcessedContentUsecase, rcOriginContentUsecase, rcDependencyDataUsecase, logger)
+	ossMetadataRepo := data.NewOssMetadataRepo(dataData, logger)
+	ossMetadataUsecase := biz.NewOssMetadataUsecase(ossMetadataRepo, logger)
+	rcReportOssRepo := data.NewRcReportOssRepo(dataData, logger)
+	rcReportOssUsecase := biz.NewRcReportOssUsecase(rcReportOssRepo, logger)
+	rcServiceService := service.NewRcServiceService(rcProcessedContentUsecase, rcOriginContentUsecase, rcDependencyDataUsecase, ossMetadataUsecase, rcReportOssUsecase, logger)
 	grpcServer := server.NewGRPCServer(confServer, rcServiceService, logger)
 	graphNodeRepo := data.NewGraphNodeRepo(dataData, logger)
 	graphNodeUsecase := biz.NewGraphNodeUsecase(graphNodeRepo, logger)

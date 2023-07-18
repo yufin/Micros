@@ -59,10 +59,15 @@ func (repo *RcDependencyDataRepo) GetByContentId(ctx context.Context, contentId 
 }
 
 func (repo *RcDependencyDataRepo) Get(ctx context.Context, id int64) (*dto.RcDependencyData, error) {
+	dsi, err := pkg.ParseBlDataScope(ctx)
+	if err != nil {
+		return nil, err
+	}
 	var modelRdd dto.RcDependencyData
-	err := repo.data.Db.
+	err = repo.data.Db.
 		Table(modelRdd.TableName()).
 		Where("id = ?", id).
+		Where("create_by IN (?)", dsi.AccessibleIds).
 		First(&modelRdd).
 		Error
 	if err != nil {

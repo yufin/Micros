@@ -182,7 +182,9 @@ message RefreshReportContentResp {
 }
 
 message OssFileDownloadResp {
-	string url = 1;
-	string created_at = 2;
+	bool available = 1;
+	string msg = 2;
+	string url = 3;
+	string created_at = 4;
 }
 

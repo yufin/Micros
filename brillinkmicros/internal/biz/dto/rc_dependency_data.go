@@ -12,6 +12,7 @@ type RcDependencyData struct {
 	LhYhsx          int
 	LhSfsx          int
 	AdditionData    string
+	StatusCode      int
 }
 
 func (*RcDependencyData) TableName() string {
