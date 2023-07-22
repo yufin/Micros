@@ -6,7 +6,7 @@ import "github.com/google/wire"
 var ProviderSet = wire.NewSet(
 	NewOssMetadataUsecase,
 	NewRcReportOssUsecase,
-	NewGraphNodeUsecase,
+	NewGraphUsecase,
 	NewRcProcessedContentUsecase,
 	NewRcOriginContentUsecase,
 	NewRcDependencyDataUsecase,

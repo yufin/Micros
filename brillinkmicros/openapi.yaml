@@ -127,6 +127,38 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /micros/rc/v1/report/download:
+        get:
+            tags:
+                - RcService
+            operationId: RcService_GetReportPdfByDepId
+            parameters:
+                - name: depId
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+                - name: lang
+                  in: query
+                  schema:
+                    type: string
+                - name: fileName
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OssFileDownloadResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /micros/rc/v1/report/infos:
         get:
             tags:
@@ -178,34 +210,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ReportContentResp'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-    /micros/rc/v1/report/pdf:
-        get:
-            tags:
-                - RcService
-            operationId: RcService_GetReportPdfByDepId
-            parameters:
-                - name: depId
-                  in: query
-                  schema:
-                    type: integer
-                    format: int64
-                - name: lang
-                  in: query
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/OssFileDownloadResp'
                 default:
                     description: Default error response
                     content:

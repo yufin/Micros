@@ -56,9 +56,9 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	rcReportOssUsecase := biz.NewRcReportOssUsecase(rcReportOssRepo, logger)
 	rcServiceService := service.NewRcServiceService(rcProcessedContentUsecase, rcOriginContentUsecase, rcDependencyDataUsecase, ossMetadataUsecase, rcReportOssUsecase, logger)
 	grpcServer := server.NewGRPCServer(confServer, rcServiceService, logger)
-	graphNodeRepo := data.NewGraphNodeRepo(dataData, logger)
-	graphNodeUsecase := biz.NewGraphNodeUsecase(graphNodeRepo, logger)
-	treeGraphServiceService := service.NewTreeGraphServiceService(graphNodeUsecase, logger)
+	graphRepo := data.NewGraphRepo(dataData, logger)
+	graphUsecase := biz.NewGraphUsecase(graphRepo, logger)
+	treeGraphServiceService := service.NewTreeGraphServiceService(graphUsecase, logger)
 	httpServer := server.NewHTTPServer(confServer, dataData, confData, rcServiceService, treeGraphServiceService, logger)
 	app := newApp(logger, grpcServer, httpServer)
 	return app, func() {

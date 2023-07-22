@@ -31,7 +31,7 @@ var ProviderSet = wire.NewSet(
 	NewRcProcessedContentRepo,
 	NewRcOriginContentRepo,
 	NewRcDependencyDataRepo,
-	NewGraphNodeRepo,
+	NewGraphRepo,
 	NewRcReportOssRepo,
 	NewOssMetadataRepo,
 )

@@ -35,7 +35,7 @@ const (
 type RcServiceClient interface {
 	ListReportInfos(ctx context.Context, in *PaginationReq, opts ...grpc.CallOption) (*ReportInfosResp, error)
 	GetReportContent(ctx context.Context, in *ReportContentReq, opts ...grpc.CallOption) (*ReportContentResp, error)
-	GetReportPdfByDepId(ctx context.Context, in *ReportContentByDepIdReq, opts ...grpc.CallOption) (*OssFileDownloadResp, error)
+	GetReportPdfByDepId(ctx context.Context, in *ReportDownloadReq, opts ...grpc.CallOption) (*OssFileDownloadResp, error)
 	GetReportContentByDepIdNoDs(ctx context.Context, in *ReportContentByDepIdReq, opts ...grpc.CallOption) (*ReportContentResp, error)
 	RefreshReportContent(ctx context.Context, in *RefreshReportContentReq, opts ...grpc.CallOption) (*RefreshReportContentResp, error)
 	InsertReportDependencyData(ctx context.Context, in *InsertDependencyDataReq, opts ...grpc.CallOption) (*SetDependencyDataResp, error)
@@ -69,7 +69,7 @@ func (c *rcServiceClient) GetReportContent(ctx context.Context, in *ReportConten
 	return out, nil
 }
 
-func (c *rcServiceClient) GetReportPdfByDepId(ctx context.Context, in *ReportContentByDepIdReq, opts ...grpc.CallOption) (*OssFileDownloadResp, error) {
+func (c *rcServiceClient) GetReportPdfByDepId(ctx context.Context, in *ReportDownloadReq, opts ...grpc.CallOption) (*OssFileDownloadResp, error) {
 	out := new(OssFileDownloadResp)
 	err := c.cc.Invoke(ctx, RcService_GetReportPdfByDepId_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -129,7 +129,7 @@ func (c *rcServiceClient) GetReportDependencyData(ctx context.Context, in *GetDe
 type RcServiceServer interface {
 	ListReportInfos(context.Context, *PaginationReq) (*ReportInfosResp, error)
 	GetReportContent(context.Context, *ReportContentReq) (*ReportContentResp, error)
-	GetReportPdfByDepId(context.Context, *ReportContentByDepIdReq) (*OssFileDownloadResp, error)
+	GetReportPdfByDepId(context.Context, *ReportDownloadReq) (*OssFileDownloadResp, error)
 	GetReportContentByDepIdNoDs(context.Context, *ReportContentByDepIdReq) (*ReportContentResp, error)
 	RefreshReportContent(context.Context, *RefreshReportContentReq) (*RefreshReportContentResp, error)
 	InsertReportDependencyData(context.Context, *InsertDependencyDataReq) (*SetDependencyDataResp, error)
@@ -148,7 +148,7 @@ func (UnimplementedRcServiceServer) ListReportInfos(context.Context, *Pagination
 func (UnimplementedRcServiceServer) GetReportContent(context.Context, *ReportContentReq) (*ReportContentResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetReportContent not implemented")
 }
-func (UnimplementedRcServiceServer) GetReportPdfByDepId(context.Context, *ReportContentByDepIdReq) (*OssFileDownloadResp, error) {
+func (UnimplementedRcServiceServer) GetReportPdfByDepId(context.Context, *ReportDownloadReq) (*OssFileDownloadResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetReportPdfByDepId not implemented")
 }
 func (UnimplementedRcServiceServer) GetReportContentByDepIdNoDs(context.Context, *ReportContentByDepIdReq) (*ReportContentResp, error) {
@@ -216,7 +216,7 @@ func _RcService_GetReportContent_Handler(srv interface{}, ctx context.Context, d
 }
 
 func _RcService_GetReportPdfByDepId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ReportContentByDepIdReq)
+	in := new(ReportDownloadReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -228,7 +228,7 @@ func _RcService_GetReportPdfByDepId_Handler(srv interface{}, ctx context.Context
 		FullMethod: RcService_GetReportPdfByDepId_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RcServiceServer).GetReportPdfByDepId(ctx, req.(*ReportContentByDepIdReq))
+		return srv.(RcServiceServer).GetReportPdfByDepId(ctx, req.(*ReportDownloadReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }

@@ -8,6 +8,7 @@ import (
 	"brillinkmicros/internal/midware"
 	"brillinkmicros/internal/service"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v2/middleware/logging"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/go-kratos/swagger-api/openapiv2"
@@ -19,6 +20,7 @@ func NewHTTPServer(c *conf.Server, data *data.Data, confData *conf.Data, rss *se
 		// 一个请求进入时的处理顺序为 Middleware 注册的顺序，而响应返回的处理顺序为注册顺序的倒序
 		http.Middleware(
 			recovery.Recovery(),
+			logging.Server(logger),
 			midware.BlAuth(confData, data),
 		),
 	}

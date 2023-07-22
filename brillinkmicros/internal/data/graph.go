@@ -10,19 +10,19 @@ import (
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 )
 
-type GraphNodeRepo struct {
+type GraphRepo struct {
 	data *Data
 	log  *log.Helper
 }
 
-func NewGraphNodeRepo(data *Data, logger log.Logger) biz.GraphNodeRepo {
-	return &GraphNodeRepo{
+func NewGraphRepo(data *Data, logger log.Logger) biz.GraphRepo {
+	return &GraphRepo{
 		data: data,
 		log:  log.NewHelper(logger),
 	}
 }
 
-func (repo *GraphNodeRepo) GetNode(ctx context.Context, id string) (*dto.Node, error) {
+func (repo *GraphRepo) GetNode(ctx context.Context, id string) (*dto.Node, error) {
 	cypher := "MATCH (n {id: $id}) RETURN n;"
 	res, err := CypherQuery(repo.data.Neo, ctx, cypher, map[string]interface{}{"id": id})
 	if err != nil {
@@ -40,7 +40,7 @@ func (repo *GraphNodeRepo) GetNode(ctx context.Context, id string) (*dto.Node, e
 	return &node, nil
 }
 
-func (repo *GraphNodeRepo) GetNodes(ctx context.Context, ids []string) ([]*dto.Node, error) {
+func (repo *GraphRepo) GetNodes(ctx context.Context, ids []string) ([]*dto.Node, error) {
 	cypher := "MATCH (n) where n.id in $ids RETURN n;"
 	res, err := CypherQuery(repo.data.Neo, ctx, cypher, map[string]interface{}{"ids": ids})
 	if err != nil {
@@ -57,7 +57,7 @@ func (repo *GraphNodeRepo) GetNodes(ctx context.Context, ids []string) ([]*dto.N
 	return nodes, nil
 }
 
-func (repo *GraphNodeRepo) GetChildren(ctx context.Context, id string, f *dto.PathFilter, p *dto.PaginationReq) ([]*dto.Node, error) {
+func (repo *GraphRepo) GetChildren(ctx context.Context, id string, f *dto.PathFilter, p *dto.PaginationReq) ([]*dto.Node, error) {
 	offset := (p.PageNum - 1) * p.PageSize
 	cypher := `MATCH (p)-[r]->(c) 
 			WHERE p.id = $nodeId 
@@ -87,7 +87,7 @@ func (repo *GraphNodeRepo) GetChildren(ctx context.Context, id string, f *dto.Pa
 	return nodes, nil
 }
 
-func (repo *GraphNodeRepo) CountChildren(ctx context.Context, id string, f *dto.PathFilter, amount *int64) error {
+func (repo *GraphRepo) CountChildren(ctx context.Context, id string, f *dto.PathFilter, amount *int64) error {
 	cypher := `MATCH (p)-[r]->(c) 
 			WHERE p.id = $nodeId 
 			AND any(label IN labels(c) WHERE label IN $childLabels) 
@@ -116,7 +116,7 @@ func (repo *GraphNodeRepo) CountChildren(ctx context.Context, id string, f *dto.
 	return nil
 }
 
-func (repo *GraphNodeRepo) GetTitleAutoComplete(ctx context.Context, f *dto.PathFilter, p *dto.PaginationReq, kw string) ([]*dto.TitleAutoCompleteRes, error) {
+func (repo *GraphRepo) GetTitleAutoComplete(ctx context.Context, f *dto.PathFilter, p *dto.PaginationReq, kw string) ([]*dto.TitleAutoCompleteRes, error) {
 	//var relLabel string
 	//if limitLabel == "Company" {
 	//	relLabel = "ATTACH_TO"
@@ -158,7 +158,7 @@ func (repo *GraphNodeRepo) GetTitleAutoComplete(ctx context.Context, f *dto.Path
 	return tac, nil
 }
 
-func (repo *GraphNodeRepo) CountTitleAutoComplete(ctx context.Context, f *dto.PathFilter, kw string, amount *int64) error {
+func (repo *GraphRepo) CountTitleAutoComplete(ctx context.Context, f *dto.PathFilter, kw string, amount *int64) error {
 	//var relLabel string
 	//if limitLabel == "Company" {
 	//	relLabel = "ATTACH_TO"

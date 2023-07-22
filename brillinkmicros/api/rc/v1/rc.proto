@@ -24,9 +24,9 @@ service RcService {
 		};
 	}
 
-	rpc GetReportPdfByDepId(ReportContentByDepIdReq) returns (OssFileDownloadResp) {
+	rpc GetReportPdfByDepId(ReportDownloadReq) returns (OssFileDownloadResp) {
 		option (google.api.http) = {
-			get: "/micros/rc/v1/report/pdf"
+			get: "/micros/rc/v1/report/download"
 		};
 	}
 
@@ -162,6 +162,12 @@ message ReportContentReq {
 message ReportContentByDepIdReq {
 	int64 dep_id = 1;
 	string lang = 2;
+}
+
+message ReportDownloadReq {
+	int64 dep_id = 1;
+	string lang = 2;
+	string file_name = 3;
 }
 
 message ReportContentResp {

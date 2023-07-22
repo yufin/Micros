@@ -32,7 +32,7 @@ type RcServiceHTTPServer interface {
 	GetReportContent(context.Context, *ReportContentReq) (*ReportContentResp, error)
 	GetReportContentByDepIdNoDs(context.Context, *ReportContentByDepIdReq) (*ReportContentResp, error)
 	GetReportDependencyData(context.Context, *GetDependencyDataReq) (*GetDependencyDataResp, error)
-	GetReportPdfByDepId(context.Context, *ReportContentByDepIdReq) (*OssFileDownloadResp, error)
+	GetReportPdfByDepId(context.Context, *ReportDownloadReq) (*OssFileDownloadResp, error)
 	InsertReportDependencyData(context.Context, *InsertDependencyDataReq) (*SetDependencyDataResp, error)
 	ListReportInfos(context.Context, *PaginationReq) (*ReportInfosResp, error)
 	RefreshReportContent(context.Context, *RefreshReportContentReq) (*RefreshReportContentResp, error)
@@ -43,7 +43,7 @@ func RegisterRcServiceHTTPServer(s *http.Server, srv RcServiceHTTPServer) {
 	r := s.Route("/")
 	r.GET("/micros/rc/v1/report/infos", _RcService_ListReportInfos0_HTTP_Handler(srv))
 	r.GET("/micros/rc/v1/report/content", _RcService_GetReportContent0_HTTP_Handler(srv))
-	r.GET("/micros/rc/v1/report/pdf", _RcService_GetReportPdfByDepId0_HTTP_Handler(srv))
+	r.GET("/micros/rc/v1/report/download", _RcService_GetReportPdfByDepId0_HTTP_Handler(srv))
 	r.GET("/micros/rc/v1/report/internal/for-convert", _RcService_GetReportContentByDepIdNoDs0_HTTP_Handler(srv))
 	r.PUT("/micros/rc/v1/report/content/refresh", _RcService_RefreshReportContent0_HTTP_Handler(srv))
 	r.POST("/micros/rc/v1/report/dependency-data", _RcService_InsertReportDependencyData0_HTTP_Handler(srv))
@@ -91,13 +91,13 @@ func _RcService_GetReportContent0_HTTP_Handler(srv RcServiceHTTPServer) func(ctx
 
 func _RcService_GetReportPdfByDepId0_HTTP_Handler(srv RcServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in ReportContentByDepIdReq
+		var in ReportDownloadReq
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationRcServiceGetReportPdfByDepId)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetReportPdfByDepId(ctx, req.(*ReportContentByDepIdReq))
+			return srv.GetReportPdfByDepId(ctx, req.(*ReportDownloadReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -207,7 +207,7 @@ type RcServiceHTTPClient interface {
 	GetReportContent(ctx context.Context, req *ReportContentReq, opts ...http.CallOption) (rsp *ReportContentResp, err error)
 	GetReportContentByDepIdNoDs(ctx context.Context, req *ReportContentByDepIdReq, opts ...http.CallOption) (rsp *ReportContentResp, err error)
 	GetReportDependencyData(ctx context.Context, req *GetDependencyDataReq, opts ...http.CallOption) (rsp *GetDependencyDataResp, err error)
-	GetReportPdfByDepId(ctx context.Context, req *ReportContentByDepIdReq, opts ...http.CallOption) (rsp *OssFileDownloadResp, err error)
+	GetReportPdfByDepId(ctx context.Context, req *ReportDownloadReq, opts ...http.CallOption) (rsp *OssFileDownloadResp, err error)
 	InsertReportDependencyData(ctx context.Context, req *InsertDependencyDataReq, opts ...http.CallOption) (rsp *SetDependencyDataResp, err error)
 	ListReportInfos(ctx context.Context, req *PaginationReq, opts ...http.CallOption) (rsp *ReportInfosResp, err error)
 	RefreshReportContent(ctx context.Context, req *RefreshReportContentReq, opts ...http.CallOption) (rsp *RefreshReportContentResp, err error)
@@ -261,9 +261,9 @@ func (c *RcServiceHTTPClientImpl) GetReportDependencyData(ctx context.Context, i
 	return &out, err
 }
 
-func (c *RcServiceHTTPClientImpl) GetReportPdfByDepId(ctx context.Context, in *ReportContentByDepIdReq, opts ...http.CallOption) (*OssFileDownloadResp, error) {
+func (c *RcServiceHTTPClientImpl) GetReportPdfByDepId(ctx context.Context, in *ReportDownloadReq, opts ...http.CallOption) (*OssFileDownloadResp, error) {
 	var out OssFileDownloadResp
-	pattern := "/micros/rc/v1/report/pdf"
+	pattern := "/micros/rc/v1/report/download"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationRcServiceGetReportPdfByDepId))
 	opts = append(opts, http.PathTemplate(pattern))

@@ -41,6 +41,10 @@ type Edge struct {
 	Data     map[string]any
 }
 
+func (s *Edge) Gen (r neo4j.Relationship) {
+	return
+}
+
 type Net struct {
 	Nodes []Node
 	Edges []Edge

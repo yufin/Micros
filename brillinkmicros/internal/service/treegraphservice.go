@@ -14,14 +14,14 @@ import (
 
 type TreeGraphServiceService struct {
 	pb.UnimplementedTreeGraphServiceServer
-	log       *log.Helper
-	graphNode *biz.GraphNodeUsecase
+	log   *log.Helper
+	graph *biz.GraphUsecase
 }
 
-func NewTreeGraphServiceService(gn *biz.GraphNodeUsecase, logger log.Logger) *TreeGraphServiceService {
+func NewTreeGraphServiceService(gn *biz.GraphUsecase, logger log.Logger) *TreeGraphServiceService {
 	return &TreeGraphServiceService{
-		graphNode: gn,
-		log:       log.NewHelper(logger),
+		graph: gn,
+		log:   log.NewHelper(logger),
 	}
 }
 
@@ -39,11 +39,11 @@ func (s *TreeGraphServiceService) GetNodeById(ctx context.Context, req *pb.IdReq
 	wg.Add(2)
 	func() {
 		defer wg.Done()
-		n, errGet = s.graphNode.GetNode(ctx, req.Id)
+		n, errGet = s.graph.GetNode(ctx, req.Id)
 	}()
 	go func() {
 		defer wg.Done()
-		errCount = s.graphNode.CountChildren(ctx, req.Id, filter, &count)
+		errCount = s.graph.CountChildren(ctx, req.Id, filter, &count)
 	}()
 	wg.Wait()
 	if errGet != nil {
@@ -81,7 +81,7 @@ func (s *TreeGraphServiceService) GetChildren(ctx context.Context, req *pb.PgIdR
 		PageNum:  int(req.PageNum),
 		PageSize: int(req.PageSize),
 	}
-	children, errGet = s.graphNode.GetChildren(ctx, req.Id, filter, p)
+	children, errGet = s.graph.GetChildren(ctx, req.Id, filter, p)
 	if errGet != nil {
 		return nil, errGet
 	}
@@ -93,7 +93,7 @@ func (s *TreeGraphServiceService) GetChildren(ctx context.Context, req *pb.PgIdR
 		node := node
 		go func() {
 			var count int64
-			errCh <- s.graphNode.CountChildren(ctx, node.Id, filter, &count)
+			errCh <- s.graph.CountChildren(ctx, node.Id, filter, &count)
 			mutex.Lock()
 			treeNodes = append(treeNodes, &pb.TreeNode{
 				EntityId:      node.Id,
@@ -150,11 +150,12 @@ func (s *TreeGraphServiceService) GetTitleAutoComplete(ctx context.Context, req 
 
 	go func() {
 		defer wg.Done()
-		resGet, errG = s.graphNode.GetTitleAutoComplete(ctx, filter, p, req.KeyWord)
+		resGet, errG = s.graph.GetTitleAutoComplete(ctx, filter, p, req.KeyWord)
 	}()
 
 	go func() {
-		errC = s.graphNode.CountTitleAutoComplete(ctx, filter, req.KeyWord, &count)
+		defer wg.Done()
+		errC = s.graph.CountTitleAutoComplete(ctx, filter, req.KeyWord, &count)
 	}()
 	wg.Wait()
 	if errG != nil {
