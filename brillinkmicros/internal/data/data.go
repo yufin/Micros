@@ -34,6 +34,8 @@ var ProviderSet = wire.NewSet(
 	NewGraphRepo,
 	NewRcReportOssRepo,
 	NewOssMetadataRepo,
+	NewRcRdmResultRepo,
+	NewRcRdmResDetailRepo,
 )
 
 type Data struct {
@@ -102,7 +104,7 @@ func NewNatsConn(c *conf.Data) (*NatsWrap, error) {
 	_, err = js.AddStream(&nats.StreamConfig{
 		Name:      "TASK",
 		Retention: nats.WorkQueuePolicy,
-		Subjects:  []string{"task.rskc.>"},
+		Subjects:  []string{"task.rc.>"},
 	})
 	if err != nil {
 		return nil, err

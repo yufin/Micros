@@ -7,5 +7,5 @@ type RcProcessedContent struct {
 }
 
 func (*RcProcessedContent) TableName() string {
-	return "rskc_processed_content"
+	return "rc_processed_content"
 }

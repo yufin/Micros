@@ -15,7 +15,6 @@ type GraphRepo interface {
 	GetTitleAutoComplete(ctx context.Context, f *dto.PathFilter, p *dto.PaginationReq, kw string) ([]*dto.TitleAutoCompleteRes, error)
 	CountTitleAutoComplete(ctx context.Context, f *dto.PathFilter, kw string, amount *int64) error
 	GetPathBetween(ctx context.Context, sourceId string, targetId string, f *dto.PathFilter, p *dto.PaginationReq) ([]neo4j.Path, error)
-
 }
 
 type GraphUsecase struct {

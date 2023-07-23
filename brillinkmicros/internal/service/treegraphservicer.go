@@ -12,20 +12,20 @@ import (
 	pb "brillinkmicros/api/graph/v1"
 )
 
-type TreeGraphServiceService struct {
+type TreeGraphServiceServicer struct {
 	pb.UnimplementedTreeGraphServiceServer
 	log   *log.Helper
 	graph *biz.GraphUsecase
 }
 
-func NewTreeGraphServiceService(gn *biz.GraphUsecase, logger log.Logger) *TreeGraphServiceService {
-	return &TreeGraphServiceService{
+func NewTreeGraphServiceServicer(gn *biz.GraphUsecase, logger log.Logger) *TreeGraphServiceServicer {
+	return &TreeGraphServiceServicer{
 		graph: gn,
 		log:   log.NewHelper(logger),
 	}
 }
 
-func (s *TreeGraphServiceService) GetNodeById(ctx context.Context, req *pb.IdReq) (*pb.TreeNodeResp, error) {
+func (s *TreeGraphServiceServicer) GetNodeById(ctx context.Context, req *pb.IdReq) (*pb.TreeNodeResp, error) {
 	var (
 		n                *dto.Node
 		count            int64
@@ -68,7 +68,7 @@ func (s *TreeGraphServiceService) GetNodeById(ctx context.Context, req *pb.IdReq
 	}, nil
 }
 
-func (s *TreeGraphServiceService) GetChildren(ctx context.Context, req *pb.PgIdReq) (*pb.TreeNodesResp, error) {
+func (s *TreeGraphServiceServicer) GetChildren(ctx context.Context, req *pb.PgIdReq) (*pb.TreeNodesResp, error) {
 	var (
 		children []*dto.Node
 		errGet   error
@@ -122,7 +122,7 @@ func (s *TreeGraphServiceService) GetChildren(ctx context.Context, req *pb.PgIdR
 	}, nil
 }
 
-func (s *TreeGraphServiceService) GetTitleAutoComplete(ctx context.Context, req *pb.TitleAutoCompleteReq) (*pb.TitleAutoCompleteResp, error) {
+func (s *TreeGraphServiceServicer) GetTitleAutoComplete(ctx context.Context, req *pb.TitleAutoCompleteReq) (*pb.TitleAutoCompleteResp, error) {
 	var relLabel string
 	if req.LimitLabel == "Company" {
 		relLabel = "ATTACH_TO"
@@ -183,6 +183,6 @@ func (s *TreeGraphServiceService) GetTitleAutoComplete(ctx context.Context, req 
 	}, nil
 }
 
-func (s *TreeGraphServiceService) GetPathBetween(ctx context.Context, req *pb.GetPathReq) (*pb.TreeNodeResp, error) {
+func (s *TreeGraphServiceServicer) GetPathBetween(ctx context.Context, req *pb.GetPathReq) (*pb.TreeNodeResp, error) {
 	return &pb.TreeNodeResp{}, nil
 }

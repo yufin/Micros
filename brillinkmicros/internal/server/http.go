@@ -15,7 +15,13 @@ import (
 )
 
 // NewHTTPServer new an HTTP server.
-func NewHTTPServer(c *conf.Server, data *data.Data, confData *conf.Data, rss *service.RcServiceService, tgs *service.TreeGraphServiceService, logger log.Logger) *http.Server {
+func NewHTTPServer(c *conf.Server,
+	data *data.Data,
+	confData *conf.Data,
+	rss *service.RcServiceServicer,
+	tgs *service.TreeGraphServiceServicer,
+	rrs *service.RcRdmServiceServicer,
+	logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		// 一个请求进入时的处理顺序为 Middleware 注册的顺序，而响应返回的处理顺序为注册顺序的倒序
 		http.Middleware(
@@ -38,6 +44,7 @@ func NewHTTPServer(c *conf.Server, data *data.Data, confData *conf.Data, rss *se
 	srv.HandlePrefix("/q/", openAPIHandler)
 	log.Infof("SwaggerUI DOC: %s/q/swagger-ui/", c.Http.Addr)
 	rcv1.RegisterRcServiceHTTPServer(srv, rss)
+	rcv1.RegisterRcRdmServiceHTTPServer(srv, rrs)
 	gv1.RegisterTreeGraphServiceHTTPServer(srv, tgs)
 	return srv
 }

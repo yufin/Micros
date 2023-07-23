@@ -18,7 +18,7 @@ import (
 	pb "brillinkmicros/api/rc/v1"
 )
 
-type RcServiceService struct {
+type RcServiceServicer struct {
 	pb.UnimplementedRcServiceServer
 	log                *log.Helper
 	rcProcessedContent *biz.RcProcessedContentUsecase
@@ -28,14 +28,14 @@ type RcServiceService struct {
 	ossMetadata        *biz.OssMetadataUsecase
 }
 
-func NewRcServiceService(
+func NewRcServiceServicer(
 	rpc *biz.RcProcessedContentUsecase,
 	roc *biz.RcOriginContentUsecase,
 	rdd *biz.RcDependencyDataUsecase,
 	omd *biz.OssMetadataUsecase,
 	rro *biz.RcReportOssUsecase,
-	logger log.Logger) *RcServiceService {
-	return &RcServiceService{
+	logger log.Logger) *RcServiceServicer {
+	return &RcServiceServicer{
 		rcOriginContent:    roc,
 		rcProcessedContent: rpc,
 		rcDependencyData:   rdd,
@@ -46,7 +46,7 @@ func NewRcServiceService(
 }
 
 // ListReportInfos 获取报告列表
-func (s *RcServiceService) ListReportInfos(ctx context.Context, req *pb.PaginationReq) (*pb.ReportInfosResp, error) {
+func (s *RcServiceServicer) ListReportInfos(ctx context.Context, req *pb.PaginationReq) (*pb.ReportInfosResp, error) {
 
 	pageReq := &dto.PaginationReq{
 		PageNum:  int(req.PageNum),
@@ -89,7 +89,7 @@ func (s *RcServiceService) ListReportInfos(ctx context.Context, req *pb.Paginati
 }
 
 // GetReportContent 获取报告内容
-func (s *RcServiceService) GetReportContent(ctx context.Context, req *pb.ReportContentReq) (*pb.ReportContentResp, error) {
+func (s *RcServiceServicer) GetReportContent(ctx context.Context, req *pb.ReportContentReq) (*pb.ReportContentResp, error) {
 	rpcData, err := s.rcProcessedContent.GetByContentIdUpToDate(ctx, req.ContentId)
 	if err != nil {
 		return nil, err
@@ -115,7 +115,7 @@ func (s *RcServiceService) GetReportContent(ctx context.Context, req *pb.ReportC
 }
 
 // GetReportContentByDepIdNoDs 根据部门id获取报告内容
-func (s *RcServiceService) GetReportContentByDepIdNoDs(ctx context.Context, req *pb.ReportContentByDepIdReq) (*pb.ReportContentResp, error) {
+func (s *RcServiceServicer) GetReportContentByDepIdNoDs(ctx context.Context, req *pb.ReportContentByDepIdReq) (*pb.ReportContentResp, error) {
 	rpcData, err := s.rcProcessedContent.GetContentUpToDateByDepId(ctx, req.DepId, 1)
 	if err != nil {
 		return nil, err
@@ -141,7 +141,7 @@ func (s *RcServiceService) GetReportContentByDepIdNoDs(ctx context.Context, req 
 }
 
 // RefreshReportContent 刷新报告内容
-func (s *RcServiceService) RefreshReportContent(ctx context.Context, req *pb.RefreshReportContentReq) (*pb.RefreshReportContentResp, error) {
+func (s *RcServiceServicer) RefreshReportContent(ctx context.Context, req *pb.RefreshReportContentReq) (*pb.RefreshReportContentResp, error) {
 	if req.ContentId == 0 {
 		return &pb.RefreshReportContentResp{
 			Success:    false,
@@ -166,7 +166,7 @@ func (s *RcServiceService) RefreshReportContent(ctx context.Context, req *pb.Ref
 }
 
 // InsertReportDependencyData 插入企业风控参数
-func (s *RcServiceService) InsertReportDependencyData(ctx context.Context, req *pb.InsertDependencyDataReq) (*pb.SetDependencyDataResp, error) {
+func (s *RcServiceServicer) InsertReportDependencyData(ctx context.Context, req *pb.InsertDependencyDataReq) (*pb.SetDependencyDataResp, error) {
 
 	isInserted, err := s.rcDependencyData.CheckIsInsertDepdDataDuplicate(ctx, req.UscId)
 	if err != nil {
@@ -242,7 +242,7 @@ func (s *RcServiceService) InsertReportDependencyData(ctx context.Context, req *
 }
 
 // UpdateReportDependencyData 更新企业风控参数
-func (s *RcServiceService) UpdateReportDependencyData(ctx context.Context, req *pb.UpdateDependencyDataReq) (*pb.SetDependencyDataResp, error) {
+func (s *RcServiceServicer) UpdateReportDependencyData(ctx context.Context, req *pb.UpdateDependencyDataReq) (*pb.SetDependencyDataResp, error) {
 	if req.Id == 0 {
 		return nil, errors.BadRequest("Empty ContentId", "row id is required")
 	}
@@ -276,7 +276,7 @@ func (s *RcServiceService) UpdateReportDependencyData(ctx context.Context, req *
 }
 
 // GetReportDependencyData 获取企业风控参数
-func (s *RcServiceService) GetReportDependencyData(ctx context.Context, req *pb.GetDependencyDataReq) (*pb.GetDependencyDataResp, error) {
+func (s *RcServiceServicer) GetReportDependencyData(ctx context.Context, req *pb.GetDependencyDataReq) (*pb.GetDependencyDataResp, error) {
 	// 优先返回本人创建数据,若无则返回dsi.AccessibleIds order by created_at asc
 	contentId, err := strconv.ParseInt(req.ContentId, 10, 64)
 	if err != nil {
@@ -306,9 +306,9 @@ func (s *RcServiceService) GetReportDependencyData(ctx context.Context, req *pb.
 }
 
 // GetReportPdfByDepId 根据depId获取报告pdf
-func (s *RcServiceService) GetReportPdfByDepId(ctx context.Context, req *pb.ReportDownloadReq) (*pb.OssFileDownloadResp, error) {
+func (s *RcServiceServicer) GetReportPdfByDepId(ctx context.Context, req *pb.ReportDownloadReq) (*pb.OssFileDownloadResp, error) {
 	// :TODO 添加oss下载方法
-	r, err := s.rcDependencyData.Get(ctx, req.DepId)
+	_, err := s.rcDependencyData.Get(ctx, req.DepId)
 	if err != nil {
 		if errors.Is(gorm.ErrRecordNotFound, err) {
 			return &pb.OssFileDownloadResp{
@@ -318,7 +318,6 @@ func (s *RcServiceService) GetReportPdfByDepId(ctx context.Context, req *pb.Repo
 		}
 		return nil, err
 	}
-	fmt.Println(r)
 	ossId, err := s.rcReportOss.GetOssIdUptoDateByDepId(ctx, req.DepId)
 	if err != nil {
 		return nil, err

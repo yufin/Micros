@@ -165,7 +165,7 @@ func (repo *RcDependencyDataRepo) GetDefaultContentIdForInsertDependencyData(ctx
 	err = repo.data.Db.
 		Raw(`select content_id
 				from (select roc.id as content_id, rdd.content_id as cid
-					  from rskc_origin_content roc
+					  from rc_origin_content roc
 							   left join (select content_id, id, usc_id from rc_dependency_data where create_by = ?) rdd
 										 on roc.id = rdd.content_id and roc.usc_id = rdd.usc_id
 					  where roc.usc_id = ?) t

@@ -11,13 +11,13 @@ type RcOriginContent struct {
 	StatusCode     int
 }
 
+func (*RcOriginContent) TableName() string {
+	return "rc_origin_content"
+}
+
 type RcOriginContentInfosResp struct {
 	PaginationResp
 	Data *[]RcOriginContentInfo
-}
-
-func (*RcOriginContent) TableName() string {
-	return "rskc_origin_content"
 }
 
 type RcOriginContentGetPageResp struct {

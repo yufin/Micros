@@ -22,6 +22,11 @@ func NewGraphRepo(data *Data, logger log.Logger) biz.GraphRepo {
 	}
 }
 
+func (repo *GraphRepo) GetPathBetween(ctx context.Context, sourceId string, targetId string, f *dto.PathFilter, p *dto.PaginationReq) ([]neo4j.Path, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (repo *GraphRepo) GetNode(ctx context.Context, id string) (*dto.Node, error) {
 	cypher := "MATCH (n {id: $id}) RETURN n;"
 	res, err := CypherQuery(repo.data.Neo, ctx, cypher, map[string]interface{}{"id": id})

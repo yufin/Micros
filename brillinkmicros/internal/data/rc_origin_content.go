@@ -78,14 +78,14 @@ func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *dto.Paginat
 					rdd.create_by,
 					rdd.id as dep_id
 				FROM
-					rskc_origin_content roc
+					rc_origin_content roc
 				LEFT JOIN
 					(
 						SELECT
 							*,
 							ROW_NUMBER() OVER (PARTITION BY content_id ORDER BY updated_at DESC) AS rn
 						FROM
-							rskc_processed_content
+							rc_processed_content
 						WHERE
 							deleted_at IS NULL
 					) rpc ON rpc.content_id = roc.id AND rpc.rn = 1
