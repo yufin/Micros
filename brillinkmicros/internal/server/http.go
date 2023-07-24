@@ -44,7 +44,7 @@ func NewHTTPServer(c *conf.Server,
 	srv.HandlePrefix("/q/", openAPIHandler)
 	log.Infof("SwaggerUI DOC: %s/q/swagger-ui/", c.Http.Addr)
 	rcv1.RegisterRcServiceHTTPServer(srv, rss)
-	rcv1.RegisterRcRdmServiceHTTPServer(srv, rrs)
 	gv1.RegisterTreeGraphServiceHTTPServer(srv, tgs)
+	rcv1.RegisterRcRdmServiceHTTPServer(srv, rrs)
 	return srv
 }

@@ -35,5 +35,5 @@ CMD ["./server", "-conf", "/data/conf"]
 
 #docker run --name blmicros-api -p 8009:8000 -p 9000:9000 -v /Users/yufei/DockerVolume/blmicros/conf:/data/conf blmicros-api
 # prod:
-# docker run --name blmicros-api -p 8009:8009 -v /www/wwwroot/BrillinkDataAdmin/micros/brillinkmicros/configs:/data/conf blmicros-api
+# docker run --name blmicros-api -p 8009:8000 -v /www/wwwroot/BrillinkDataAdmin/micros/brillinkmicros/configs:/data/conf blmicros-api
 #

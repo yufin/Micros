@@ -9,5 +9,5 @@ type RcRdmResDetail struct {
 }
 
 func (*RcRdmResDetail) TableName() string {
-	return "rc_rdm_result"
+	return "rc_rdm_res_detail"
 }
