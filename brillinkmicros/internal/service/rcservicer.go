@@ -114,7 +114,7 @@ func (s *RcServiceServicer) GetReportContent(ctx context.Context, req *pb.Report
 	}, nil
 }
 
-// GetReportContentByDepIdNoDs 根据部门id获取报告内容
+// GetReportContentByDepIdNoDs 根据部门id获取报告内容,没有权限验证
 func (s *RcServiceServicer) GetReportContentByDepIdNoDs(ctx context.Context, req *pb.ReportContentByDepIdReq) (*pb.ReportContentResp, error) {
 	rpcData, err := s.rcProcessedContent.GetContentUpToDateByDepId(ctx, req.DepId, 1)
 	if err != nil {
@@ -177,7 +177,7 @@ func (s *RcServiceServicer) InsertReportDependencyData(ctx context.Context, req 
 			Success:     false,
 			IsGenerated: false,
 			Code:        200,
-			Msg:         "该企业风控参数已录入，请等待报告生成.",
+			Msg:         "该企业风控参数已录入.",
 		}, nil
 	}
 

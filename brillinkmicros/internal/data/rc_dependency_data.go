@@ -146,7 +146,6 @@ func (repo *RcDependencyDataRepo) CheckIsInsertDepdDataDuplicate(ctx context.Con
 		Table(model.TableName()).
 		Where("usc_id = ?", uscId).
 		Where("create_by = ?", dsi.UserId).
-		Where("content_id is null").
 		Count(&count).
 		Error
 	if err != nil {

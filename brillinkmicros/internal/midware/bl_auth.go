@@ -23,10 +23,7 @@ func BlAuth(c *conf.Data, dt *data.Data) middleware.Middleware {
 	return func(handler middleware.Handler) middleware.Handler {
 		return func(ctx context.Context, req interface{}) (reply interface{}, err error) {
 			if tr, ok := transport.FromServerContext(ctx); ok {
-				oa := BlPortalOauth2{
-					url:            c.BlAuth.Url,
-					pathCheckToken: c.BlAuth.PathCheckToken,
-				}
+
 				rawToken := tr.RequestHeader().Get("Authorization")
 				re := regexp.MustCompile(`Bearer\s+(\S+)`)
 				match := re.FindStringSubmatch(rawToken)
@@ -35,7 +32,7 @@ func BlAuth(c *conf.Data, dt *data.Data) middleware.Middleware {
 				}
 				token := match[1]
 				var authData []byte
-				authData, err = oa.CheckToken(token, c.BlAuth.ClientId, c.BlAuth.ClientSecret)
+				authData, err = CheckToken(token, c.BlAuth.ClientId, c.BlAuth.ClientSecret, c.BlAuth.Url+c.BlAuth.PathCheckToken)
 				if err != nil {
 					return nil, err
 				}
@@ -61,17 +58,12 @@ func BlAuth(c *conf.Data, dt *data.Data) middleware.Middleware {
 	}
 }
 
-type BlPortalOauth2 struct {
-	url            string
-	pathCheckToken string
-}
-
-func (t BlPortalOauth2) CheckToken(token string, clientId string, clientSecret string) ([]byte, error) {
+func CheckToken(token string, clientId string, clientSecret string, apiUrl string) ([]byte, error) {
 	reqParams := url.Values{}
 	reqParams.Set("token", token)
 	reqParams.Set("client_id", clientId)
 	reqParams.Set("client_secret", clientSecret)
-	req, err := http.NewRequest("POST", t.url+t.pathCheckToken, nil)
+	req, err := http.NewRequest("POST", apiUrl, nil)
 	if err != nil {
 		return nil, err
 	}
