@@ -322,6 +322,12 @@ func (s *RcServiceServicer) GetReportPdfByDepId(ctx context.Context, req *pb.Rep
 	if err != nil {
 		return nil, err
 	}
+	if ossId == 0 {
+		return &pb.OssFileDownloadResp{
+			Available: false,
+			Msg:       "请等待报告pdf文件生成",
+		}, nil
+	}
 
 	meta, err := s.ossMetadata.GetById(ctx, ossId)
 	if err != nil {
