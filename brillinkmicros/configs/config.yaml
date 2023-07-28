@@ -1,40 +1,40 @@
-#server:
-#  http:
-#    addr: 0.0.0.0:8000
-#    timeout: 1s
-#  grpc:
-#    addr: 0.0.0.0:50052
-#    timeout: 1s
-#
-#data:
-#  database:
-#    driver: mysql
-##    source: "blscf:Dzkw46MZDbB7axDC@tcp(10.0.232.121:3308)/bl_business?charset=utf8mb4&parseTime=True&loc=Local&timeout=10000ms"
-#    source: root:password-dev@tcp(192.168.44.169:3306)/data_spider?charset=utf8mb4&parseTime=True&loc=Local&timeout=10000ms
-#  redis:
-#    addr: 127.0.0.1:6379
-#    read_timeout: 0.2s
-#    write_timeout: 0.2s
-#  nats:
-#    #    uri: "nats://dev:password@192.168.31.158:4222"
-##    uri: nats://brillinkdata:MFmi9jAB@10.0.232.121:4222
-#    uri: nats://dev:password@192.168.44.169:4222
-#    activate: true
-#  blAuth:
-#    client_id: default
-#    client_secret: admin123
-##    url: "http://10.0.232.22:9080"
-#    url: http://192.168.44.169:9080
-#    path_check_token: /admin-api/system/oauth2/check-token
-#    database:
-#      driver: mysql
-#      source: root:123@qwe@tcp(10.0.203.71:3306)/ruoyi-vue-pro?charset=utf8mb4&parseTime=True&loc=Local&timeout=10000ms
-#  neo4j:
-#    url: neo4j://192.168.44.169:7687
-#    username: neo4j
-#    password: password
-#  minio:
-#    endpoint: 192.168.44.169:9030
-#    access_key: 58vRJBzl8o8FiZgdFAJS
-#    secret_key: Ge2fdEOu46tmpcE1yVFIzt1kHsYkFA0ue5h2P6Se
-#    use_ssl: false
+server:
+  http:
+    addr: 0.0.0.0:8000
+    timeout: 1s
+  grpc:
+    addr: 0.0.0.0:50052
+    timeout: 1s
+
+data:
+  database:
+    driver: mysql
+#    source: "blscf:Dzkw46MZDbB7axDC@tcp(10.0.232.121:3308)/bl_business?charset=utf8mb4&parseTime=True&loc=Local&timeout=10000ms"
+    source: root:password-dev@tcp(192.168.44.169:3306)/data_spider?charset=utf8mb4&parseTime=True&loc=Local&timeout=10000ms
+  redis:
+    addr: 127.0.0.1:6379
+    read_timeout: 0.2s
+    write_timeout: 0.2s
+  nats:
+    #    uri: "nats://dev:password@192.168.31.158:4222"
+#    uri: nats://brillinkdata:MFmi9jAB@10.0.232.121:4222
+    uri: nats://dev:password@192.168.44.169:4222
+    activate: true
+  blAuth:
+    client_id: default
+    client_secret: admin123
+#    url: "http://10.0.232.22:9080"
+    url: http://192.168.44.169:9080
+    path_check_token: /admin-api/system/oauth2/check-token
+    database:
+      driver: mysql
+      source: root:123@qwe@tcp(10.0.203.71:3306)/ruoyi-vue-pro?charset=utf8mb4&parseTime=True&loc=Local&timeout=10000ms
+  neo4j:
+    url: neo4j://192.168.44.169:7687
+    username: neo4j
+    password: password
+  minio:
+    endpoint: 192.168.44.169:9030
+    access_key: 58vRJBzl8o8FiZgdFAJS
+    secret_key: Ge2fdEOu46tmpcE1yVFIzt1kHsYkFA0ue5h2P6Se
+    use_ssl: false

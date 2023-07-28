@@ -63,7 +63,7 @@ func (repo *RcProcessedContentRepo) GetByContentIdUpToDate(ctx context.Context, 
 		Joins("INNER JOIN rc_dependency_data AS rdd ON rpc.content_id = rdd.content_id").
 		Where("rpc.content_id = ?", contentId).
 		Where("rdd.create_by IN (?)", dsi.AccessibleIds).
-		Order("rpc.updated_at desc").
+		Order("rpc.created_at desc").
 		Limit(1).
 		First(&dataRpc).
 		Error
@@ -95,7 +95,7 @@ func (repo *RcProcessedContentRepo) GetContentUpToDateByDepId(ctx context.Contex
 		Select("rpc.*").
 		Joins("INNER JOIN rc_dependency_data AS rdd ON rpc.content_id = rdd.content_id").
 		Where("rdd.id = ?", depId).
-		Order("rpc.updated_at desc").
+		Order("rpc.created_at desc").
 		Limit(1).
 		First(&dataRpc).
 		Error

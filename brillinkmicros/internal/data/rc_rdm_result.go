@@ -24,7 +24,7 @@ func (r RcRdmResultRepo) GetUpToDate(ctx context.Context, depId int64) (*dto.RcR
 	err := r.data.Db.
 		Model(&dataRdr).
 		Where("dep_id = ?", depId).
-		Order("updated_at desc").
+		Order("created_at desc").
 		First(&dataRdr).
 		Error
 	if err != nil {

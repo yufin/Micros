@@ -85,10 +85,9 @@ func (repo *RcDependencyDataRepo) Insert(ctx context.Context, insertReq *dto.RcD
 		insertReq.CreateBy = &dsi.UserId
 	}
 
-	var modelRdd dto.RcDependencyData
 	insertReq.BaseModel.Gen()
 	err = repo.data.Db.
-		Table(modelRdd.TableName()).
+		Model(&dto.RcDependencyData{}).
 		Create(&insertReq).
 		Error
 	if err != nil {

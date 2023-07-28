@@ -247,19 +247,30 @@ func (s *RcServiceServicer) UpdateReportDependencyData(ctx context.Context, req 
 		return nil, errors.BadRequest("Empty ContentId", "row id is required")
 	}
 
-	updateReq := dto.RcDependencyData{
-		BaseModel: dto.BaseModel{
-			Id: req.Id,
-		},
-		LhQylx:  int(req.LhQylx),
-		LhCylwz: int(req.LhCylwz),
-		LhGdct:  int(req.LhGdct),
+	rdd, err := s.rcDependencyData.Get(ctx, req.Id)
+	if err != nil {
+		if errors.Is(gorm.ErrRecordNotFound, err) {
+			return &pb.SetDependencyDataResp{
+				Success: false,
+				Code:    200,
+				Msg:     "没有权限更新该数据",
+			}, nil
+		}
+	}
+
+	insertReq := dto.RcDependencyData{
+		ContentId:       rdd.ContentId,
+		AttributedMonth: rdd.AttributedMonth,
+		UscId:           rdd.UscId,
+		LhQylx:          int(req.LhQylx),
+		LhCylwz:         int(req.LhCylwz),
+		LhGdct:          int(req.LhGdct),
 		//LhQybq:       int(req.LhQybq),
 		LhYhsx:       int(req.LhYhsx),
 		LhSfsx:       int(req.LhSfsx),
 		AdditionData: req.AdditionData,
 	}
-	newRddId, err := s.rcDependencyData.Update(ctx, &updateReq)
+	newRddId, err := s.rcDependencyData.Insert(ctx, &insertReq)
 	if err != nil {
 		return nil, err
 	}

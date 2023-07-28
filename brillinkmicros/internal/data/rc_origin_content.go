@@ -66,34 +66,30 @@ func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *dto.Paginat
 	}
 
 	err = repo.data.Db.
-		Raw(`SELECT
-					roc.id AS content_id,
-					roc.usc_id,
-					roc.enterprise_name,
-					roc.year_month AS data_collect_month,
-					rdd.lh_qylx,
-					rpc.id AS processed_id,
-					rpc.updated_at AS processed_updated_at,
-					rdd.content_id,
-					rdd.create_by,
-					rdd.id as dep_id
-				FROM
-					rc_origin_content roc
-				LEFT JOIN
-					(
-						SELECT
-							*,
-							ROW_NUMBER() OVER (PARTITION BY content_id ORDER BY updated_at DESC) AS rn
-						FROM
-							rc_processed_content
-						WHERE
-							deleted_at IS NULL
-					) rpc ON rpc.content_id = roc.id AND rpc.rn = 1
-				INNER JOIN
-					rc_dependency_data rdd ON rdd.content_id = roc.id
-				WHERE
-					roc.deleted_at IS NULL
-					AND rdd.deleted_at IS NULL
+		Raw(`SELECT roc.id         AS content_id,
+					   roc.usc_id,
+					   roc.enterprise_name,
+					   roc.year_month AS data_collect_month,
+					   rdd.lh_qylx,
+					   rpc.id         AS processed_id,
+					   rpc.created_at AS processed_updated_at,
+					   rdd.content_id,
+					   rdd.create_by,
+					   rdd.id         as dep_id
+				FROM rc_origin_content roc
+						 LEFT JOIN
+					 (SELECT *,
+							 ROW_NUMBER() OVER (PARTITION BY content_id ORDER BY created_at DESC) AS rn
+					  FROM rc_processed_content
+					  WHERE deleted_at IS NULL) rpc ON rpc.content_id = roc.id AND rpc.rn = 1
+						 INNER JOIN
+					 (select *
+					  from (select *, row_number() over (partition by content_id order by created_at DESC ) as rn
+							from rc_dependency_data
+							where content_id is not null) t
+					  where t.rn = 1) rdd ON rdd.content_id = roc.id
+				WHERE roc.deleted_at IS NULL
+				  AND rdd.deleted_at IS NULL
 					AND rdd.create_by IN (?)
 				LIMIT ? OFFSET ?;`, dsi.AccessibleIds, page.PageSize, offset).
 		Scan(&Infos).

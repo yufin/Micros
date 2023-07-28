@@ -38,7 +38,7 @@ func (s *RcRdmServiceServicer) GetAhpResult(ctx context.Context, req *pb.GetAhpR
 		if errors.Is(gorm.ErrRecordNotFound, err) {
 			return &pb.AhpResultResp{
 				Available: false,
-				Msg:       "没有权限下载该报告",
+				Msg:       "没有权限查看数据",
 			}, nil
 		}
 		return nil, err
@@ -46,6 +46,12 @@ func (s *RcRdmServiceServicer) GetAhpResult(ctx context.Context, req *pb.GetAhpR
 
 	rrr, err := s.rcRdmResult.GetUpToDate(ctx, req.DepId)
 	if err != nil {
+		if errors.Is(gorm.ErrRecordNotFound, err) {
+			return &pb.AhpResultResp{
+				Available: false,
+				Msg:       "请等待评分计算完成",
+			}, nil
+		}
 		return nil, err
 	}
 
