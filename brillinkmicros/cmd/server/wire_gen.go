@@ -32,7 +32,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	if err != nil {
 		return nil, nil, err
 	}
-	driverWithContext, err := data.NewNeoCli(confData)
+	neoCli, err := data.NewNeoCli(confData)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -40,7 +40,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	if err != nil {
 		return nil, nil, err
 	}
-	dataData, cleanup, err := data.NewData(logger, dbs, natsWrap, driverWithContext, minioClient)
+	dataData, cleanup, err := data.NewData(logger, dbs, natsWrap, neoCli, minioClient)
 	if err != nil {
 		return nil, nil, err
 	}

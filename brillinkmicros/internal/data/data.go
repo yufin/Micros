@@ -42,7 +42,7 @@ type Data struct {
 	Db       *gorm.DB
 	DbBl     *gorm.DB
 	Nw       *NatsWrap
-	Neo      neo4j.DriverWithContext
+	Neo      *NeoCli
 	MinioCli *miniocli.MinioClient
 }
 
@@ -115,21 +115,20 @@ func NewNatsConn(c *conf.Data) (*NatsWrap, error) {
 	}, nil
 }
 
-func NewNeoCli(c *conf.Data) (neo4j.DriverWithContext, error) {
+func NewNeoCli(c *conf.Data) (*NeoCli, error) {
 	d, err := neo4j.NewDriverWithContext(c.Neo4J.Url, neo4j.BasicAuth(c.Neo4J.Username, c.Neo4J.Password, ""))
 	if err != nil {
 		return nil, err
 	}
-	connErr := d.VerifyConnectivity(context.Background())
-	if connErr != nil {
-		return nil, connErr
+	err = d.VerifyConnectivity(context.Background())
+	if err != nil {
+		return nil, err
 	}
-
-	return d, nil
+	return &NeoCli{driver: d}, nil
 }
 
 // NewData .
-func NewData(logger log.Logger, dbs *Dbs, nw *NatsWrap, neo neo4j.DriverWithContext, miCli *miniocli.MinioClient) (*Data, func(), error) {
+func NewData(logger log.Logger, dbs *Dbs, nw *NatsWrap, neo *NeoCli, miCli *miniocli.MinioClient) (*Data, func(), error) {
 	ndLog := log.NewHelper(logger)
 
 	cleanup := func() {

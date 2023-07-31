@@ -31,7 +31,7 @@ func (s *TreeGraphServiceServicer) GetNodeById(ctx context.Context, req *pb.IdRe
 		count            int64
 		errGet, errCount error
 	)
-	filter := &dto.PathFilter{
+	filter := dto.PathFilter{
 		NodeLabels: treeGraphLimitNodeLabels(),
 		RelLabels:  treeGraphLimitRelLabels(),
 	}
@@ -70,14 +70,14 @@ func (s *TreeGraphServiceServicer) GetNodeById(ctx context.Context, req *pb.IdRe
 
 func (s *TreeGraphServiceServicer) GetChildren(ctx context.Context, req *pb.PgIdReq) (*pb.TreeNodesResp, error) {
 	var (
-		children []*dto.Node
+		children *[]dto.Node
 		errGet   error
 	)
-	filter := &dto.PathFilter{
+	filter := dto.PathFilter{
 		NodeLabels: treeGraphLimitNodeLabels(),
 		RelLabels:  treeGraphLimitRelLabels(),
 	}
-	p := &dto.PaginationReq{
+	p := dto.PaginationReq{
 		PageNum:  int(req.PageNum),
 		PageSize: int(req.PageSize),
 	}
@@ -88,8 +88,8 @@ func (s *TreeGraphServiceServicer) GetChildren(ctx context.Context, req *pb.PgId
 
 	treeNodes := make([]*pb.TreeNode, 0)
 	var mutex sync.Mutex
-	errCh := make(chan error, len(children))
-	for _, node := range children {
+	errCh := make(chan error, len(*children))
+	for _, node := range *children {
 		node := node
 		go func() {
 			var count int64
@@ -107,7 +107,7 @@ func (s *TreeGraphServiceServicer) GetChildren(ctx context.Context, req *pb.PgId
 		}()
 	}
 
-	for range children {
+	for range *children {
 		err := <-errCh
 		if err != nil {
 			return nil, err
@@ -131,15 +131,16 @@ func (s *TreeGraphServiceServicer) GetTitleAutoComplete(ctx context.Context, req
 	} else {
 		return nil, errors.New(401, "Invalid limit label", "")
 	}
-	filter := &dto.PathFilter{
+	filter := dto.PathFilter{
 		RelLabels:  []string{relLabel},
 		NodeLabels: []string{req.LimitLabel},
 	}
-	p := &dto.PaginationReq{
+	p := dto.PaginationReq{
 		PageNum:  int(req.PageNum),
 		PageSize: int(req.PageSize),
 	}
-	resGet := make([]*dto.TitleAutoCompleteRes, 0)
+	//resGet := make([]dto.TitleAutoCompleteRes, 0)
+	var resGet *[]dto.TitleAutoCompleteRes
 	data := make([]*pb.TitleAutoComplete, 0)
 	var (
 		count      int64
@@ -165,7 +166,7 @@ func (s *TreeGraphServiceServicer) GetTitleAutoComplete(ctx context.Context, req
 		return nil, errC
 	}
 
-	for _, item := range resGet {
+	for _, item := range *resGet {
 		data = append(data, &pb.TitleAutoComplete{
 			Id:    item.Id,
 			Title: item.Title,
