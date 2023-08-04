@@ -318,7 +318,6 @@ func (s *RcServiceServicer) GetReportDependencyData(ctx context.Context, req *pb
 
 // GetReportPdfByDepId 根据depId获取报告pdf
 func (s *RcServiceServicer) GetReportPdfByDepId(ctx context.Context, req *pb.ReportDownloadReq) (*pb.OssFileDownloadResp, error) {
-	// :TODO 添加oss下载方法
 	_, err := s.rcDependencyData.Get(ctx, req.DepId)
 	if err != nil {
 		if errors.Is(gorm.ErrRecordNotFound, err) {

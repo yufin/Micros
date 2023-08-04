@@ -52,15 +52,28 @@ func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *dto.Paginat
 		return nil, err
 	}
 
-	var modelRoc dto.RcOriginContent
 	var Infos = make([]dto.RcOriginContentInfo, 0)
 	pageNum := int(math.Max(1, float64(page.PageNum)))
 	offset := (pageNum - 1) * page.PageSize
 	var count int64
 	if err := repo.data.Db.
-		Table(modelRoc.TableName()).
-		Scopes(pkg.ApplyBlDataScope(dsi)).
-		Count(&count).
+		Raw(`SELECT count(roc.id)
+				FROM rc_origin_content roc
+						 LEFT JOIN
+					 (SELECT *,
+							 ROW_NUMBER() OVER (PARTITION BY content_id ORDER BY created_at DESC) AS rn
+					  FROM rc_processed_content
+					  WHERE deleted_at IS NULL) rpc ON rpc.content_id = roc.id AND rpc.rn = 1
+						 INNER JOIN
+					 (select *
+					  from (select *, row_number() over (partition by content_id order by created_at DESC ) as rn
+							from rc_dependency_data
+							where content_id is not null) t
+					  where t.rn = 1) rdd ON rdd.content_id = roc.id
+				WHERE roc.deleted_at IS NULL
+				  AND rdd.deleted_at IS NULL
+					AND rdd.create_by IN (1)`).
+		First(&count).
 		Error; err != nil {
 		return nil, err
 	}

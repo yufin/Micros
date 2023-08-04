@@ -31,7 +31,7 @@ EXPOSE 8000
 VOLUME /data/conf
 
 CMD ["./server", "-conf", "/data/conf"]
-#docker image build -t blmicros-api .
+#docker image build -t blmicros-api:1.2 .
 
 #docker run --name blmicros-api -p 8009:8000 -p 9000:9000 -v /Users/yufei/DockerVolume/blmicros/conf:/data/conf blmicros-api
 # prod:
