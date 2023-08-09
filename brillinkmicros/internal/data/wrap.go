@@ -24,14 +24,14 @@ type NeoCli struct {
 
 func (n NeoCli) CypherQuery(ctx context.Context, cypher string, params map[string]any) ([]neo4j.Record, error) {
 	//ctxTemp := context.Background()
-	session := n.driver.NewSession(context.Background(), neo4j.SessionConfig{AccessMode: neo4j.AccessModeRead})
+	session := n.driver.NewSession(context.TODO(), neo4j.SessionConfig{AccessMode: neo4j.AccessModeRead})
 
 	defer func(session neo4j.SessionWithContext, ctxTemp context.Context) {
 		err := session.Close(ctxTemp)
 		if err != nil {
 			log.Errorf("Error closing Neo4j session: %v", err)
 		}
-	}(session, context.Background())
+	}(session, context.TODO())
 
 	result, err := session.Run(context.Background(), cypher, params)
 	if err != nil {

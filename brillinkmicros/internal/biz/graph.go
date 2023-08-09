@@ -14,7 +14,7 @@ type GraphRepo interface {
 	CountChildren(ctx context.Context, id string, f dto.PathFilter, amount *int64) error
 	GetTitleAutoComplete(ctx context.Context, f dto.PathFilter, p dto.PaginationReq, kw string) (*[]dto.TitleAutoCompleteRes, error)
 	CountTitleAutoComplete(ctx context.Context, f dto.PathFilter, kw string, amount *int64) error
-	GetPathBetween(ctx context.Context, sourceId string, targetId string, f dto.PathFilter, p dto.PaginationReq) (*[]neo4j.Path, error)
+	GetPathBetween(ctx context.Context, sourceId string, targetId string, f dto.PathFilter) (*[]neo4j.Path, error)
 }
 
 type GraphUsecase struct {
@@ -56,7 +56,7 @@ func (uc *GraphUsecase) CountTitleAutoComplete(ctx context.Context, f dto.PathFi
 	return uc.repo.CountTitleAutoComplete(ctx, f, kw, amount)
 }
 
-func (uc *GraphUsecase) GetPathBetween(ctx context.Context, sourceId string, targetId string, f dto.PathFilter, p dto.PaginationReq) (*[]neo4j.Path, error) {
+func (uc *GraphUsecase) GetPathBetween(ctx context.Context, sourceId string, targetId string, f dto.PathFilter) (*[]neo4j.Path, error) {
 	uc.log.WithContext(ctx).Infof("biz.GraphUsecase.GetPathBetween")
-	return uc.repo.GetPathBetween(ctx, sourceId, targetId, f, p)
+	return uc.repo.GetPathBetween(ctx, sourceId, targetId, f)
 }

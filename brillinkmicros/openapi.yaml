@@ -3,32 +3,135 @@
 
 openapi: 3.0.3
 info:
-    title: RcRdmService API
+    title: NetGraphService API
     version: 0.0.1
 paths:
-    /micros/rc/v1/ahp/res/detail:
+    /micros/graph/v1/net/children:
         get:
             tags:
-                - RcRdmService
-            operationId: RcRdmService_GetAhpResult
+                - NetGraphService
+            operationId: NetGraphService_GetChildren
             parameters:
-                - name: depId
+                - name: pageNum
                   in: query
                   schema:
                     type: integer
-                    format: int64
-                - name: level
+                    format: uint32
+                - name: pageSize
                   in: query
                   schema:
                     type: integer
-                    format: int32
+                    format: uint32
+                - name: id
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/AhpResultResp'
+                                $ref: '#/components/schemas/NetPaginationResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/graph/v1/net/expand:
+        get:
+            tags:
+                - NetGraphService
+            operationId: NetGraphService_GetNetExpand
+            parameters:
+                - name: id
+                  in: query
+                  schema:
+                    type: string
+                - name: depth
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: limit
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NetResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/graph/v1/net/node:
+        get:
+            tags:
+                - NetGraphService
+            operationId: NetGraphService_GetNode
+            parameters:
+                - name: pageNum
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: id
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NodeResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/graph/v1/net/parents:
+        get:
+            tags:
+                - NetGraphService
+            operationId: NetGraphService_GetParents
+            parameters:
+                - name: pageNum
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: id
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NetPaginationResp'
                 default:
                     description: Default error response
                     content:
@@ -37,28 +140,19 @@ paths:
                                 $ref: '#/components/schemas/Status'
 components:
     schemas:
-        AhpResDetail:
+        Edge:
             type: object
             properties:
-                field:
+                source:
                     type: string
-                score:
-                    type: number
-                    format: float
-                level:
-                    type: integer
-                    format: int32
-        AhpResultResp:
-            type: object
-            properties:
-                available:
-                    type: boolean
-                msg:
+                target:
+                    type: string
+                id:
+                    type: string
+                label:
                     type: string
                 data:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/AhpResDetail'
+                    type: object
         GoogleProtobufAny:
             type: object
             properties:
@@ -67,6 +161,75 @@ components:
                     description: The type of the serialized message.
             additionalProperties: true
             description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+        Net:
+            type: object
+            properties:
+                nodes:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Node'
+                edges:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Edge'
+        NetPaginationResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                code:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+                total:
+                    type: integer
+                    format: int32
+                current:
+                    type: integer
+                    format: int32
+                pageSize:
+                    type: integer
+                    format: int32
+                data:
+                    $ref: '#/components/schemas/Net'
+        NetResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                code:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/Net'
+        Node:
+            type: object
+            properties:
+                id:
+                    type: string
+                title:
+                    type: string
+                labels:
+                    type: array
+                    items:
+                        type: string
+                data:
+                    type: object
+        NodeResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                code:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/Node'
         Status:
             type: object
             properties:
@@ -84,4 +247,4 @@ components:
                     description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
             description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
 tags:
-    - name: RcRdmService
+    - name: NetGraphService

@@ -1,0 +1,101 @@
+syntax = "proto3";
+
+package api.graph.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/struct.proto";
+
+option go_package = "brillinkmicros/api/graph/v1;v1";
+option java_multiple_files = true;
+option java_outer_classname = "GraphV1";
+option java_package = "api.graph.v1";
+
+
+service NetGraphService {
+  rpc GetNetExpand(NetExpandReq) returns (NetResp) {
+    option (google.api.http) = {
+      get: "/micros/graph/v1/net/expand"
+    };
+  }
+
+  rpc GetNode(PgIdReq) returns (NodeResp) {
+    option (google.api.http) = {
+      get: "/micros/graph/v1/net/node"
+    };
+  }
+
+  rpc GetChildren(PgIdReq) returns (NetPaginationResp) {
+    option (google.api.http) = {
+      get: "/micros/graph/v1/net/children"
+    };
+  }
+
+  rpc GetParents(PgIdReq) returns (NetPaginationResp) {
+    option (google.api.http) = {
+      get: "/micros/graph/v1/net/parents"
+    };
+  }
+}
+
+
+
+message IdReq {
+  string id = 3;
+}
+
+message NetExpandReq {
+  string id = 1;
+  uint32 depth = 2;
+  uint32 limit = 3;
+}
+
+message PgIdReq {
+  uint32 page_num = 1;
+  uint32 page_size = 2;
+  string id = 3;
+}
+
+message Node {
+	string id = 1;
+	string title = 3;
+	repeated string labels = 4;
+	google.protobuf.Struct data = 5;
+}
+
+message Edge {
+	string source = 1;
+	string target = 2;
+	string id = 3;
+	string label = 4;
+	google.protobuf.Struct data = 5;
+}
+
+message Net {
+	repeated Node nodes = 1;
+	repeated Edge edges = 2;
+}
+
+
+message NodeResp {
+	bool success = 1;
+	int32 code = 2;
+	string msg = 3;
+	Node data = 4;
+}
+
+message NetResp {
+	bool success = 1;
+	int32 code = 2;
+	string msg = 3;
+	Net data = 4;
+}
+
+message NetPaginationResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  int32 total = 5;
+  int32 current = 6;
+  int32 page_size = 7;
+  Net data = 8;
+}

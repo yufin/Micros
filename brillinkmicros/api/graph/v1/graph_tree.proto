@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package api.rc.v1;
+package api.graph.v1;
 
 import "google/api/annotations.proto";
 import "google/protobuf/struct.proto";
@@ -12,7 +12,7 @@ option java_package = "api.graph.v1";
 
 
 service TreeGraphService {
-	rpc GetNodeById(IdReq) returns (TreeNodeResp) {
+	rpc GetTreeNode(IdReq) returns (TreeNodeResp) {
 		option (google.api.http) = {
 			get: "/micros/graph/v1/tree/node"
 		};
@@ -39,8 +39,6 @@ service TreeGraphService {
 
 
 
-
-
 message IdReq {
 	string id = 3;
 }
@@ -51,25 +49,6 @@ message PgIdReq {
 	string id = 3;
 }
 
-message Node {
-	string id = 1;
-	string title = 3;
-	repeated string labels = 4;
-	google.protobuf.Struct data = 5;
-}
-
-message Edge {
-	string source = 1;
-	string target = 2;
-	string id = 3;
-	string label = 4;
-	google.protobuf.Struct data = 5;
-}
-
-message Net {
-	repeated Node nodes = 1;
-	repeated Edge edges = 2;
-}
 
 message TreeNode {
 	string entity_id = 1;
@@ -80,22 +59,6 @@ message TreeNode {
 	repeated TreeNode children = 6;
 }
 
-message NodeResp {
-	bool success = 1;
-	int32 code = 2;
-	string msg = 3;
-	Node data = 4;
-}
-
-message NodesResp {
-	int32 total = 1;
-	int32 current = 2;
-	int32 page_size = 3;
-	bool success = 4;
-	int32 code = 5;
-	string msg = 6;
-	repeated Node data = 7;
-}
 
 message TreeNodeResp {
 	bool success = 1;
@@ -105,21 +68,15 @@ message TreeNodeResp {
 }
 
 message TreeNodesResp {
-	uint32 total = 1;
-	uint32 current = 2;
-	uint32 page_size = 3;
-	bool success = 4;
-	int32 code = 5;
-	string msg = 6;
-	repeated TreeNode data = 7;
-}
-
-message NetResp {
 	bool success = 1;
 	int32 code = 2;
 	string msg = 3;
-	Net data = 4;
+	uint32 total = 4;
+	uint32 current = 5;
+	uint32 page_size = 6;
+	repeated TreeNode data = 7;
 }
+
 
 message TitleAutoCompleteReq {
 	uint32 page_num = 1;
@@ -134,12 +91,12 @@ message TitleAutoComplete {
 }
 
 message TitleAutoCompleteResp {
-	uint32 total = 1;
-	uint32 current = 2;
-	uint32 page_size = 3;
-	bool success = 4;
-	int32 code = 5;
-	string msg = 6;
+	bool success = 1;
+	int32 code = 2;
+	string msg = 3;
+	uint32 total = 4;
+	uint32 current = 5;
+	uint32 page_size = 6;
 	repeated TitleAutoComplete data = 7;
 }
 

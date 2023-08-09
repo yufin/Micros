@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-http v2.6.3
 // - protoc             v3.21.12
-// source: api/graph/v1/graph.proto
+// source: api/graph/v1/graph_tree.proto
 
 package v1
 
@@ -19,35 +19,35 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
-const OperationTreeGraphServiceGetChildren = "/api.rc.v1.TreeGraphService/GetChildren"
-const OperationTreeGraphServiceGetNodeById = "/api.rc.v1.TreeGraphService/GetNodeById"
-const OperationTreeGraphServiceGetPathBetween = "/api.rc.v1.TreeGraphService/GetPathBetween"
-const OperationTreeGraphServiceGetTitleAutoComplete = "/api.rc.v1.TreeGraphService/GetTitleAutoComplete"
+const OperationTreeGraphServiceGetChildren = "/api.graph.v1.TreeGraphService/GetChildren"
+const OperationTreeGraphServiceGetPathBetween = "/api.graph.v1.TreeGraphService/GetPathBetween"
+const OperationTreeGraphServiceGetTitleAutoComplete = "/api.graph.v1.TreeGraphService/GetTitleAutoComplete"
+const OperationTreeGraphServiceGetTreeNode = "/api.graph.v1.TreeGraphService/GetTreeNode"
 
 type TreeGraphServiceHTTPServer interface {
 	GetChildren(context.Context, *PgIdReq) (*TreeNodesResp, error)
-	GetNodeById(context.Context, *IdReq) (*TreeNodeResp, error)
 	GetPathBetween(context.Context, *GetPathReq) (*TreeNodeResp, error)
 	GetTitleAutoComplete(context.Context, *TitleAutoCompleteReq) (*TitleAutoCompleteResp, error)
+	GetTreeNode(context.Context, *IdReq) (*TreeNodeResp, error)
 }
 
 func RegisterTreeGraphServiceHTTPServer(s *http.Server, srv TreeGraphServiceHTTPServer) {
 	r := s.Route("/")
-	r.GET("/micros/graph/v1/tree/node", _TreeGraphService_GetNodeById0_HTTP_Handler(srv))
+	r.GET("/micros/graph/v1/tree/node", _TreeGraphService_GetTreeNode0_HTTP_Handler(srv))
 	r.GET("/micros/graph/v1/tree/children", _TreeGraphService_GetChildren0_HTTP_Handler(srv))
 	r.GET("/micros/graph/v1/tree/title-autocomplete", _TreeGraphService_GetTitleAutoComplete0_HTTP_Handler(srv))
 	r.GET("/micros/graph/v1/tree/path", _TreeGraphService_GetPathBetween0_HTTP_Handler(srv))
 }
 
-func _TreeGraphService_GetNodeById0_HTTP_Handler(srv TreeGraphServiceHTTPServer) func(ctx http.Context) error {
+func _TreeGraphService_GetTreeNode0_HTTP_Handler(srv TreeGraphServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in IdReq
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationTreeGraphServiceGetNodeById)
+		http.SetOperation(ctx, OperationTreeGraphServiceGetTreeNode)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetNodeById(ctx, req.(*IdReq))
+			return srv.GetTreeNode(ctx, req.(*IdReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -117,9 +117,9 @@ func _TreeGraphService_GetPathBetween0_HTTP_Handler(srv TreeGraphServiceHTTPServ
 
 type TreeGraphServiceHTTPClient interface {
 	GetChildren(ctx context.Context, req *PgIdReq, opts ...http.CallOption) (rsp *TreeNodesResp, err error)
-	GetNodeById(ctx context.Context, req *IdReq, opts ...http.CallOption) (rsp *TreeNodeResp, err error)
 	GetPathBetween(ctx context.Context, req *GetPathReq, opts ...http.CallOption) (rsp *TreeNodeResp, err error)
 	GetTitleAutoComplete(ctx context.Context, req *TitleAutoCompleteReq, opts ...http.CallOption) (rsp *TitleAutoCompleteResp, err error)
+	GetTreeNode(ctx context.Context, req *IdReq, opts ...http.CallOption) (rsp *TreeNodeResp, err error)
 }
 
 type TreeGraphServiceHTTPClientImpl struct {
@@ -135,19 +135,6 @@ func (c *TreeGraphServiceHTTPClientImpl) GetChildren(ctx context.Context, in *Pg
 	pattern := "/micros/graph/v1/tree/children"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationTreeGraphServiceGetChildren))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, err
-}
-
-func (c *TreeGraphServiceHTTPClientImpl) GetNodeById(ctx context.Context, in *IdReq, opts ...http.CallOption) (*TreeNodeResp, error) {
-	var out TreeNodeResp
-	pattern := "/micros/graph/v1/tree/node"
-	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationTreeGraphServiceGetNodeById))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
@@ -174,6 +161,19 @@ func (c *TreeGraphServiceHTTPClientImpl) GetTitleAutoComplete(ctx context.Contex
 	pattern := "/micros/graph/v1/tree/title-autocomplete"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationTreeGraphServiceGetTitleAutoComplete))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *TreeGraphServiceHTTPClientImpl) GetTreeNode(ctx context.Context, in *IdReq, opts ...http.CallOption) (*TreeNodeResp, error) {
+	var out TreeNodeResp
+	pattern := "/micros/graph/v1/tree/node"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationTreeGraphServiceGetTreeNode))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

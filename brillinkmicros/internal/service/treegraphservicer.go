@@ -25,7 +25,7 @@ func NewTreeGraphServiceServicer(gn *biz.GraphUsecase, logger log.Logger) *TreeG
 	}
 }
 
-func (s *TreeGraphServiceServicer) GetNodeById(ctx context.Context, req *pb.IdReq) (*pb.TreeNodeResp, error) {
+func (s *TreeGraphServiceServicer) GetTreeNode(ctx context.Context, req *pb.IdReq) (*pb.TreeNodeResp, error) {
 	var (
 		n                *dto.Node
 		count            int64
@@ -95,6 +95,7 @@ func (s *TreeGraphServiceServicer) GetChildren(ctx context.Context, req *pb.PgId
 			var count int64
 			errCh <- s.graph.CountChildren(ctx, node.Id, filter, &count)
 			mutex.Lock()
+			defer mutex.Unlock()
 			treeNodes = append(treeNodes, &pb.TreeNode{
 				EntityId:      node.Id,
 				Id:            pkg.RandUuid(),
@@ -103,7 +104,6 @@ func (s *TreeGraphServiceServicer) GetChildren(ctx context.Context, req *pb.PgId
 				ChildrenCount: int32(count),
 				Children:      nil,
 			})
-			mutex.Unlock()
 		}()
 	}
 
@@ -185,5 +185,34 @@ func (s *TreeGraphServiceServicer) GetTitleAutoComplete(ctx context.Context, req
 }
 
 func (s *TreeGraphServiceServicer) GetPathBetween(ctx context.Context, req *pb.GetPathReq) (*pb.TreeNodeResp, error) {
-	return &pb.TreeNodeResp{}, nil
+	filter := dto.PathFilter{
+		RelLabels:    nil,
+		NodeLabels:   nil,
+		MaxPathDepth: 3,
+	}
+	neoPath, err := s.graph.GetPathBetween(ctx, req.SourceId, req.TargetId, filter)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(*neoPath) == 0 {
+		return &pb.TreeNodeResp{
+			Success: true,
+			Code:    0,
+			Msg:     "empty result",
+			Data:    nil,
+		}, nil
+	}
+
+	root, err := dto.NewTreeNodeFromPath(ctx, s.graph, neoPath, filter)
+	if err != nil {
+		return nil, err
+	}
+	data := root.GenPb()
+	return &pb.TreeNodeResp{
+		Success: false,
+		Code:    0,
+		Msg:     "",
+		Data:    data,
+	}, nil
 }

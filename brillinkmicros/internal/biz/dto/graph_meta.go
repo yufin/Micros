@@ -1,7 +1,6 @@
 package dto
 
 import (
-	"brillinkmicros/pkg"
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 )
 
@@ -49,32 +48,4 @@ func (s *Edge) Gen(r neo4j.Relationship) {
 type Net struct {
 	Nodes []Node
 	Edges []Edge
-}
-
-type TreeNode struct {
-	Node
-	RandId        string
-	ChildrenCount int64
-	Children      []TreeNode
-}
-
-func (t *TreeNode) Gen(n neo4j.Node) {
-	t.Node.Gen(n)
-	t.RandId = pkg.RandUuid()
-
-}
-
-func (t *TreeNode) GenFromPath(*[]neo4j.Path) {
-
-}
-
-type PathFilter struct {
-	RelLabels    []string
-	NodeLabels   []string
-	MaxPathDepth int
-}
-
-type TitleAutoCompleteRes struct {
-	Title string
-	Id    string
 }

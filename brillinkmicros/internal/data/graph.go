@@ -22,7 +22,7 @@ func NewGraphRepo(data *Data, logger log.Logger) biz.GraphRepo {
 	}
 }
 
-func (repo *GraphRepo) GetPathBetween(ctx context.Context, sourceId string, targetId string, f dto.PathFilter, p dto.PaginationReq) (*[]neo4j.Path, error) {
+func (repo *GraphRepo) GetPathBetween(ctx context.Context, sourceId string, targetId string, f dto.PathFilter) (*[]neo4j.Path, error) {
 	cypher :=
 		`MATCH (s {id: $sourceId}) 
 		MATCH (t {id: $targetId}) 
@@ -38,8 +38,6 @@ func (repo *GraphRepo) GetPathBetween(ctx context.Context, sourceId string, targ
 		"targetId":     targetId,
 		"targetLabels": f.NodeLabels,
 		"relTypes":     f.RelLabels,
-		"offset":       (p.PageNum - 1) * p.PageSize,
-		"pageSize":     p.PageSize,
 		"maxPathDepth": f.MaxPathDepth,
 	}
 	res, err := repo.data.Neo.CypherQuery(ctx, cypher, param)
