@@ -2,7 +2,7 @@ package data
 
 import (
 	"brillinkmicros/internal/biz"
-	"brillinkmicros/internal/biz/dto"
+	dto2 "brillinkmicros/internal/biz/dto"
 	"brillinkmicros/pkg"
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
@@ -21,9 +21,9 @@ func NewRcOriginContentRepo(data *Data, logger log.Logger) biz.RcOriginContentRe
 	}
 }
 
-func (repo *RcOriginContentRepo) GetPage(ctx context.Context, page *dto.PaginationReq) (*dto.RcOriginContentGetPageResp, error) {
-	var modelRoc dto.RcOriginContent
-	listRoc := make([]dto.RcOriginContent, 0)
+func (repo *RcOriginContentRepo) GetPage(ctx context.Context, page *dto2.PaginationReq) (*dto2.RcOriginContentGetPageResp, error) {
+	var modelRoc dto2.RcOriginContent
+	listRoc := make([]dto2.RcOriginContent, 0)
 	var count int64
 	offset := (page.PageNum - 1) * page.PageSize
 	err := repo.data.Db.
@@ -35,8 +35,8 @@ func (repo *RcOriginContentRepo) GetPage(ctx context.Context, page *dto.Paginati
 	if err != nil {
 		return nil, err
 	}
-	return &dto.RcOriginContentGetPageResp{
-		PaginationResp: dto.PaginationResp{
+	return &dto2.RcOriginContentGetPageResp{
+		PaginationResp: dto2.PaginationResp{
 			Total:     count,
 			TotalPage: int(math.Ceil(float64(count) / float64(page.PageSize))),
 			PageNum:   page.PageNum,
@@ -46,13 +46,13 @@ func (repo *RcOriginContentRepo) GetPage(ctx context.Context, page *dto.Paginati
 	}, nil
 }
 
-func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *dto.PaginationReq) (*dto.RcOriginContentInfosResp, error) {
+func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *dto2.PaginationReq) (*dto2.RcOriginContentInfosResp, error) {
 	dsi, err := pkg.ParseBlDataScope(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	var Infos = make([]dto.RcOriginContentInfo, 0)
+	var Infos = make([]dto2.RcOriginContentInfo, 0)
 	pageNum := int(math.Max(1, float64(page.PageNum)))
 	offset := (pageNum - 1) * page.PageSize
 	var count int64
@@ -110,8 +110,8 @@ func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *dto.Paginat
 	if err != nil {
 		return nil, err
 	}
-	return &dto.RcOriginContentInfosResp{
-		PaginationResp: dto.PaginationResp{
+	return &dto2.RcOriginContentInfosResp{
+		PaginationResp: dto2.PaginationResp{
 			Total:     count,
 			TotalPage: int(math.Ceil(float64(count) / float64(page.PageSize))),
 			PageNum:   pageNum,
@@ -121,8 +121,8 @@ func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *dto.Paginat
 	}, nil
 }
 
-func (repo *RcOriginContentRepo) Get(ctx context.Context, id int64) (*dto.RcOriginContent, error) {
-	var modelRoc dto.RcOriginContent
+func (repo *RcOriginContentRepo) Get(ctx context.Context, id int64) (*dto2.RcOriginContent, error) {
+	var modelRoc dto2.RcOriginContent
 	err := repo.data.Db.Table(modelRoc.TableName()).Where("id = ?", id).First(&modelRoc).Error
 	if err != nil {
 		return nil, err

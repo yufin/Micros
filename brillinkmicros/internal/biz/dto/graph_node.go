@@ -1,7 +1,9 @@
 package dto
 
 import (
+	pb "brillinkmicros/api/graph/v1"
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
+	"google.golang.org/protobuf/types/known/structpb"
 )
 
 type Node struct {
@@ -30,22 +32,13 @@ func (s *Node) Gen(n neo4j.Node) {
 		}
 	}
 	s.Labels = n.Labels
-	s.Data = n.Props
+	s.Data = propsCopy
 }
 
-type Edge struct {
-	SourceId string
-	TargetId string
-	Id       string
-	Label    string
-	Data     map[string]any
-}
-
-func (s *Edge) Gen(r neo4j.Relationship) {
-	return
-}
-
-type Net struct {
-	Nodes []Node
-	Edges []Edge
+func (s *Node) GenPb(pb *pb.Node) {
+	pb.Id = s.Id
+	pb.Labels = s.Labels
+	pb.Title = s.Title
+	st, _ := structpb.NewStruct(s.Data)
+	pb.Data = st
 }

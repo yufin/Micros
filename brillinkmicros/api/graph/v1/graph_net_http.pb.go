@@ -19,24 +19,24 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
-const OperationNetGraphServiceGetChildren = "/api.graph.v1.NetGraphService/GetChildren"
+const OperationNetGraphServiceGetChildrenNet = "/api.graph.v1.NetGraphService/GetChildrenNet"
 const OperationNetGraphServiceGetNetExpand = "/api.graph.v1.NetGraphService/GetNetExpand"
 const OperationNetGraphServiceGetNode = "/api.graph.v1.NetGraphService/GetNode"
-const OperationNetGraphServiceGetParents = "/api.graph.v1.NetGraphService/GetParents"
+const OperationNetGraphServiceGetParentsNet = "/api.graph.v1.NetGraphService/GetParentsNet"
 
 type NetGraphServiceHTTPServer interface {
-	GetChildren(context.Context, *PgIdReq) (*NetPaginationResp, error)
+	GetChildrenNet(context.Context, *GetPaginationNodeReq) (*NetPaginationResp, error)
 	GetNetExpand(context.Context, *NetExpandReq) (*NetResp, error)
-	GetNode(context.Context, *PgIdReq) (*NodeResp, error)
-	GetParents(context.Context, *PgIdReq) (*NetPaginationResp, error)
+	GetNode(context.Context, *GetNodeReq) (*NodeResp, error)
+	GetParentsNet(context.Context, *GetPaginationNodeReq) (*NetPaginationResp, error)
 }
 
 func RegisterNetGraphServiceHTTPServer(s *http.Server, srv NetGraphServiceHTTPServer) {
 	r := s.Route("/")
 	r.GET("/micros/graph/v1/net/expand", _NetGraphService_GetNetExpand0_HTTP_Handler(srv))
 	r.GET("/micros/graph/v1/net/node", _NetGraphService_GetNode0_HTTP_Handler(srv))
-	r.GET("/micros/graph/v1/net/children", _NetGraphService_GetChildren0_HTTP_Handler(srv))
-	r.GET("/micros/graph/v1/net/parents", _NetGraphService_GetParents0_HTTP_Handler(srv))
+	r.GET("/micros/graph/v1/net/children", _NetGraphService_GetChildrenNet0_HTTP_Handler(srv))
+	r.GET("/micros/graph/v1/net/parents", _NetGraphService_GetParentsNet0_HTTP_Handler(srv))
 }
 
 func _NetGraphService_GetNetExpand0_HTTP_Handler(srv NetGraphServiceHTTPServer) func(ctx http.Context) error {
@@ -60,13 +60,13 @@ func _NetGraphService_GetNetExpand0_HTTP_Handler(srv NetGraphServiceHTTPServer) 
 
 func _NetGraphService_GetNode0_HTTP_Handler(srv NetGraphServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PgIdReq
+		var in GetNodeReq
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationNetGraphServiceGetNode)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetNode(ctx, req.(*PgIdReq))
+			return srv.GetNode(ctx, req.(*GetNodeReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -77,15 +77,15 @@ func _NetGraphService_GetNode0_HTTP_Handler(srv NetGraphServiceHTTPServer) func(
 	}
 }
 
-func _NetGraphService_GetChildren0_HTTP_Handler(srv NetGraphServiceHTTPServer) func(ctx http.Context) error {
+func _NetGraphService_GetChildrenNet0_HTTP_Handler(srv NetGraphServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PgIdReq
+		var in GetPaginationNodeReq
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationNetGraphServiceGetChildren)
+		http.SetOperation(ctx, OperationNetGraphServiceGetChildrenNet)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetChildren(ctx, req.(*PgIdReq))
+			return srv.GetChildrenNet(ctx, req.(*GetPaginationNodeReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -96,15 +96,15 @@ func _NetGraphService_GetChildren0_HTTP_Handler(srv NetGraphServiceHTTPServer) f
 	}
 }
 
-func _NetGraphService_GetParents0_HTTP_Handler(srv NetGraphServiceHTTPServer) func(ctx http.Context) error {
+func _NetGraphService_GetParentsNet0_HTTP_Handler(srv NetGraphServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PgIdReq
+		var in GetPaginationNodeReq
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationNetGraphServiceGetParents)
+		http.SetOperation(ctx, OperationNetGraphServiceGetParentsNet)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetParents(ctx, req.(*PgIdReq))
+			return srv.GetParentsNet(ctx, req.(*GetPaginationNodeReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -116,10 +116,10 @@ func _NetGraphService_GetParents0_HTTP_Handler(srv NetGraphServiceHTTPServer) fu
 }
 
 type NetGraphServiceHTTPClient interface {
-	GetChildren(ctx context.Context, req *PgIdReq, opts ...http.CallOption) (rsp *NetPaginationResp, err error)
+	GetChildrenNet(ctx context.Context, req *GetPaginationNodeReq, opts ...http.CallOption) (rsp *NetPaginationResp, err error)
 	GetNetExpand(ctx context.Context, req *NetExpandReq, opts ...http.CallOption) (rsp *NetResp, err error)
-	GetNode(ctx context.Context, req *PgIdReq, opts ...http.CallOption) (rsp *NodeResp, err error)
-	GetParents(ctx context.Context, req *PgIdReq, opts ...http.CallOption) (rsp *NetPaginationResp, err error)
+	GetNode(ctx context.Context, req *GetNodeReq, opts ...http.CallOption) (rsp *NodeResp, err error)
+	GetParentsNet(ctx context.Context, req *GetPaginationNodeReq, opts ...http.CallOption) (rsp *NetPaginationResp, err error)
 }
 
 type NetGraphServiceHTTPClientImpl struct {
@@ -130,11 +130,11 @@ func NewNetGraphServiceHTTPClient(client *http.Client) NetGraphServiceHTTPClient
 	return &NetGraphServiceHTTPClientImpl{client}
 }
 
-func (c *NetGraphServiceHTTPClientImpl) GetChildren(ctx context.Context, in *PgIdReq, opts ...http.CallOption) (*NetPaginationResp, error) {
+func (c *NetGraphServiceHTTPClientImpl) GetChildrenNet(ctx context.Context, in *GetPaginationNodeReq, opts ...http.CallOption) (*NetPaginationResp, error) {
 	var out NetPaginationResp
 	pattern := "/micros/graph/v1/net/children"
 	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationNetGraphServiceGetChildren))
+	opts = append(opts, http.Operation(OperationNetGraphServiceGetChildrenNet))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
@@ -156,7 +156,7 @@ func (c *NetGraphServiceHTTPClientImpl) GetNetExpand(ctx context.Context, in *Ne
 	return &out, err
 }
 
-func (c *NetGraphServiceHTTPClientImpl) GetNode(ctx context.Context, in *PgIdReq, opts ...http.CallOption) (*NodeResp, error) {
+func (c *NetGraphServiceHTTPClientImpl) GetNode(ctx context.Context, in *GetNodeReq, opts ...http.CallOption) (*NodeResp, error) {
 	var out NodeResp
 	pattern := "/micros/graph/v1/net/node"
 	path := binding.EncodeURL(pattern, in, true)
@@ -169,11 +169,11 @@ func (c *NetGraphServiceHTTPClientImpl) GetNode(ctx context.Context, in *PgIdReq
 	return &out, err
 }
 
-func (c *NetGraphServiceHTTPClientImpl) GetParents(ctx context.Context, in *PgIdReq, opts ...http.CallOption) (*NetPaginationResp, error) {
+func (c *NetGraphServiceHTTPClientImpl) GetParentsNet(ctx context.Context, in *GetPaginationNodeReq, opts ...http.CallOption) (*NetPaginationResp, error) {
 	var out NetPaginationResp
 	pattern := "/micros/graph/v1/net/parents"
 	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationNetGraphServiceGetParents))
+	opts = append(opts, http.Operation(OperationNetGraphServiceGetParentsNet))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

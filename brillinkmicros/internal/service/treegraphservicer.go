@@ -1,6 +1,7 @@
 package service
 
 import (
+	"brillinkmicros/internal/biz/dto"
 	"context"
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
@@ -8,7 +9,6 @@ import (
 
 	pb "brillinkmicros/api/graph/v1"
 	"brillinkmicros/internal/biz"
-	"brillinkmicros/internal/biz/dto"
 	"brillinkmicros/pkg"
 )
 
@@ -204,7 +204,7 @@ func (s *TreeGraphServiceServicer) GetPathBetween(ctx context.Context, req *pb.G
 		}, nil
 	}
 
-	root, err := dto.NewTreeNodeFromPath(ctx, s.graph, neoPath, filter)
+	root, err := dto.NewTreeNodeFromPath(ctx, s.graph.CountChildren, neoPath, filter)
 	if err != nil {
 		return nil, err
 	}

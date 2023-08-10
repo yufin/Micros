@@ -18,30 +18,29 @@ service NetGraphService {
     };
   }
 
-  rpc GetNode(PgIdReq) returns (NodeResp) {
+  rpc GetNode(GetNodeReq) returns (NodeResp) {
     option (google.api.http) = {
       get: "/micros/graph/v1/net/node"
     };
   }
 
-  rpc GetChildren(PgIdReq) returns (NetPaginationResp) {
+  rpc GetChildrenNet(GetPaginationNodeReq) returns (NetPaginationResp) {
     option (google.api.http) = {
       get: "/micros/graph/v1/net/children"
     };
   }
 
-  rpc GetParents(PgIdReq) returns (NetPaginationResp) {
+  rpc GetParentsNet(GetPaginationNodeReq) returns (NetPaginationResp) {
     option (google.api.http) = {
       get: "/micros/graph/v1/net/parents"
     };
   }
 }
 
-
-
-message IdReq {
-  string id = 3;
+message GetNodeReq {
+  string id = 1;
 }
+
 
 message NetExpandReq {
   string id = 1;
@@ -49,7 +48,7 @@ message NetExpandReq {
   uint32 limit = 3;
 }
 
-message PgIdReq {
+message GetPaginationNodeReq {
   uint32 page_num = 1;
   uint32 page_size = 2;
   string id = 3;
@@ -63,8 +62,8 @@ message Node {
 }
 
 message Edge {
-	string source = 1;
-	string target = 2;
+	string source_id = 1;
+	string target_id = 2;
 	string id = 3;
 	string label = 4;
 	google.protobuf.Struct data = 5;

@@ -2,7 +2,7 @@ package service
 
 import (
 	"brillinkmicros/internal/biz"
-	"brillinkmicros/internal/biz/dto"
+	dto2 "brillinkmicros/internal/biz/dto"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -48,7 +48,7 @@ func NewRcServiceServicer(
 // ListReportInfos 获取报告列表
 func (s *RcServiceServicer) ListReportInfos(ctx context.Context, req *pb.PaginationReq) (*pb.ReportInfosResp, error) {
 
-	pageReq := &dto.PaginationReq{
+	pageReq := &dto2.PaginationReq{
 		PageNum:  int(req.PageNum),
 		PageSize: int(req.PageSize),
 	}
@@ -186,7 +186,7 @@ func (s *RcServiceServicer) InsertReportDependencyData(ctx context.Context, req 
 		return nil, err
 	}
 	if len(contentIds) == 0 {
-		insertReq := dto.RcDependencyData{
+		insertReq := dto2.RcDependencyData{
 			UscId:   req.UscId,
 			LhQylx:  int(req.LhQylx),
 			LhCylwz: int(req.LhCylwz),
@@ -215,7 +215,7 @@ func (s *RcServiceServicer) InsertReportDependencyData(ctx context.Context, req 
 		if err != nil {
 			return nil, err
 		}
-		insertReq := dto.RcDependencyData{
+		insertReq := dto2.RcDependencyData{
 			ContentId:       &contentId,
 			AttributedMonth: &dataRoc.YearMonth,
 			UscId:           dataRoc.UscId,
@@ -258,7 +258,7 @@ func (s *RcServiceServicer) UpdateReportDependencyData(ctx context.Context, req 
 		}
 	}
 
-	insertReq := dto.RcDependencyData{
+	insertReq := dto2.RcDependencyData{
 		ContentId:       rdd.ContentId,
 		AttributedMonth: rdd.AttributedMonth,
 		UscId:           rdd.UscId,

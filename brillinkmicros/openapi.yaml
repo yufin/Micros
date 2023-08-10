@@ -10,7 +10,7 @@ paths:
         get:
             tags:
                 - NetGraphService
-            operationId: NetGraphService_GetChildren
+            operationId: NetGraphService_GetChildrenNet
             parameters:
                 - name: pageNum
                   in: query
@@ -78,16 +78,6 @@ paths:
                 - NetGraphService
             operationId: NetGraphService_GetNode
             parameters:
-                - name: pageNum
-                  in: query
-                  schema:
-                    type: integer
-                    format: uint32
-                - name: pageSize
-                  in: query
-                  schema:
-                    type: integer
-                    format: uint32
                 - name: id
                   in: query
                   schema:
@@ -109,7 +99,7 @@ paths:
         get:
             tags:
                 - NetGraphService
-            operationId: NetGraphService_GetParents
+            operationId: NetGraphService_GetParentsNet
             parameters:
                 - name: pageNum
                   in: query
@@ -143,9 +133,9 @@ components:
         Edge:
             type: object
             properties:
-                source:
+                sourceId:
                     type: string
-                target:
+                targetId:
                     type: string
                 id:
                     type: string

@@ -19,8 +19,9 @@ func NewHTTPServer(c *conf.Server,
 	data *data.Data,
 	confData *conf.Data,
 	rss *service.RcServiceServicer,
-	tgs *service.TreeGraphServiceServicer,
 	rrs *service.RcRdmServiceServicer,
+	tgs *service.TreeGraphServiceServicer,
+	ngs *service.NetGraphServiceServicer,
 	logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		// 一个请求进入时的处理顺序为 Middleware 注册的顺序，而响应返回的处理顺序为注册顺序的倒序
@@ -46,5 +47,6 @@ func NewHTTPServer(c *conf.Server,
 	rcv1.RegisterRcServiceHTTPServer(srv, rss)
 	gv1.RegisterTreeGraphServiceHTTPServer(srv, tgs)
 	rcv1.RegisterRcRdmServiceHTTPServer(srv, rrs)
+	gv1.RegisterNetGraphServiceHTTPServer(srv, ngs)
 	return srv
 }

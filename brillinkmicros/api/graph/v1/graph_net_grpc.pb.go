@@ -19,10 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	NetGraphService_GetNetExpand_FullMethodName = "/api.graph.v1.NetGraphService/GetNetExpand"
-	NetGraphService_GetNode_FullMethodName      = "/api.graph.v1.NetGraphService/GetNode"
-	NetGraphService_GetChildren_FullMethodName  = "/api.graph.v1.NetGraphService/GetChildren"
-	NetGraphService_GetParents_FullMethodName   = "/api.graph.v1.NetGraphService/GetParents"
+	NetGraphService_GetNetExpand_FullMethodName   = "/api.graph.v1.NetGraphService/GetNetExpand"
+	NetGraphService_GetNode_FullMethodName        = "/api.graph.v1.NetGraphService/GetNode"
+	NetGraphService_GetChildrenNet_FullMethodName = "/api.graph.v1.NetGraphService/GetChildrenNet"
+	NetGraphService_GetParentsNet_FullMethodName  = "/api.graph.v1.NetGraphService/GetParentsNet"
 )
 
 // NetGraphServiceClient is the client API for NetGraphService service.
@@ -30,9 +30,9 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type NetGraphServiceClient interface {
 	GetNetExpand(ctx context.Context, in *NetExpandReq, opts ...grpc.CallOption) (*NetResp, error)
-	GetNode(ctx context.Context, in *PgIdReq, opts ...grpc.CallOption) (*NodeResp, error)
-	GetChildren(ctx context.Context, in *PgIdReq, opts ...grpc.CallOption) (*NetPaginationResp, error)
-	GetParents(ctx context.Context, in *PgIdReq, opts ...grpc.CallOption) (*NetPaginationResp, error)
+	GetNode(ctx context.Context, in *GetNodeReq, opts ...grpc.CallOption) (*NodeResp, error)
+	GetChildrenNet(ctx context.Context, in *GetPaginationNodeReq, opts ...grpc.CallOption) (*NetPaginationResp, error)
+	GetParentsNet(ctx context.Context, in *GetPaginationNodeReq, opts ...grpc.CallOption) (*NetPaginationResp, error)
 }
 
 type netGraphServiceClient struct {
@@ -52,7 +52,7 @@ func (c *netGraphServiceClient) GetNetExpand(ctx context.Context, in *NetExpandR
 	return out, nil
 }
 
-func (c *netGraphServiceClient) GetNode(ctx context.Context, in *PgIdReq, opts ...grpc.CallOption) (*NodeResp, error) {
+func (c *netGraphServiceClient) GetNode(ctx context.Context, in *GetNodeReq, opts ...grpc.CallOption) (*NodeResp, error) {
 	out := new(NodeResp)
 	err := c.cc.Invoke(ctx, NetGraphService_GetNode_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -61,18 +61,18 @@ func (c *netGraphServiceClient) GetNode(ctx context.Context, in *PgIdReq, opts .
 	return out, nil
 }
 
-func (c *netGraphServiceClient) GetChildren(ctx context.Context, in *PgIdReq, opts ...grpc.CallOption) (*NetPaginationResp, error) {
+func (c *netGraphServiceClient) GetChildrenNet(ctx context.Context, in *GetPaginationNodeReq, opts ...grpc.CallOption) (*NetPaginationResp, error) {
 	out := new(NetPaginationResp)
-	err := c.cc.Invoke(ctx, NetGraphService_GetChildren_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, NetGraphService_GetChildrenNet_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *netGraphServiceClient) GetParents(ctx context.Context, in *PgIdReq, opts ...grpc.CallOption) (*NetPaginationResp, error) {
+func (c *netGraphServiceClient) GetParentsNet(ctx context.Context, in *GetPaginationNodeReq, opts ...grpc.CallOption) (*NetPaginationResp, error) {
 	out := new(NetPaginationResp)
-	err := c.cc.Invoke(ctx, NetGraphService_GetParents_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, NetGraphService_GetParentsNet_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -84,9 +84,9 @@ func (c *netGraphServiceClient) GetParents(ctx context.Context, in *PgIdReq, opt
 // for forward compatibility
 type NetGraphServiceServer interface {
 	GetNetExpand(context.Context, *NetExpandReq) (*NetResp, error)
-	GetNode(context.Context, *PgIdReq) (*NodeResp, error)
-	GetChildren(context.Context, *PgIdReq) (*NetPaginationResp, error)
-	GetParents(context.Context, *PgIdReq) (*NetPaginationResp, error)
+	GetNode(context.Context, *GetNodeReq) (*NodeResp, error)
+	GetChildrenNet(context.Context, *GetPaginationNodeReq) (*NetPaginationResp, error)
+	GetParentsNet(context.Context, *GetPaginationNodeReq) (*NetPaginationResp, error)
 	mustEmbedUnimplementedNetGraphServiceServer()
 }
 
@@ -97,14 +97,14 @@ type UnimplementedNetGraphServiceServer struct {
 func (UnimplementedNetGraphServiceServer) GetNetExpand(context.Context, *NetExpandReq) (*NetResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetNetExpand not implemented")
 }
-func (UnimplementedNetGraphServiceServer) GetNode(context.Context, *PgIdReq) (*NodeResp, error) {
+func (UnimplementedNetGraphServiceServer) GetNode(context.Context, *GetNodeReq) (*NodeResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetNode not implemented")
 }
-func (UnimplementedNetGraphServiceServer) GetChildren(context.Context, *PgIdReq) (*NetPaginationResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetChildren not implemented")
+func (UnimplementedNetGraphServiceServer) GetChildrenNet(context.Context, *GetPaginationNodeReq) (*NetPaginationResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetChildrenNet not implemented")
 }
-func (UnimplementedNetGraphServiceServer) GetParents(context.Context, *PgIdReq) (*NetPaginationResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetParents not implemented")
+func (UnimplementedNetGraphServiceServer) GetParentsNet(context.Context, *GetPaginationNodeReq) (*NetPaginationResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetParentsNet not implemented")
 }
 func (UnimplementedNetGraphServiceServer) mustEmbedUnimplementedNetGraphServiceServer() {}
 
@@ -138,7 +138,7 @@ func _NetGraphService_GetNetExpand_Handler(srv interface{}, ctx context.Context,
 }
 
 func _NetGraphService_GetNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PgIdReq)
+	in := new(GetNodeReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -150,43 +150,43 @@ func _NetGraphService_GetNode_Handler(srv interface{}, ctx context.Context, dec 
 		FullMethod: NetGraphService_GetNode_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NetGraphServiceServer).GetNode(ctx, req.(*PgIdReq))
+		return srv.(NetGraphServiceServer).GetNode(ctx, req.(*GetNodeReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _NetGraphService_GetChildren_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PgIdReq)
+func _NetGraphService_GetChildrenNet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPaginationNodeReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(NetGraphServiceServer).GetChildren(ctx, in)
+		return srv.(NetGraphServiceServer).GetChildrenNet(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: NetGraphService_GetChildren_FullMethodName,
+		FullMethod: NetGraphService_GetChildrenNet_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NetGraphServiceServer).GetChildren(ctx, req.(*PgIdReq))
+		return srv.(NetGraphServiceServer).GetChildrenNet(ctx, req.(*GetPaginationNodeReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _NetGraphService_GetParents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PgIdReq)
+func _NetGraphService_GetParentsNet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPaginationNodeReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(NetGraphServiceServer).GetParents(ctx, in)
+		return srv.(NetGraphServiceServer).GetParentsNet(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: NetGraphService_GetParents_FullMethodName,
+		FullMethod: NetGraphService_GetParentsNet_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NetGraphServiceServer).GetParents(ctx, req.(*PgIdReq))
+		return srv.(NetGraphServiceServer).GetParentsNet(ctx, req.(*GetPaginationNodeReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -207,12 +207,12 @@ var NetGraphService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _NetGraphService_GetNode_Handler,
 		},
 		{
-			MethodName: "GetChildren",
-			Handler:    _NetGraphService_GetChildren_Handler,
+			MethodName: "GetChildrenNet",
+			Handler:    _NetGraphService_GetChildrenNet_Handler,
 		},
 		{
-			MethodName: "GetParents",
-			Handler:    _NetGraphService_GetParents_Handler,
+			MethodName: "GetParentsNet",
+			Handler:    _NetGraphService_GetParentsNet_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

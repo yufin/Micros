@@ -2,7 +2,6 @@ package dto
 
 import (
 	pb "brillinkmicros/api/graph/v1"
-	"brillinkmicros/internal/biz"
 	"brillinkmicros/pkg"
 	"context"
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
@@ -21,16 +20,18 @@ type childrenCountParam struct {
 	ChildrenCountP *int64
 }
 
+type childrenCount func(context.Context, string, PathFilter, *int64) error
+
 func (t *TreeNode) Gen(n neo4j.Node) {
 	t.Node.Gen(n)
 	t.RandId = pkg.RandUuid()
 }
 
-func (t *TreeNode) AutoGen(ctx context.Context, n neo4j.Node, repo biz.GraphRepo, filter PathFilter) error {
+func (t *TreeNode) AutoGen(ctx context.Context, n neo4j.Node, cc childrenCount, filter PathFilter) error {
 	t.Node.Gen(n)
 	t.RandId = pkg.RandUuid()
 	var count int64
-	err := repo.CountChildren(ctx, t.Id, filter, &count)
+	err := cc(ctx, t.Id, filter, &count)
 	if err != nil {
 		return err
 	}
@@ -81,7 +82,7 @@ func (t *TreeNode) setChild(parentId string, neoChild neo4j.Node, chParamP *chan
 	return false
 }
 
-func NewTreeNodeFromPath(ctx context.Context, repo biz.GraphRepo, neoPath *[]neo4j.Path, filter PathFilter) (*TreeNode, error) {
+func NewTreeNodeFromPath(ctx context.Context, cc childrenCount, neoPath *[]neo4j.Path, filter PathFilter) (*TreeNode, error) {
 	rootNeo := (*neoPath)[0].Nodes[0]
 	root := TreeNode{}
 	root.Gen(rootNeo)
@@ -114,7 +115,7 @@ func NewTreeNodeFromPath(ctx context.Context, repo biz.GraphRepo, neoPath *[]neo
 		go func() {
 			wg.Add(1)
 			defer wg.Done()
-			err := repo.CountChildren(ctx, ccp.ParentId, filter, ccp.ChildrenCountP)
+			err := cc(ctx, ccp.ParentId, filter, ccp.ChildrenCountP)
 			if err != nil {
 				chErr <- err
 			}
