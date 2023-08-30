@@ -52,6 +52,7 @@ func (s *NetGraphServiceServicer) GetNetExpand(ctx context.Context, req *pb.NetE
 		Data:    &data,
 	}, nil
 }
+
 func (s *NetGraphServiceServicer) GetNode(ctx context.Context, req *pb.GetNodeReq) (*pb.NodeResp, error) {
 	n, err := s.graph.GetNode(ctx, req.Id)
 	if err != nil {

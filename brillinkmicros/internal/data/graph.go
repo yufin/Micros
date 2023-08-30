@@ -198,22 +198,22 @@ func (repo *GraphRepo) CountTitleAutoComplete(ctx context.Context, f dto2.PathFi
 }
 
 func (repo *GraphRepo) GetPathBetween(ctx context.Context, sourceId string, targetId string, f dto2.PathFilter) (*[]neo4j.Path, error) {
-	cypher :=
-		`MATCH (s {id: $sourceId}) 
-		MATCH (t {id: $targetId}) 
-		MATCH p = (s)-[r*..$maxPathDepth]->(t) 
-		WHERE any(label IN labels(t) WHERE label IN $targetLabels) 
-		AND type(r) IN $relTypes 
-		RETURN p;`
 	if f.MaxPathDepth == 0 {
 		f.MaxPathDepth = 6
 	}
+	cypher :=
+		fmt.Sprintf(
+			`MATCH (s {id: $sourceId}) 
+		MATCH (t {id: $targetId}) 
+		MATCH p = (s)-[r*..%d]->(t) 
+		WHERE any(label IN labels(t) WHERE label IN $targetLabels) 
+		AND all(rel in relationships(p) where type(rel) in $relTypes) 
+		RETURN p;`, f.MaxPathDepth)
 	param := map[string]any{
 		"sourceId":     sourceId,
 		"targetId":     targetId,
 		"targetLabels": f.NodeLabels,
 		"relTypes":     f.RelLabels,
-		"maxPathDepth": f.MaxPathDepth,
 	}
 	res, err := repo.data.Neo.CypherQuery(ctx, cypher, param)
 	if err != nil {

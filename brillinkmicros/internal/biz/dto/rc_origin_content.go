@@ -37,3 +37,21 @@ type RcOriginContentInfo struct {
 	UpdatedAt          time.Time
 	CreatedAt          time.Time
 }
+
+type RcOriginContentInfoV3 struct {
+	ContentId          int64
+	UscId              string
+	DataCollectMonth   string
+	LhQylx             int
+	EnterpriseName     string
+	ProcessedId        string
+	DepId              int64
+	ProcessedUpdatedAt time.Time
+	UpdatedAt          time.Time
+	CreatedAt          time.Time
+}
+
+type RcOriginContentInfosRespV3 struct {
+	PaginationResp
+	Data *[]RcOriginContentInfoV3
+}

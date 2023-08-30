@@ -21,10 +21,11 @@ type RcReportOssRepo struct {
 	log  *log.Helper
 }
 
-func (repo *RcReportOssRepo) GetOssIdUptoDateByDepId(ctx context.Context, depId int64) (int64, error) {
+func (repo *RcReportOssRepo) GetOssIdUptoDateByDepId(ctx context.Context, depId int64, version string) (int64, error) {
 	var reportOss *dto.RcReportOss
 	err := repo.data.Db.Model(&reportOss).
 		Where("dep_id = ?", depId).
+		Where("version = ?", version).
 		Order("created_at DESC").
 		First(&reportOss).
 		Error

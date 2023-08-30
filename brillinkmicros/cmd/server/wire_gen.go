@@ -40,7 +40,11 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	if err != nil {
 		return nil, nil, err
 	}
-	dataData, cleanup, err := data.NewData(logger, dbs, natsWrap, neoCli, minioClient)
+	mgoCli, err := data.NewMgoCli(confData)
+	if err != nil {
+		return nil, nil, err
+	}
+	dataData, cleanup, err := data.NewData(logger, dbs, natsWrap, neoCli, minioClient, mgoCli)
 	if err != nil {
 		return nil, nil, err
 	}

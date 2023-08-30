@@ -58,6 +58,19 @@ func (repo *RcDependencyDataRepo) GetByContentId(ctx context.Context, contentId 
 	return &modelRdd, nil
 }
 
+func (repo *RcDependencyDataRepo) GetNoAuth(ctx context.Context, id int64) (*dto.RcDependencyData, error) {
+	var modelRdd dto.RcDependencyData
+	err := repo.data.Db.
+		Model(&dto.RcDependencyData{}).
+		Where("id = ?", id).
+		First(&modelRdd).
+		Error
+	if err != nil {
+		return nil, err
+	}
+	return &modelRdd, nil
+}
+
 func (repo *RcDependencyDataRepo) Get(ctx context.Context, id int64) (*dto.RcDependencyData, error) {
 	dsi, err := pkg.ParseBlDataScope(ctx)
 	if err != nil {
@@ -93,6 +106,16 @@ func (repo *RcDependencyDataRepo) Insert(ctx context.Context, insertReq *dto.RcD
 	if err != nil {
 		return 0, err
 	}
+
+	//if err := func() error {
+	//	msg := make([]byte, 8)
+	//	binary.BigEndian.PutUint64(msg, uint64(insertReq.Id))
+	//	_, err = repo.data.Nw.Js.Publish("task.rc.dependency.data.newId", msg)
+	//	return err
+	//}(); err != nil {
+	//	return 0, err
+	//}
+
 	return insertReq.Id, nil
 }
 

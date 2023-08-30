@@ -1,13 +1,13 @@
-package service
+package v2
 
 import (
 	"brillinkmicros/internal/biz"
-	dto2 "brillinkmicros/internal/biz/dto"
+	"brillinkmicros/internal/biz/dto"
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
+	"go.mongodb.org/mongo-driver/bson"
 	"google.golang.org/protobuf/types/known/structpb"
 	"gorm.io/gorm"
 	"strconv"
@@ -15,7 +15,7 @@ import (
 
 	//"github.com/gogo/protobuf/proto/protojson"
 	//"github.com/gogo/protobuf/proto/structpb"
-	pb "brillinkmicros/api/rc/v1"
+	pb "brillinkmicros/api/rc/v2"
 )
 
 type RcServiceServicer struct {
@@ -26,6 +26,7 @@ type RcServiceServicer struct {
 	rcDependencyData   *biz.RcDependencyDataUsecase
 	rcReportOss        *biz.RcReportOssUsecase
 	ossMetadata        *biz.OssMetadataUsecase
+	mgoRc              *biz.MgoRcUsecase
 }
 
 func NewRcServiceServicer(
@@ -34,6 +35,7 @@ func NewRcServiceServicer(
 	rdd *biz.RcDependencyDataUsecase,
 	omd *biz.OssMetadataUsecase,
 	rro *biz.RcReportOssUsecase,
+	mgoRc *biz.MgoRcUsecase,
 	logger log.Logger) *RcServiceServicer {
 	return &RcServiceServicer{
 		rcOriginContent:    roc,
@@ -41,27 +43,26 @@ func NewRcServiceServicer(
 		rcDependencyData:   rdd,
 		rcReportOss:        rro,
 		ossMetadata:        omd,
+		mgoRc:              mgoRc,
 		log:                log.NewHelper(logger),
 	}
 }
 
 // ListReportInfos 获取报告列表
 func (s *RcServiceServicer) ListReportInfos(ctx context.Context, req *pb.PaginationReq) (*pb.ReportInfosResp, error) {
-
-	pageReq := &dto2.PaginationReq{
+	pageReq := &dto.PaginationReq{
 		PageNum:  int(req.PageNum),
 		PageSize: int(req.PageSize),
 	}
-	infosResp, err := s.rcOriginContent.GetInfos(ctx, pageReq)
+	infosResp, err := s.mgoRc.GetContentInfos(ctx, pageReq)
 	if err != nil {
 		return nil, err
 	}
-
 	pbInfos := make([]*pb.ReportInfo, 0)
 	for _, v := range *infosResp.Data {
 		v := v
 		available := false
-		if v.ProcessedId != 0 {
+		if v.ProcessedId != "" {
 			available = true
 		}
 		info := &pb.ReportInfo{
@@ -90,23 +91,44 @@ func (s *RcServiceServicer) ListReportInfos(ctx context.Context, req *pb.Paginat
 
 // GetReportContent 获取报告内容
 func (s *RcServiceServicer) GetReportContent(ctx context.Context, req *pb.ReportContentReq) (*pb.ReportContentResp, error) {
-	rpcData, err := s.rcProcessedContent.GetByContentIdUpToDate(ctx, req.ContentId)
+	allowed, err := s.rcOriginContent.CheckContentIdAllowed(ctx, req.ContentId)
 	if err != nil {
 		return nil, err
 	}
-	m := make(map[string]interface{})
-	if rpcData == nil {
+	if allowed {
 		return &pb.ReportContentResp{
 			Content:   nil,
 			Available: false,
 			Msg:       "没有权限查看该报告/报告未生成",
 		}, nil
 	}
-	if err = json.Unmarshal([]byte(rpcData.Content), &m); err != nil {
+
+	contentDoc, err := s.mgoRc.GetProcessedContent(ctx, req.ContentId)
+	content := contentDoc["content"].(bson.M)
+	if err != nil {
 		return nil, err
 	}
-	var st *structpb.Struct
-	st, err = structpb.NewStruct(m)
+	if content == nil {
+		return &pb.ReportContentResp{
+			Content:   nil,
+			Available: false,
+			Msg:       "报告暂未生成",
+		}, nil
+	}
+	m := make(map[string]interface{})
+	b, err := bson.Marshal(content)
+	if err != nil {
+		return nil, err
+	}
+	err = bson.Unmarshal(b, &m)
+	if err != nil {
+		return nil, err
+	}
+	st, err := structpb.NewStruct(m)
+
+	if err != nil {
+		return nil, err
+	}
 	return &pb.ReportContentResp{
 		Content:   st,
 		Available: true,
@@ -114,21 +136,32 @@ func (s *RcServiceServicer) GetReportContent(ctx context.Context, req *pb.Report
 	}, nil
 }
 
-// GetReportContentByDepIdNoDs 根据部门id获取报告内容,没有权限验证
+// GetReportContentByDepIdNoDs 根据dep_id获取报告内容,没有权限验证
 func (s *RcServiceServicer) GetReportContentByDepIdNoDs(ctx context.Context, req *pb.ReportContentByDepIdReq) (*pb.ReportContentResp, error) {
-	rpcData, err := s.rcProcessedContent.GetContentUpToDateByDepId(ctx, req.DepId, 1)
+	rdd, err := s.rcDependencyData.GetNoAuth(ctx, req.DepId)
 	if err != nil {
 		return nil, err
 	}
-	m := make(map[string]interface{})
-	if rpcData == nil {
+
+	contentDoc, err := s.mgoRc.GetProcessedContent(ctx, *rdd.ContentId)
+	if err != nil {
+		return nil, err
+	}
+
+	if contentDoc == nil {
 		return &pb.ReportContentResp{
 			Content:   nil,
 			Available: false,
 			Msg:       "没有权限查看该报告/报告未生成",
 		}, nil
 	}
-	if err = json.Unmarshal([]byte(rpcData.Content), &m); err != nil {
+	content := contentDoc["content"].(bson.M)
+	b, err := bson.Marshal(content)
+	if err != nil {
+		return nil, err
+	}
+	m := make(map[string]interface{})
+	if err = bson.Unmarshal(b, &m); err != nil {
 		return nil, err
 	}
 	var st *structpb.Struct
@@ -167,7 +200,6 @@ func (s *RcServiceServicer) RefreshReportContent(ctx context.Context, req *pb.Re
 
 // InsertReportDependencyData 插入企业风控参数
 func (s *RcServiceServicer) InsertReportDependencyData(ctx context.Context, req *pb.InsertDependencyDataReq) (*pb.SetDependencyDataResp, error) {
-
 	isInserted, err := s.rcDependencyData.CheckIsInsertDepdDataDuplicate(ctx, req.UscId)
 	if err != nil {
 		return nil, err
@@ -186,7 +218,7 @@ func (s *RcServiceServicer) InsertReportDependencyData(ctx context.Context, req 
 		return nil, err
 	}
 	if len(contentIds) == 0 {
-		insertReq := dto2.RcDependencyData{
+		insertReq := dto.RcDependencyData{
 			UscId:   req.UscId,
 			LhQylx:  int(req.LhQylx),
 			LhCylwz: int(req.LhCylwz),
@@ -215,7 +247,7 @@ func (s *RcServiceServicer) InsertReportDependencyData(ctx context.Context, req 
 		if err != nil {
 			return nil, err
 		}
-		insertReq := dto2.RcDependencyData{
+		insertReq := dto.RcDependencyData{
 			ContentId:       &contentId,
 			AttributedMonth: &dataRoc.YearMonth,
 			UscId:           dataRoc.UscId,
@@ -258,7 +290,7 @@ func (s *RcServiceServicer) UpdateReportDependencyData(ctx context.Context, req 
 		}
 	}
 
-	insertReq := dto2.RcDependencyData{
+	insertReq := dto.RcDependencyData{
 		ContentId:       rdd.ContentId,
 		AttributedMonth: rdd.AttributedMonth,
 		UscId:           rdd.UscId,
@@ -328,7 +360,7 @@ func (s *RcServiceServicer) GetReportPdfByDepId(ctx context.Context, req *pb.Rep
 		}
 		return nil, err
 	}
-	ossId, err := s.rcReportOss.GetOssIdUptoDateByDepId(ctx, req.DepId, "2")
+	ossId, err := s.rcReportOss.GetOssIdUptoDateByDepId(ctx, req.DepId, "3")
 	if err != nil {
 		return nil, err
 	}
@@ -354,7 +386,6 @@ func (s *RcServiceServicer) GetReportPdfByDepId(ctx context.Context, req *pb.Rep
 	if err != nil {
 		return nil, err
 	}
-
 	return &pb.OssFileDownloadResp{
 		Available: true,
 		Msg:       "",

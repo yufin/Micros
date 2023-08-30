@@ -6,7 +6,7 @@ import (
 )
 
 type RcReportOssRepo interface {
-	GetOssIdUptoDateByDepId(ctx context.Context, depId int64) (int64, error)
+	GetOssIdUptoDateByDepId(ctx context.Context, depId int64, version string) (int64, error)
 }
 
 type RcReportOssUsecase struct {
@@ -18,7 +18,7 @@ func NewRcReportOssUsecase(repo RcReportOssRepo, logger log.Logger) *RcReportOss
 	return &RcReportOssUsecase{repo: repo, log: log.NewHelper(logger)}
 }
 
-func (uc *RcReportOssUsecase) GetOssIdUptoDateByDepId(ctx context.Context, depId int64) (int64, error) {
+func (uc *RcReportOssUsecase) GetOssIdUptoDateByDepId(ctx context.Context, depId int64, version string) (int64, error) {
 	uc.log.WithContext(ctx).Infof("biz.RcReportOssUsecase.GetOssIdByDepId %d", depId)
-	return uc.repo.GetOssIdUptoDateByDepId(ctx, depId)
+	return uc.repo.GetOssIdUptoDateByDepId(ctx, depId, version)
 }

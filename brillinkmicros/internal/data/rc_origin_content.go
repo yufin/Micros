@@ -2,10 +2,13 @@ package data
 
 import (
 	"brillinkmicros/internal/biz"
-	dto2 "brillinkmicros/internal/biz/dto"
+	"brillinkmicros/internal/biz/dto"
 	"brillinkmicros/pkg"
 	"context"
+	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/pkg/errors"
+	"gorm.io/gorm"
 	"math"
 )
 
@@ -21,9 +24,9 @@ func NewRcOriginContentRepo(data *Data, logger log.Logger) biz.RcOriginContentRe
 	}
 }
 
-func (repo *RcOriginContentRepo) GetPage(ctx context.Context, page *dto2.PaginationReq) (*dto2.RcOriginContentGetPageResp, error) {
-	var modelRoc dto2.RcOriginContent
-	listRoc := make([]dto2.RcOriginContent, 0)
+func (repo *RcOriginContentRepo) GetPage(ctx context.Context, page *dto.PaginationReq) (*dto.RcOriginContentGetPageResp, error) {
+	var modelRoc dto.RcOriginContent
+	listRoc := make([]dto.RcOriginContent, 0)
 	var count int64
 	offset := (page.PageNum - 1) * page.PageSize
 	err := repo.data.Db.
@@ -35,8 +38,8 @@ func (repo *RcOriginContentRepo) GetPage(ctx context.Context, page *dto2.Paginat
 	if err != nil {
 		return nil, err
 	}
-	return &dto2.RcOriginContentGetPageResp{
-		PaginationResp: dto2.PaginationResp{
+	return &dto.RcOriginContentGetPageResp{
+		PaginationResp: dto.PaginationResp{
 			Total:     count,
 			TotalPage: int(math.Ceil(float64(count) / float64(page.PageSize))),
 			PageNum:   page.PageNum,
@@ -46,13 +49,39 @@ func (repo *RcOriginContentRepo) GetPage(ctx context.Context, page *dto2.Paginat
 	}, nil
 }
 
-func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *dto2.PaginationReq) (*dto2.RcOriginContentInfosResp, error) {
+// CheckContentIdAllowed .
+func (repo *RcOriginContentRepo) CheckContentIdAllowed(ctx context.Context, contentId int64) (bool, error) {
+	dsi, err := pkg.ParseBlDataScope(ctx)
+	if err != nil {
+		return false, err
+	}
+	var allowedCid int64
+	var dataRpc *dto.RcOriginContent
+	err = repo.data.Db.
+		Table(fmt.Sprintf("%s as roc", dataRpc.TableName())).
+		Select("roc.id").
+		Joins("INNER JOIN rc_dependency_data rdd ON roc.id = rdd.content_id").
+		Where("roc.id = ?", contentId).
+		Where("rdd.create_by IN (?)", dsi.AccessibleIds).
+		First(&allowedCid).
+		Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
+
+func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *dto.PaginationReq) (*dto.RcOriginContentInfosResp, error) {
 	dsi, err := pkg.ParseBlDataScope(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	var Infos = make([]dto2.RcOriginContentInfo, 0)
+	var Infos = make([]dto.RcOriginContentInfo, 0)
 	pageNum := int(math.Max(1, float64(page.PageNum)))
 	offset := (pageNum - 1) * page.PageSize
 	var count int64
@@ -72,7 +101,7 @@ func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *dto2.Pagina
 					  where t.rn = 1) rdd ON rdd.content_id = roc.id
 				WHERE roc.deleted_at IS NULL
 				  AND rdd.deleted_at IS NULL
-					AND rdd.create_by IN (1)`).
+					AND rdd.create_by IN (?)`, dsi.AccessibleIds).
 		First(&count).
 		Error; err != nil {
 		return nil, err
@@ -86,7 +115,6 @@ func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *dto2.Pagina
 					   rdd.lh_qylx,
 					   rpc.id         AS processed_id,
 					   rpc.created_at AS processed_updated_at,
-					   rdd.content_id,
 					   rdd.create_by,
 					   rdd.id         as dep_id
 				FROM rc_origin_content roc
@@ -110,8 +138,8 @@ func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *dto2.Pagina
 	if err != nil {
 		return nil, err
 	}
-	return &dto2.RcOriginContentInfosResp{
-		PaginationResp: dto2.PaginationResp{
+	return &dto.RcOriginContentInfosResp{
+		PaginationResp: dto.PaginationResp{
 			Total:     count,
 			TotalPage: int(math.Ceil(float64(count) / float64(page.PageSize))),
 			PageNum:   pageNum,
@@ -121,8 +149,8 @@ func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *dto2.Pagina
 	}, nil
 }
 
-func (repo *RcOriginContentRepo) Get(ctx context.Context, id int64) (*dto2.RcOriginContent, error) {
-	var modelRoc dto2.RcOriginContent
+func (repo *RcOriginContentRepo) Get(ctx context.Context, id int64) (*dto.RcOriginContent, error) {
+	var modelRoc dto.RcOriginContent
 	err := repo.data.Db.Table(modelRoc.TableName()).Where("id = ?", id).First(&modelRoc).Error
 	if err != nil {
 		return nil, err

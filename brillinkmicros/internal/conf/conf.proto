@@ -16,6 +16,7 @@ message Server {
     string addr = 2;
     google.protobuf.Duration timeout = 3;
   }
+
   message GRPC {
     string network = 1;
     string addr = 2;
@@ -58,10 +59,14 @@ message Data {
     string secret_key = 3;
     bool use_ssl = 4;
   }
+  message MongoDb {
+    string uri = 1;
+  }
   Database database = 1;
   Redis redis = 2;
   Nats nats = 3;
   BlAuth blAuth = 4;
   Neo4j neo4j = 5;
   Minio minio = 6;
+  MongoDb mongoDb = 7;
 }

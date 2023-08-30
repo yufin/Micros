@@ -1,6 +1,9 @@
 package service
 
-import "github.com/google/wire"
+import (
+	"brillinkmicros/internal/service/rc/v2"
+	"github.com/google/wire"
+)
 
 // ProviderSet is service providers.
 var ProviderSet = wire.
@@ -9,4 +12,5 @@ var ProviderSet = wire.
 		NewRcRdmServiceServicer,
 		NewTreeGraphServiceServicer,
 		NewNetGraphServiceServicer,
+		v2.NewRcServiceServicer,
 	)

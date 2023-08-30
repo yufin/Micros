@@ -9,6 +9,7 @@ import (
 type RcDependencyDataRepo interface {
 	GetByContentId(ctx context.Context, contentId int64) (*dto.RcDependencyData, error)
 	Get(ctx context.Context, id int64) (*dto.RcDependencyData, error)
+	GetNoAuth(ctx context.Context, id int64) (*dto.RcDependencyData, error)
 	Insert(ctx context.Context, insertReq *dto.RcDependencyData) (int64, error)
 	Update(ctx context.Context, updateReq *dto.RcDependencyData) (int64, error)
 	Delete(ctx context.Context, id int64) (bool, error)
@@ -28,6 +29,11 @@ func NewRcDependencyDataUsecase(repo RcDependencyDataRepo, logger log.Logger) *R
 func (uc *RcDependencyDataUsecase) GetByContentId(ctx context.Context, contentId int64) (*dto.RcDependencyData, error) {
 	uc.log.WithContext(ctx).Infof("biz.RcDependencyDataUsecase.GetByContentId %d", contentId)
 	return uc.repo.GetByContentId(ctx, contentId)
+}
+
+func (uc *RcDependencyDataUsecase) GetNoAuth(ctx context.Context, id int64) (*dto.RcDependencyData, error) {
+	uc.log.WithContext(ctx).Infof("biz.RcDependencyDataUsecase.GetNoAuth %d", id)
+	return uc.repo.GetNoAuth(ctx, id)
 }
 
 func (uc *RcDependencyDataUsecase) Get(ctx context.Context, id int64) (*dto.RcDependencyData, error) {

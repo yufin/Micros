@@ -10,6 +10,8 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/nats-io/nats.go"
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"time"
@@ -28,6 +30,7 @@ var ProviderSet = wire.NewSet(
 	NewNatsConn,
 	NewNeoCli,
 	NewMinioClient,
+	NewMgoCli,
 	NewRcProcessedContentRepo,
 	NewRcOriginContentRepo,
 	NewRcDependencyDataRepo,
@@ -36,6 +39,7 @@ var ProviderSet = wire.NewSet(
 	NewOssMetadataRepo,
 	NewRcRdmResultRepo,
 	NewRcRdmResDetailRepo,
+	NewMgoRcRepo,
 )
 
 type Data struct {
@@ -44,6 +48,7 @@ type Data struct {
 	Nw       *NatsWrap
 	Neo      *NeoCli
 	MinioCli *miniocli.MinioClient
+	MgoCli   *MgoCli
 }
 
 func newGormDB(dsn string) (*gorm.DB, error) {
@@ -127,8 +132,19 @@ func NewNeoCli(c *conf.Data) (*NeoCli, error) {
 	return &NeoCli{driver: d}, nil
 }
 
+func NewMgoCli(c *conf.Data) (*MgoCli, error) {
+	cli, err := mongo.Connect(
+		context.Background(),
+		options.Client().ApplyURI(c.MongoDb.Uri),
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &MgoCli{Client: cli}, nil
+}
+
 // NewData .
-func NewData(logger log.Logger, dbs *Dbs, nw *NatsWrap, neo *NeoCli, miCli *miniocli.MinioClient) (*Data, func(), error) {
+func NewData(logger log.Logger, dbs *Dbs, nw *NatsWrap, neo *NeoCli, miCli *miniocli.MinioClient, mgoCli *MgoCli) (*Data, func(), error) {
 	ndLog := log.NewHelper(logger)
 
 	cleanup := func() {
@@ -157,5 +173,6 @@ func NewData(logger log.Logger, dbs *Dbs, nw *NatsWrap, neo *NeoCli, miCli *mini
 		Nw:       nw,
 		Neo:      neo,
 		MinioCli: miCli,
+		MgoCli:   mgoCli,
 	}, cleanup, nil
 }

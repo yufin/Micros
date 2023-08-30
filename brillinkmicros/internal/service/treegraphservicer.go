@@ -186,8 +186,8 @@ func (s *TreeGraphServiceServicer) GetTitleAutoComplete(ctx context.Context, req
 
 func (s *TreeGraphServiceServicer) GetPathBetween(ctx context.Context, req *pb.GetPathReq) (*pb.TreeNodeResp, error) {
 	filter := dto.PathFilter{
-		RelLabels:    nil,
-		NodeLabels:   nil,
+		RelLabels:    treeGraphLimitRelLabels(),
+		NodeLabels:   treeGraphLimitNodeLabels(),
 		MaxPathDepth: 3,
 	}
 	neoPath, err := s.graph.GetPathBetween(ctx, req.SourceId, req.TargetId, filter)
@@ -210,7 +210,7 @@ func (s *TreeGraphServiceServicer) GetPathBetween(ctx context.Context, req *pb.G
 	}
 	data := root.GenPb()
 	return &pb.TreeNodeResp{
-		Success: false,
+		Success: true,
 		Code:    0,
 		Msg:     "",
 		Data:    data,

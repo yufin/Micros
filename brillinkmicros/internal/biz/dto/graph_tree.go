@@ -88,24 +88,24 @@ func NewTreeNodeFromPath(ctx context.Context, cc childrenCount, neoPath *[]neo4j
 	root.Gen(rootNeo)
 	var buffSize int
 	for _, path := range *neoPath {
-		buffSize += len(path.Relationships)
+		buffSize += len(path.Nodes)
 	}
 	chCountingParam := make(chan childrenCountParam, buffSize)
 
-	go func() {
-		for _, path := range *neoPath {
-			for _, rel := range path.Relationships {
-				parent := GetNodeByElementId(&path.Nodes, rel.StartElementId)
-				child := GetNodeByElementId(&path.Nodes, rel.EndElementId)
-				if parent != nil && child != nil {
-					pn := Node{}
-					pn.Gen(*parent)
-					root.setChild(pn.Id, *child, &chCountingParam)
-				}
+	//go func() {
+	for _, path := range *neoPath {
+		for _, rel := range path.Relationships {
+			parent := GetNodeByElementId(&path.Nodes, rel.StartElementId)
+			child := GetNodeByElementId(&path.Nodes, rel.EndElementId)
+			if parent != nil && child != nil {
+				pn := Node{}
+				pn.Gen(*parent)
+				root.setChild(pn.Id, *child, &chCountingParam)
 			}
 		}
-		close(chCountingParam)
-	}()
+	}
+	close(chCountingParam)
+	//}()
 
 	var wg sync.WaitGroup
 	chErr := make(chan error)

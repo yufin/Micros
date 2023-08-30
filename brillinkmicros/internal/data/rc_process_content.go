@@ -111,10 +111,11 @@ func (repo *RcProcessedContentRepo) GetContentUpToDateByDepId(ctx context.Contex
 }
 
 func (repo *RcProcessedContentRepo) RefreshReportContent(ctx context.Context, contentId int64) (bool, error) {
+	// TODO:REBUILD ME
 	err := func() error {
 		msg := make([]byte, 8)
 		binary.BigEndian.PutUint64(msg, uint64(contentId))
-		_, err := repo.data.Nw.Js.Publish("task.rc.content.process.newId", msg)
+		_, err := repo.data.Nw.Js.Publish("task.rc.content.newId", msg)
 		if err != nil {
 			return err
 		}

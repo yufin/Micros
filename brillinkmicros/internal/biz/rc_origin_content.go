@@ -1,15 +1,16 @@
 package biz
 
 import (
-	dto2 "brillinkmicros/internal/biz/dto"
+	"brillinkmicros/internal/biz/dto"
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
 )
 
 type RcOriginContentRepo interface {
-	GetPage(ctx context.Context, page *dto2.PaginationReq) (*dto2.RcOriginContentGetPageResp, error)
-	GetInfos(ctx context.Context, page *dto2.PaginationReq) (*dto2.RcOriginContentInfosResp, error)
-	Get(ctx context.Context, id int64) (*dto2.RcOriginContent, error)
+	GetPage(ctx context.Context, page *dto.PaginationReq) (*dto.RcOriginContentGetPageResp, error)
+	GetInfos(ctx context.Context, page *dto.PaginationReq) (*dto.RcOriginContentInfosResp, error)
+	Get(ctx context.Context, id int64) (*dto.RcOriginContent, error)
+	CheckContentIdAllowed(ctx context.Context, contentId int64) (bool, error)
 }
 
 type RcOriginContentUsecase struct {
@@ -21,17 +22,22 @@ func NewRcOriginContentUsecase(repo RcOriginContentRepo, logger log.Logger) *RcO
 	return &RcOriginContentUsecase{repo: repo, log: log.NewHelper(logger)}
 }
 
-func (uc *RcOriginContentUsecase) GetPage(ctx context.Context, page *dto2.PaginationReq) (*dto2.RcOriginContentGetPageResp, error) {
+func (uc *RcOriginContentUsecase) GetPage(ctx context.Context, page *dto.PaginationReq) (*dto.RcOriginContentGetPageResp, error) {
 	uc.log.WithContext(ctx).Infof("biz.RcOriginContentUsecase.GetPage %d", page.PageNum)
 	return uc.repo.GetPage(ctx, page)
 }
 
-func (uc *RcOriginContentUsecase) GetInfos(ctx context.Context, page *dto2.PaginationReq) (*dto2.RcOriginContentInfosResp, error) {
+func (uc *RcOriginContentUsecase) GetInfos(ctx context.Context, page *dto.PaginationReq) (*dto.RcOriginContentInfosResp, error) {
 	uc.log.WithContext(ctx).Infof("biz.RcOriginContentUsecase.GetInfos %d", page.PageNum)
 	return uc.repo.GetInfos(ctx, page)
 }
 
-func (uc *RcOriginContentUsecase) Get(ctx context.Context, id int64) (*dto2.RcOriginContent, error) {
+func (uc *RcOriginContentUsecase) Get(ctx context.Context, id int64) (*dto.RcOriginContent, error) {
 	uc.log.WithContext(ctx).Infof("biz.RcOriginContentUsecase.Get %d", id)
 	return uc.repo.Get(ctx, id)
+}
+
+func (uc *RcOriginContentUsecase) CheckContentIdAllowed(ctx context.Context, contentId int64) (bool, error) {
+	uc.log.WithContext(ctx).Infof("biz.RcOriginContentUsecase.CheckContentIdAllowed %d", contentId)
+	return uc.repo.CheckContentIdAllowed(ctx, contentId)
 }

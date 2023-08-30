@@ -38,3 +38,5 @@ data:
     access_key: 58vRJBzl8o8FiZgdFAJS
     secret_key: Ge2fdEOu46tmpcE1yVFIzt1kHsYkFA0ue5h2P6Se
     use_ssl: false
+  mongoDb:
+    uri: mongodb://root:dev-password@localhost:27020

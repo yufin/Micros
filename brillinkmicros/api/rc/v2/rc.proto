@@ -1,0 +1,196 @@
+syntax = "proto3";
+
+package api.rc.v2;
+
+import "google/api/annotations.proto";
+import "google/protobuf/struct.proto";
+
+option go_package = "brillinkmicros/api/rc/v2;v2";
+option java_multiple_files = true;
+option java_outer_classname = "RcV2";
+option java_package = "api.rc.v2";
+
+
+service RcService {
+
+  rpc ListReportInfos(PaginationReq) returns (ReportInfosResp) {
+    option (google.api.http) = {
+      get: "/micros/rc/v2/report/infos"
+    };
+  }
+
+  rpc GetReportContent(ReportContentReq) returns (ReportContentResp) {
+    option (google.api.http) = {
+      get: "/micros/rc/v2/report/content"
+    };
+  }
+
+  rpc GetReportPdfByDepId(ReportDownloadReq) returns (OssFileDownloadResp) {
+    option (google.api.http) = {
+      get: "/micros/rc/v2/report/download"
+    };
+  }
+
+  rpc GetReportContentByDepIdNoDs(ReportContentByDepIdReq) returns (ReportContentResp) {
+    option (google.api.http) = {
+      get: "/micros/rc/v2/report/internal/for-convert"
+    };
+  }
+
+  rpc RefreshReportContent(RefreshReportContentReq) returns (RefreshReportContentResp) {
+    option (google.api.http) = {
+      put: "/micros/rc/v2/report/content/refresh"
+      body: "*"
+    };
+  }
+
+  rpc InsertReportDependencyData(InsertDependencyDataReq) returns (SetDependencyDataResp) {
+    option (google.api.http) = {
+      post: "/micros/rc/v2/report/dependency-data"
+      body: "*"
+    };
+  }
+
+  rpc UpdateReportDependencyData(UpdateDependencyDataReq) returns (SetDependencyDataResp) {
+    option (google.api.http) = {
+      put: "/micros/rc/v2/report/dependency-data"
+      body: "*"
+    };
+  }
+
+  rpc GetReportDependencyData(GetDependencyDataReq) returns (GetDependencyDataResp) {
+    option (google.api.http) = {
+      get: "/micros/rc/v2/report/dependency-data"
+    };
+  }
+
+}
+
+message GetDependencyDataReq {
+  string content_id = 1;
+}
+
+message GetDependencyDataResp {
+  int64 id = 1;
+  int64 content_id = 2;
+  string usc_id = 3;
+  int32 lh_qylx = 4;
+  int32 lh_cylwz = 5;
+  int32 lh_gdct = 6;
+  int32 lh_qybq = 7;
+  int32 lh_yhsx = 8;
+  int32 lh_sfsx = 9;
+  string addition_data = 10;
+  string created_at = 11;
+  string updated_at = 12;
+}
+
+message SetDependencyDataResp {
+  bool success = 1;
+  bool is_generated = 2;
+  int32 code = 3;
+  string msg = 4;
+}
+
+message InsertDependencyDataReq{
+  string usc_id = 1;
+  int32 lh_qylx = 2;
+  int32 lh_cylwz = 3;
+  int32 lh_gdct = 4;
+//  	int32 lh_qybq = 5;
+  int32 lh_yhsx = 5;
+  int32 lh_sfsx = 6;
+  string addition_data = 7;
+}
+
+message UpdateDependencyDataReq{
+  int64 id = 1;
+  int32 lh_qylx = 3;
+  int32 lh_cylwz = 4;
+  int32 lh_gdct = 5;
+  //	int32 lh_qybq = 6;
+  int32 lh_yhsx = 6;
+  int32 lh_sfsx = 7;
+  string addition_data = 8;
+}
+
+message ReportInfosResp {
+  repeated ReportInfo report_infos = 1;
+  uint32 page_num = 2;
+  uint32 page_size = 3;
+  uint32 total = 4;
+  uint32 total_page = 5;
+}
+
+message PaginationReq {
+  uint32 page_size = 1;
+  uint32 page_num = 2;
+}
+
+message ReportInfo {
+  // 报告id
+  int64 content_id = 1;
+  // 企业名称
+  string enterprise_name = 2;
+  // 企业统一信用社会代码
+  string unified_credit_id = 3;
+  // 报文更新月份
+  string data_collect_month = 4;
+  // 报告是否可用
+  bool available = 5;
+  // 报告生成时间 yyyy-MM-dd HH:mm:ss
+  string content_updated_time = 6;
+  // 报告状态码
+  int32 lh_qylx = 7;
+  // 英文报告id
+  repeated ReportI18nInfo i18n_infos = 8;
+  // rc_dependency_data.id
+  int64 dep_id = 9;
+}
+
+message ReportI18nInfo {
+  string lang = 1;
+  int64 content_id = 2;
+  bool available = 3;
+}
+
+message ReportContentReq {
+  int64 content_id = 1;
+  string lang = 2;
+}
+
+message ReportContentByDepIdReq {
+  int64 dep_id = 1;
+  string lang = 2;
+}
+
+message ReportDownloadReq {
+  int64 dep_id = 1;
+  string lang = 2;
+  string file_name = 3;
+}
+
+message ReportContentResp {
+  // 报告内容
+  google.protobuf.Struct content = 1;
+  bool available = 2;
+  string msg = 3;
+}
+
+message RefreshReportContentReq {
+  int64 contentId = 1;
+}
+
+message RefreshReportContentResp {
+  bool success = 1;
+  string msg_pub_time = 2;
+  string msg = 3;
+}
+
+message OssFileDownloadResp {
+  bool available = 1;
+  string msg = 2;
+  string url = 3;
+  string created_at = 4;
+}
+

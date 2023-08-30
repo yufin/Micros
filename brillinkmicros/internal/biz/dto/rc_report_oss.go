@@ -4,7 +4,7 @@ type RcReportOss struct {
 	BaseModel
 	DepId   int64
 	OssId   int64
-	Version int
+	Version string
 }
 
 func (*RcReportOss) TableName() string {
