@@ -45,6 +45,11 @@ func NewRcServiceServicer(
 	}
 }
 
+func (s *RcServiceServicer) SearchReportInfosByKwd(ctx context.Context, req *pb.ReportInfoKwgSearchReq) (*pb.ReportInfosResp, error) {
+
+	return nil, nil
+}
+
 // ListReportInfos 获取报告列表
 func (s *RcServiceServicer) ListReportInfos(ctx context.Context, req *pb.PaginationReq) (*pb.ReportInfosResp, error) {
 

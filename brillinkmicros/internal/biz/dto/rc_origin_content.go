@@ -47,7 +47,6 @@ type RcOriginContentInfoV3 struct {
 	ProcessedId        string
 	DepId              int64
 	ProcessedUpdatedAt time.Time
-	UpdatedAt          time.Time
 	CreatedAt          time.Time
 }
 

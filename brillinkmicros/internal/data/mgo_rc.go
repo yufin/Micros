@@ -75,21 +75,13 @@ func (repo *MgoRcRepo) GetContentInfos(ctx context.Context, page *dto.Pagination
 	infos := make([]dto.RcOriginContentInfoV3, 0)
 
 	if err := repo.data.Db.Raw(
-		`WITH rpc_cte AS (SELECT content_id, MAX(created_at) AS max_created_at
-						 FROM rc_processed_content
-						 WHERE deleted_at IS NULL
-						 GROUP BY content_id),
-			 rdd_cte AS (SELECT content_id, MAX(created_at) AS max_created_at
-						 FROM rc_dependency_data
-						 WHERE deleted_at IS NULL
-						   AND content_id IS NOT NULL
-						 GROUP BY content_id)
+		`WITH rdd_cte AS (SELECT content_id, MAX(created_at) AS max_created_at
+                 FROM rc_dependency_data
+                 WHERE deleted_at IS NULL
+                   AND content_id IS NOT NULL
+                 GROUP BY content_id)
 			SELECT count(roc.id)
 			FROM rc_origin_content roc
-					 LEFT JOIN rpc_cte rpc_max ON rpc_max.content_id = roc.id
-					 LEFT JOIN rc_processed_content rpc ON rpc.content_id = roc.id
-				AND rpc.created_at = rpc_max.max_created_at
-				AND rpc.deleted_at IS NULL
 					 INNER JOIN rdd_cte rdd_max ON rdd_max.content_id = roc.id
 					 INNER JOIN rc_dependency_data rdd ON rdd.content_id = roc.id
 				AND rdd.created_at = rdd_max.max_created_at
@@ -102,29 +94,19 @@ func (repo *MgoRcRepo) GetContentInfos(ctx context.Context, page *dto.Pagination
 	}
 
 	err = repo.data.Db.Raw(
-		`WITH rpc_cte AS (SELECT content_id, MAX(created_at) AS max_created_at
-						 FROM rc_processed_content
-						 WHERE deleted_at IS NULL
-						 GROUP BY content_id),
-			 rdd_cte AS (SELECT content_id, MAX(created_at) AS max_created_at
-						 FROM rc_dependency_data
-						 WHERE deleted_at IS NULL
-						   AND content_id IS NOT NULL
-						 GROUP BY content_id)
+		`WITH rdd_cte AS (SELECT content_id, MAX(created_at) AS max_created_at
+                 FROM rc_dependency_data
+                 WHERE deleted_at IS NULL
+                   AND content_id IS NOT NULL
+                 GROUP BY content_id)
 			SELECT roc.id         AS content_id,
 				   roc.usc_id,
 				   roc.enterprise_name,
 				   roc.year_month AS data_collect_month,
 				   rdd.lh_qylx,
-				   rpc.id         AS processed_id,
-				   rpc.created_at AS processed_updated_at,
 				   rdd.create_by,
 				   rdd.id         as dep_id
 			FROM rc_origin_content roc
-					 LEFT JOIN rpc_cte rpc_max ON rpc_max.content_id = roc.id
-					 LEFT JOIN rc_processed_content rpc ON rpc.content_id = roc.id
-				AND rpc.created_at = rpc_max.max_created_at
-				AND rpc.deleted_at IS NULL
 					 INNER JOIN rdd_cte rdd_max ON rdd_max.content_id = roc.id
 					 INNER JOIN rc_dependency_data rdd ON rdd.content_id = roc.id
 				AND rdd.created_at = rdd_max.max_created_at

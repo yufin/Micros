@@ -78,7 +78,6 @@ func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *dto.Paginat
 		return nil, err
 	}
 
-	var Infos = make([]dto.RcOriginContentInfo, 0)
 	pageNum := int(math.Max(1, float64(page.PageNum)))
 	offset := (pageNum - 1) * page.PageSize
 	var count int64
@@ -109,6 +108,7 @@ func (repo *RcOriginContentRepo) GetInfos(ctx context.Context, page *dto.Paginat
 		return nil, err
 	}
 
+	var Infos = make([]dto.RcOriginContentInfo, 0)
 	err = repo.data.Db.
 		Raw(`WITH rpc_cte AS (SELECT content_id, MAX(created_at) AS max_created_at
 							 FROM rc_processed_content
@@ -163,4 +163,9 @@ func (repo *RcOriginContentRepo) Get(ctx context.Context, id int64) (*dto.RcOrig
 		return nil, err
 	}
 	return &modelRoc, nil
+}
+
+func (repo *RcOriginContentRepo) GetInfosByKwg(ctx context.Context, page *dto.PaginationReq, kwg string, searchOn int) (*dto.RcOriginContentInfosResp, error) {
+
+	return nil, nil
 }

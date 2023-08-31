@@ -6,16 +6,17 @@ info:
     title: RcService API
     version: 0.0.1
 paths:
-    /micros/rc/v2/report/content:
+    /micros/rc/v1/report/content:
         get:
             tags:
                 - RcService
             operationId: RcService_GetReportContent
             parameters:
-                - name: processedId
+                - name: contentId
                   in: query
                   schema:
-                    type: string
+                    type: integer
+                    format: int64
                 - name: lang
                   in: query
                   schema:
@@ -33,7 +34,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /micros/rc/v2/report/content/refresh:
+    /micros/rc/v1/report/content/refresh:
         put:
             tags:
                 - RcService
@@ -57,7 +58,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /micros/rc/v2/report/dependency-data:
+    /micros/rc/v1/report/dependency-data:
         get:
             tags:
                 - RcService
@@ -126,7 +127,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /micros/rc/v2/report/download:
+    /micros/rc/v1/report/download:
         get:
             tags:
                 - RcService
@@ -158,7 +159,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /micros/rc/v2/report/infos:
+    /micros/rc/v1/report/infos:
         get:
             tags:
                 - RcService
@@ -187,7 +188,45 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /micros/rc/v2/report/internal/for-convert:
+    /micros/rc/v1/report/infos/search:
+        get:
+            tags:
+                - RcService
+            operationId: RcService_SearchReportInfosByKwd
+            parameters:
+                - name: kwd
+                  in: query
+                  schema:
+                    type: string
+                - name: searchOn
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageNum
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ReportInfosResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/rc/v1/report/internal/for-convert:
         get:
             tags:
                 - RcService
@@ -364,8 +403,6 @@ components:
                     type: integer
                     description: rc_dependency_data.id
                     format: int64
-                processedId:
-                    type: string
         ReportInfosResp:
             type: object
             properties:
