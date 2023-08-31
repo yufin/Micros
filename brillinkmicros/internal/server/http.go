@@ -3,10 +3,12 @@ package server
 import (
 	gv1 "brillinkmicros/api/graph/v1"
 	rcv1 "brillinkmicros/api/rc/v1"
+	rcv2 "brillinkmicros/api/rc/v2"
 	"brillinkmicros/internal/conf"
 	"brillinkmicros/internal/data"
 	"brillinkmicros/internal/midware"
 	"brillinkmicros/internal/service"
+	v2 "brillinkmicros/internal/service/rc/v2"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/logging"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
@@ -19,6 +21,7 @@ func NewHTTPServer(c *conf.Server,
 	data *data.Data,
 	confData *conf.Data,
 	rss *service.RcServiceServicer,
+	rss2 *v2.RcServiceServicer,
 	rrs *service.RcRdmServiceServicer,
 	tgs *service.TreeGraphServiceServicer,
 	ngs *service.NetGraphServiceServicer,
@@ -44,9 +47,12 @@ func NewHTTPServer(c *conf.Server,
 	openAPIHandler := openapiv2.NewHandler()
 	srv.HandlePrefix("/q/", openAPIHandler)
 	log.Infof("SwaggerUI DOC: %s/q/swagger-ui/", c.Http.Addr)
+
+	rcv2.RegisterRcServiceHTTPServer(srv, rss2)
 	rcv1.RegisterRcServiceHTTPServer(srv, rss)
 	gv1.RegisterTreeGraphServiceHTTPServer(srv, tgs)
 	rcv1.RegisterRcRdmServiceHTTPServer(srv, rrs)
 	gv1.RegisterNetGraphServiceHTTPServer(srv, ngs)
+
 	return srv
 }

@@ -7,6 +7,8 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/net/context"
 	"math"
@@ -25,18 +27,40 @@ func NewMgoRcRepo(data *Data, logger log.Logger) biz.MgoRcRepo {
 	}
 }
 
-func (repo *MgoRcRepo) GetProcessedContent(ctx context.Context, contentId int64) (bson.M, error) {
+func (repo *MgoRcRepo) GetProcessedObjIdByContentId(ctx context.Context, contentId int64) (bson.M, error) {
 	data := bson.M{}
-	coll := repo.data.MgoCli.Client.Database("rc").Collection("processed_content")
-	err := coll.FindOne(
-		ctx,
-		bson.M{"content_id": strconv.FormatInt(contentId, 10)},
-		options.FindOne().SetSort(bson.D{{"created_at", -1}}),
-	).Decode(&data)
+	err := repo.data.MgoCli.Client.Database("rc").Collection("processed_content").
+		FindOne(
+			context.TODO(),
+			bson.M{"content_id": strconv.FormatInt(contentId, 10)},
+			options.FindOne().SetSort(bson.D{{"created_at", -1}}).SetProjection(bson.D{{"_id", 1}}),
+		).Decode(&data)
+	if err != nil {
+		if errors.Is(mongo.ErrNoDocuments, err) {
+			return nil, nil
+		}
+		return nil, errors.WithStack(err)
+	}
+	return data, nil
+}
+
+func (repo *MgoRcRepo) GetProcessedContentByObjId(ctx context.Context, objIdHex string) (bson.M, error) {
+	var data bson.M
+	objId, err := primitive.ObjectIDFromHex(objIdHex)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	//content := data["content"].(bson.M)
+	err = repo.data.MgoCli.Client.Database("rc").Collection("processed_content").
+		FindOne(
+			context.TODO(),
+			bson.M{"_id": objId},
+		).Decode(&data)
+	if err != nil {
+		if errors.Is(mongo.ErrNoDocuments, err) {
+			return nil, nil
+		}
+		return nil, errors.WithStack(err)
+	}
 	return data, nil
 }
 
@@ -51,41 +75,63 @@ func (repo *MgoRcRepo) GetContentInfos(ctx context.Context, page *dto.Pagination
 	infos := make([]dto.RcOriginContentInfoV3, 0)
 
 	if err := repo.data.Db.Raw(
-		`select count(roc.id) as count
-			from rc_origin_content roc
-					 left join
-				 (select *
-				  from (select *, row_number() over (partition by content_id order by created_at DESC ) as rn
-						from rc_dependency_data
-						where content_id is not null) t
-				  where t.rn = 1) rdd on roc.id = rdd.content_id
-			where rdd.create_by in (?)
-			  and rdd.deleted_at is null
-			  and roc.deleted_at is null`, dsi.AccessibleIds).
+		`WITH rpc_cte AS (SELECT content_id, MAX(created_at) AS max_created_at
+						 FROM rc_processed_content
+						 WHERE deleted_at IS NULL
+						 GROUP BY content_id),
+			 rdd_cte AS (SELECT content_id, MAX(created_at) AS max_created_at
+						 FROM rc_dependency_data
+						 WHERE deleted_at IS NULL
+						   AND content_id IS NOT NULL
+						 GROUP BY content_id)
+			SELECT count(roc.id)
+			FROM rc_origin_content roc
+					 LEFT JOIN rpc_cte rpc_max ON rpc_max.content_id = roc.id
+					 LEFT JOIN rc_processed_content rpc ON rpc.content_id = roc.id
+				AND rpc.created_at = rpc_max.max_created_at
+				AND rpc.deleted_at IS NULL
+					 INNER JOIN rdd_cte rdd_max ON rdd_max.content_id = roc.id
+					 INNER JOIN rc_dependency_data rdd ON rdd.content_id = roc.id
+				AND rdd.created_at = rdd_max.max_created_at
+				AND rdd.deleted_at IS NULL
+			WHERE roc.deleted_at IS NULL
+			  AND rdd.create_by IN ?`, dsi.AccessibleIds).
 		First(&count).
 		Error; err != nil {
 		return nil, err
 	}
 
 	err = repo.data.Db.Raw(
-		`select roc.id as content_id,
-			   roc.enterprise_name as enterprise_name,
-			   roc.usc_id as usc_id,
-			   roc.year_month as data_collect_month,
-			   rdd.lh_qylx, 
-			   rdd.create_by    as create_by,
-			   rdd.id           as dep_id
-		from rc_origin_content roc
-				 left join
-			 (select *
-			  from (select *, row_number() over (partition by content_id order by created_at DESC ) as rn
-					from rc_dependency_data
-					where content_id is not null) t
-			  where t.rn = 1) rdd on roc.id = rdd.content_id
-		where rdd.create_by in (?)
-		  and rdd.deleted_at is null
-		  and roc.deleted_at is null
-		  limit ? offset ?`, dsi.AccessibleIds, page.PageSize, offset).
+		`WITH rpc_cte AS (SELECT content_id, MAX(created_at) AS max_created_at
+						 FROM rc_processed_content
+						 WHERE deleted_at IS NULL
+						 GROUP BY content_id),
+			 rdd_cte AS (SELECT content_id, MAX(created_at) AS max_created_at
+						 FROM rc_dependency_data
+						 WHERE deleted_at IS NULL
+						   AND content_id IS NOT NULL
+						 GROUP BY content_id)
+			SELECT roc.id         AS content_id,
+				   roc.usc_id,
+				   roc.enterprise_name,
+				   roc.year_month AS data_collect_month,
+				   rdd.lh_qylx,
+				   rpc.id         AS processed_id,
+				   rpc.created_at AS processed_updated_at,
+				   rdd.create_by,
+				   rdd.id         as dep_id
+			FROM rc_origin_content roc
+					 LEFT JOIN rpc_cte rpc_max ON rpc_max.content_id = roc.id
+					 LEFT JOIN rc_processed_content rpc ON rpc.content_id = roc.id
+				AND rpc.created_at = rpc_max.max_created_at
+				AND rpc.deleted_at IS NULL
+					 INNER JOIN rdd_cte rdd_max ON rdd_max.content_id = roc.id
+					 INNER JOIN rc_dependency_data rdd ON rdd.content_id = roc.id
+				AND rdd.created_at = rdd_max.max_created_at
+				AND rdd.deleted_at IS NULL
+			WHERE roc.deleted_at IS NULL
+			  AND rdd.create_by IN ?
+			LIMIT ? OFFSET ?;`, dsi.AccessibleIds, page.PageSize, offset).
 		Scan(&infos).
 		Error
 	if err != nil {
@@ -94,14 +140,14 @@ func (repo *MgoRcRepo) GetContentInfos(ctx context.Context, page *dto.Pagination
 
 	for i, info := range infos {
 		// get processed content
-		processedContent, err := repo.GetProcessedContent(ctx, info.ContentId)
+		processedContent, err := repo.GetProcessedObjIdByContentId(ctx, info.ContentId)
 		if err != nil {
 			return nil, err
 		}
 		// if processed content is empty, then skip
-		if processedContent == nil {
-			docId := processedContent["_id"].(string)
-			infos[i].ProcessedId = docId
+		if processedContent != nil {
+			docId := processedContent["_id"].(primitive.ObjectID)
+			infos[i].ProcessedId = docId.Hex()
 		}
 	}
 

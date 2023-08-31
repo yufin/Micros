@@ -10,8 +10,10 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/nats-io/nats.go"
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
+	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"time"
@@ -138,7 +140,11 @@ func NewMgoCli(c *conf.Data) (*MgoCli, error) {
 		options.Client().ApplyURI(c.MongoDb.Uri),
 	)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
+	}
+	err = cli.Ping(context.Background(), readpref.Primary())
+	if err != nil {
+		return nil, errors.WithStack(err)
 	}
 	return &MgoCli{Client: cli}, nil
 }
@@ -162,6 +168,10 @@ func NewData(logger log.Logger, dbs *Dbs, nw *NatsWrap, neo *NeoCli, miCli *mini
 
 		if err := nw.Nc.Drain(); err != nil {
 			ndLog.Errorf("failed to drain nats: %v", err)
+		}
+
+		if err := mgoCli.close(); err != nil {
+			ndLog.Errorf("failed to disconnect mongodb: %v", err)
 		}
 
 		ndLog.Info("Data resource Closed")

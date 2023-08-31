@@ -12,11 +12,10 @@ paths:
                 - RcService
             operationId: RcService_GetReportContent
             parameters:
-                - name: contentId
+                - name: processedId
                   in: query
                   schema:
-                    type: integer
-                    format: int64
+                    type: string
                 - name: lang
                   in: query
                   schema:
@@ -365,6 +364,8 @@ components:
                     type: integer
                     description: rc_dependency_data.id
                     format: int64
+                processedId:
+                    type: string
         ReportInfosResp:
             type: object
             properties:

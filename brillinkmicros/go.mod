@@ -11,9 +11,11 @@ require (
 	github.com/minio/minio-go/v7 v7.0.61
 	github.com/nats-io/nats.go v1.27.0
 	github.com/neo4j/neo4j-go-driver/v5 v5.10.0
+	github.com/pkg/errors v0.9.1
 	github.com/sony/sonyflake v1.1.0
 	go.mongodb.org/mongo-driver v1.12.1
 	go.uber.org/automaxprocs v1.5.1
+	golang.org/x/net v0.12.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20230530153820-e85fd2cbaebc
 	google.golang.org/grpc v1.56.1
 	google.golang.org/protobuf v1.31.0
@@ -51,7 +53,6 @@ require (
 	github.com/nats-io/nats-server/v2 v2.9.18 // indirect
 	github.com/nats-io/nkeys v0.4.4 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rakyll/statik v0.1.7 // indirect
 	github.com/rs/xid v1.5.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
@@ -63,7 +64,6 @@ require (
 	go.opentelemetry.io/otel/metric v1.16.0 // indirect
 	go.opentelemetry.io/otel/trace v1.16.0 // indirect
 	golang.org/x/crypto v0.11.0 // indirect
-	golang.org/x/net v0.12.0 // indirect
 	golang.org/x/sync v0.2.0 // indirect
 	golang.org/x/sys v0.10.0 // indirect
 	golang.org/x/text v0.11.0 // indirect

@@ -1,0 +1,615 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "api/rc/v2/rc.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "RcService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/micros/rc/v2/report/content": {
+      "get": {
+        "operationId": "RcService_GetReportContent",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2ReportContentResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "processed_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "RcService"
+        ]
+      }
+    },
+    "/micros/rc/v2/report/content/refresh": {
+      "put": {
+        "operationId": "RcService_RefreshReportContent",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2RefreshReportContentResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v2RefreshReportContentReq"
+            }
+          }
+        ],
+        "tags": [
+          "RcService"
+        ]
+      }
+    },
+    "/micros/rc/v2/report/dependency-data": {
+      "get": {
+        "operationId": "RcService_GetReportDependencyData",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2GetDependencyDataResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "content_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "RcService"
+        ]
+      },
+      "post": {
+        "operationId": "RcService_InsertReportDependencyData",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2SetDependencyDataResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v2InsertDependencyDataReq"
+            }
+          }
+        ],
+        "tags": [
+          "RcService"
+        ]
+      },
+      "put": {
+        "operationId": "RcService_UpdateReportDependencyData",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2SetDependencyDataResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v2UpdateDependencyDataReq"
+            }
+          }
+        ],
+        "tags": [
+          "RcService"
+        ]
+      }
+    },
+    "/micros/rc/v2/report/download": {
+      "get": {
+        "operationId": "RcService_GetReportPdfByDepId",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2OssFileDownloadResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "dep_id",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "file_name",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "RcService"
+        ]
+      }
+    },
+    "/micros/rc/v2/report/infos": {
+      "get": {
+        "operationId": "RcService_ListReportInfos",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2ReportInfosResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "page_num",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "RcService"
+        ]
+      }
+    },
+    "/micros/rc/v2/report/internal/for-convert": {
+      "get": {
+        "operationId": "RcService_GetReportContentByDepIdNoDs",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2ReportContentResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "dep_id",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "RcService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "protobufNullValue": {
+      "type": "string",
+      "enum": [
+        "NULL_VALUE"
+      ],
+      "default": "NULL_VALUE",
+      "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\n The JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v2GetDependencyDataResp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "content_id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "usc_id": {
+          "type": "string"
+        },
+        "lh_qylx": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "lh_cylwz": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "lh_gdct": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "lh_qybq": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "lh_yhsx": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "lh_sfsx": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "addition_data": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        }
+      }
+    },
+    "v2InsertDependencyDataReq": {
+      "type": "object",
+      "properties": {
+        "usc_id": {
+          "type": "string"
+        },
+        "lh_qylx": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "lh_cylwz": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "lh_gdct": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "lh_yhsx": {
+          "type": "integer",
+          "format": "int32",
+          "title": "int32 lh_qybq = 5;"
+        },
+        "lh_sfsx": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "addition_data": {
+          "type": "string"
+        }
+      }
+    },
+    "v2OssFileDownloadResp": {
+      "type": "object",
+      "properties": {
+        "available": {
+          "type": "boolean"
+        },
+        "msg": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        }
+      }
+    },
+    "v2RefreshReportContentReq": {
+      "type": "object",
+      "properties": {
+        "contentId": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
+    "v2RefreshReportContentResp": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "msg_pub_time": {
+          "type": "string"
+        },
+        "msg": {
+          "type": "string"
+        }
+      }
+    },
+    "v2ReportContentResp": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "object",
+          "title": "报告内容"
+        },
+        "available": {
+          "type": "boolean"
+        },
+        "msg": {
+          "type": "string"
+        }
+      }
+    },
+    "v2ReportI18nInfo": {
+      "type": "object",
+      "properties": {
+        "lang": {
+          "type": "string"
+        },
+        "content_id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "available": {
+          "type": "boolean"
+        }
+      }
+    },
+    "v2ReportInfo": {
+      "type": "object",
+      "properties": {
+        "content_id": {
+          "type": "string",
+          "format": "int64",
+          "title": "报告id"
+        },
+        "enterprise_name": {
+          "type": "string",
+          "title": "企业名称"
+        },
+        "unified_credit_id": {
+          "type": "string",
+          "title": "企业统一信用社会代码"
+        },
+        "data_collect_month": {
+          "type": "string",
+          "title": "报文更新月份"
+        },
+        "available": {
+          "type": "boolean",
+          "title": "报告是否可用"
+        },
+        "content_updated_time": {
+          "type": "string",
+          "title": "报告生成时间 yyyy-MM-dd HH:mm:ss"
+        },
+        "lh_qylx": {
+          "type": "integer",
+          "format": "int32",
+          "title": "报告状态码"
+        },
+        "i18n_infos": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v2ReportI18nInfo"
+          },
+          "title": "英文报告id"
+        },
+        "dep_id": {
+          "type": "string",
+          "format": "int64",
+          "title": "rc_dependency_data.id"
+        },
+        "processed_id": {
+          "type": "string"
+        }
+      }
+    },
+    "v2ReportInfosResp": {
+      "type": "object",
+      "properties": {
+        "report_infos": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v2ReportInfo"
+          }
+        },
+        "page_num": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "page_size": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "total_page": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "v2SetDependencyDataResp": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "is_generated": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        }
+      }
+    },
+    "v2UpdateDependencyDataReq": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "lh_qylx": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "lh_cylwz": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "lh_gdct": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "lh_yhsx": {
+          "type": "integer",
+          "format": "int32",
+          "title": "int32 lh_qybq = 6;"
+        },
+        "lh_sfsx": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "addition_data": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

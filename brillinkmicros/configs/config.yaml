@@ -39,4 +39,5 @@ data:
     secret_key: Ge2fdEOu46tmpcE1yVFIzt1kHsYkFA0ue5h2P6Se
     use_ssl: false
   mongoDb:
-    uri: mongodb://root:dev-password@localhost:27020
+    uri: mongodb://root:dev-password@192.168.44.169:27020
+#    uri: mongodb://root:dev-password@localhost:27020

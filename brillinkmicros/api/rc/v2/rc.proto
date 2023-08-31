@@ -146,6 +146,7 @@ message ReportInfo {
   repeated ReportI18nInfo i18n_infos = 8;
   // rc_dependency_data.id
   int64 dep_id = 9;
+  string processed_id = 10;
 }
 
 message ReportI18nInfo {
@@ -155,7 +156,7 @@ message ReportI18nInfo {
 }
 
 message ReportContentReq {
-  int64 content_id = 1;
+  string processed_id = 1;
   string lang = 2;
 }
 

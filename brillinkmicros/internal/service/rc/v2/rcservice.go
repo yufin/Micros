@@ -4,6 +4,7 @@ import (
 	"brillinkmicros/internal/biz"
 	"brillinkmicros/internal/biz/dto"
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
@@ -74,10 +75,21 @@ func (s *RcServiceServicer) ListReportInfos(ctx context.Context, req *pb.Paginat
 			ContentUpdatedTime: v.ProcessedUpdatedAt.Format("2006-01-02 15:04:05"),
 			LhQylx:             int32(v.LhQylx),
 			DepId:              v.DepId,
+			ProcessedId:        v.ProcessedId,
 			// TODO: add i18n info
 		}
 		pbInfos = append(pbInfos, info)
-
+	}
+	orderedPbInfos := make([]*pb.ReportInfo, 0)
+	for _, pbInfo := range pbInfos {
+		if pbInfo.Available {
+			orderedPbInfos = append(orderedPbInfos, pbInfo)
+		}
+	}
+	for _, pbInfo := range pbInfos {
+		if !pbInfo.Available {
+			orderedPbInfos = append(orderedPbInfos, pbInfo)
+		}
 	}
 
 	return &pb.ReportInfosResp{
@@ -85,17 +97,29 @@ func (s *RcServiceServicer) ListReportInfos(ctx context.Context, req *pb.Paginat
 		PageSize:    uint32(infosResp.PageSize),
 		Total:       uint32(infosResp.Total),
 		TotalPage:   uint32(infosResp.TotalPage),
-		ReportInfos: pbInfos,
+		ReportInfos: orderedPbInfos,
 	}, nil
 }
 
 // GetReportContent 获取报告内容
 func (s *RcServiceServicer) GetReportContent(ctx context.Context, req *pb.ReportContentReq) (*pb.ReportContentResp, error) {
-	allowed, err := s.rcOriginContent.CheckContentIdAllowed(ctx, req.ContentId)
+	data, err := s.mgoRc.GetProcessedContentByObjId(ctx, req.ProcessedId)
 	if err != nil {
 		return nil, err
 	}
-	if allowed {
+	if data == nil {
+		return nil, errors.New(500, "data is nil", "At v2 GetReportContent")
+	}
+	contentIdStr := data["content_id"].(string)
+	contentId, err := strconv.ParseInt(contentIdStr, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	allowed, err := s.rcOriginContent.CheckContentIdAllowed(ctx, contentId)
+	if err != nil {
+		return nil, err
+	}
+	if !allowed {
 		return &pb.ReportContentResp{
 			Content:   nil,
 			Available: false,
@@ -103,24 +127,17 @@ func (s *RcServiceServicer) GetReportContent(ctx context.Context, req *pb.Report
 		}, nil
 	}
 
-	contentDoc, err := s.mgoRc.GetProcessedContent(ctx, req.ContentId)
-	content := contentDoc["content"].(bson.M)
+	content := data["content"].(bson.M)
+
+	if content == nil {
+		return nil, errors.New(500, "content is nil", "At v2 GetReportContent")
+	}
+	b, err := bson.MarshalExtJSON(content, false, false)
 	if err != nil {
 		return nil, err
-	}
-	if content == nil {
-		return &pb.ReportContentResp{
-			Content:   nil,
-			Available: false,
-			Msg:       "报告暂未生成",
-		}, nil
 	}
 	m := make(map[string]interface{})
-	b, err := bson.Marshal(content)
-	if err != nil {
-		return nil, err
-	}
-	err = bson.Unmarshal(b, &m)
+	err = json.Unmarshal(b, &m)
 	if err != nil {
 		return nil, err
 	}
@@ -143,7 +160,7 @@ func (s *RcServiceServicer) GetReportContentByDepIdNoDs(ctx context.Context, req
 		return nil, err
 	}
 
-	contentDoc, err := s.mgoRc.GetProcessedContent(ctx, *rdd.ContentId)
+	contentDoc, err := s.mgoRc.GetProcessedObjIdByContentId(ctx, *rdd.ContentId)
 	if err != nil {
 		return nil, err
 	}
