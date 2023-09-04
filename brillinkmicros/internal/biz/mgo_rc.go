@@ -10,6 +10,7 @@ import (
 type MgoRcRepo interface {
 	GetProcessedObjIdByContentId(ctx context.Context, contentId int64) (bson.M, error)
 	GetProcessedContentByObjId(ctx context.Context, objIdHex string) (bson.M, error)
+	GetProcessedContentInfoByObjId(ctx context.Context, objIdHex string) (bson.M, error)
 	GetContentInfos(ctx context.Context, page *dto.PaginationReq) (*dto.RcOriginContentInfosRespV3, error)
 }
 
@@ -35,4 +36,9 @@ func (uc *MgoRcUsecase) GetContentInfos(ctx context.Context, page *dto.Paginatio
 func (uc *MgoRcUsecase) GetProcessedContentByObjId(ctx context.Context, objIdHex string) (bson.M, error) {
 	uc.log.WithContext(ctx).Infof("biz.MgoRcUsecase.GetProcessedContentByObjId %s", objIdHex)
 	return uc.repo.GetProcessedContentByObjId(ctx, objIdHex)
+}
+
+func (uc *MgoRcUsecase) GetProcessedContentInfoByObjId(ctx context.Context, objIdHex string) (bson.M, error) {
+	uc.log.WithContext(ctx).Infof("biz.MgoRcUsecase.GetProcessedContentInfoByObjId %s", objIdHex)
+	return uc.repo.GetProcessedContentInfoByObjId(ctx, objIdHex)
 }

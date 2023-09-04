@@ -12,6 +12,7 @@ import (
 	"brillinkmicros/internal/data"
 	"brillinkmicros/internal/server"
 	"brillinkmicros/internal/service"
+	service2 "brillinkmicros/internal/service/dw/v2"
 	"brillinkmicros/internal/service/rc/v2"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
@@ -73,7 +74,10 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	graphUsecase := biz.NewGraphUsecase(graphRepo, logger)
 	treeGraphServiceServicer := service.NewTreeGraphServiceServicer(graphUsecase, logger)
 	netGraphServiceServicer := service.NewNetGraphServiceServicer(graphUsecase, logger)
-	httpServer := server.NewHTTPServer(confServer, dataData, confData, rcServiceServicer, v2RcServiceServicer, rcRdmServiceServicer, treeGraphServiceServicer, netGraphServiceServicer, logger)
+	dwEnterpriseRepo := data.NewDwEnterpriseRepo(dataData, logger)
+	dwEnterpriseUsecase := biz.NewDwEnterpriseUsecase(dwEnterpriseRepo, logger)
+	dwServiceServicer := service2.NewDwServiceServicer(dwEnterpriseUsecase, logger)
+	httpServer := server.NewHTTPServer(confServer, dataData, confData, rcServiceServicer, v2RcServiceServicer, rcRdmServiceServicer, treeGraphServiceServicer, netGraphServiceServicer, dwServiceServicer, logger)
 	app := newApp(logger, grpcServer, httpServer)
 	return app, func() {
 		cleanup()

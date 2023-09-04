@@ -52,7 +52,6 @@ func (s *RcServiceServicer) SearchReportInfosByKwd(ctx context.Context, req *pb.
 
 // ListReportInfos 获取报告列表
 func (s *RcServiceServicer) ListReportInfos(ctx context.Context, req *pb.PaginationReq) (*pb.ReportInfosResp, error) {
-
 	pageReq := &dto2.PaginationReq{
 		PageNum:  int(req.PageNum),
 		PageSize: int(req.PageSize),

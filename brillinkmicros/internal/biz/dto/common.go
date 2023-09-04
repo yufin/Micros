@@ -14,6 +14,14 @@ type BaseModel struct {
 	UpdateBy  *int64
 }
 
+type BaseField struct {
+	CreatedAt *time.Time `json:"-"`
+	UpdatedAt *time.Time `json:"-"`
+	DeletedAt *time.Time `json:"-"`
+	CreateBy  *int64     `json:"-"`
+	UpdateBy  *int64     `json:"-"`
+}
+
 func (e *BaseModel) Gen() {
 	if e.Id == 0 {
 		e.Id = pkg.Flake.NewFlakeId()

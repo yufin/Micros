@@ -1,7 +1,8 @@
 package service
 
 import (
-	"brillinkmicros/internal/service/rc/v2"
+	dwV2 "brillinkmicros/internal/service/dw/v2"
+	rcV2 "brillinkmicros/internal/service/rc/v2"
 	"github.com/google/wire"
 )
 
@@ -12,5 +13,6 @@ var ProviderSet = wire.
 		NewRcRdmServiceServicer,
 		NewTreeGraphServiceServicer,
 		NewNetGraphServiceServicer,
-		v2.NewRcServiceServicer,
+		rcV2.NewRcServiceServicer,
+		dwV2.NewDwServiceServicer,
 	)

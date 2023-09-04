@@ -9,6 +9,7 @@ import (
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/protobuf/types/known/structpb"
 	"gorm.io/gorm"
 	"strconv"
@@ -63,16 +64,23 @@ func (s *RcServiceServicer) ListReportInfos(ctx context.Context, req *pb.Paginat
 	for _, v := range *infosResp.Data {
 		v := v
 		available := false
+		t := ""
 		if v.ProcessedId != "" {
 			available = true
+			cInfo, err := s.mgoRc.GetProcessedContentInfoByObjId(ctx, v.ProcessedId)
+			if err != nil {
+				return nil, err
+			}
+			t = cInfo["created_at"].(primitive.DateTime).Time().Format("2006-01-02 15:04:05")
 		}
+
 		info := &pb.ReportInfo{
 			ContentId:          v.ContentId,
 			EnterpriseName:     v.EnterpriseName,
 			UnifiedCreditId:    v.UscId,
 			DataCollectMonth:   v.DataCollectMonth,
 			Available:          available,
-			ContentUpdatedTime: v.ProcessedUpdatedAt.Format("2006-01-02 15:04:05"),
+			ContentUpdatedTime: t,
 			LhQylx:             int32(v.LhQylx),
 			DepId:              v.DepId,
 			ProcessedId:        v.ProcessedId,
@@ -160,7 +168,19 @@ func (s *RcServiceServicer) GetReportContentByDepIdNoDs(ctx context.Context, req
 		return nil, err
 	}
 
-	contentDoc, err := s.mgoRc.GetProcessedObjIdByContentId(ctx, *rdd.ContentId)
+	objId, err := s.mgoRc.GetProcessedObjIdByContentId(ctx, *rdd.ContentId)
+	if err != nil {
+		return nil, err
+	}
+	if objId == nil {
+		return &pb.ReportContentResp{
+			Content:   nil,
+			Available: false,
+			Msg:       "没有权限查看该报告/报告未生成",
+		}, nil
+	}
+	objIdHex := objId["_id"].(primitive.ObjectID).Hex()
+	contentDoc, err := s.mgoRc.GetProcessedContentByObjId(ctx, objIdHex)
 	if err != nil {
 		return nil, err
 	}
@@ -173,12 +193,12 @@ func (s *RcServiceServicer) GetReportContentByDepIdNoDs(ctx context.Context, req
 		}, nil
 	}
 	content := contentDoc["content"].(bson.M)
-	b, err := bson.Marshal(content)
+	b, err := bson.MarshalExtJSON(content, false, false)
 	if err != nil {
 		return nil, err
 	}
 	m := make(map[string]interface{})
-	if err = bson.Unmarshal(b, &m); err != nil {
+	if err = json.Unmarshal(b, &m); err != nil {
 		return nil, err
 	}
 	var st *structpb.Struct

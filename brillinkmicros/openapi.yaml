@@ -3,21 +3,16 @@
 
 openapi: 3.0.3
 info:
-    title: RcService API
+    title: DwService API
     version: 0.0.1
 paths:
-    /micros/rc/v1/report/content:
+    /micros/dw/v2/enterprise/credential:
         get:
             tags:
-                - RcService
-            operationId: RcService_GetReportContent
+                - DwService
+            operationId: DwService_GetEnterpriseCredential
             parameters:
-                - name: contentId
-                  in: query
-                  schema:
-                    type: integer
-                    format: int64
-                - name: lang
+                - name: uscId
                   in: query
                   schema:
                     type: string
@@ -27,44 +22,20 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ReportContentResp'
+                                $ref: '#/components/schemas/EntArrayResp'
                 default:
                     description: Default error response
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /micros/rc/v1/report/content/refresh:
-        put:
-            tags:
-                - RcService
-            operationId: RcService_RefreshReportContent
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/RefreshReportContentReq'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/RefreshReportContentResp'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-    /micros/rc/v1/report/dependency-data:
+    /micros/dw/v2/enterprise/ident:
         get:
             tags:
-                - RcService
-            operationId: RcService_GetReportDependencyData
+                - DwService
+            operationId: DwService_GetEnterpriseIdent
             parameters:
-                - name: contentId
+                - name: enterpriseName
                   in: query
                   schema:
                     type: string
@@ -74,75 +45,20 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/GetDependencyDataResp'
+                                $ref: '#/components/schemas/EntIdentResp'
                 default:
                     description: Default error response
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-        put:
-            tags:
-                - RcService
-            operationId: RcService_UpdateReportDependencyData
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/UpdateDependencyDataReq'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/SetDependencyDataResp'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-        post:
-            tags:
-                - RcService
-            operationId: RcService_InsertReportDependencyData
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/InsertDependencyDataReq'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/SetDependencyDataResp'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-    /micros/rc/v1/report/download:
+    /micros/dw/v2/enterprise/industry:
         get:
             tags:
-                - RcService
-            operationId: RcService_GetReportPdfByDepId
+                - DwService
+            operationId: DwService_GetEnterpriseIndustry
             parameters:
-                - name: depId
-                  in: query
-                  schema:
-                    type: integer
-                    format: int64
-                - name: lang
-                  in: query
-                  schema:
-                    type: string
-                - name: fileName
+                - name: uscId
                   in: query
                   schema:
                     type: string
@@ -152,92 +68,20 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/OssFileDownloadResp'
+                                $ref: '#/components/schemas/EntStrArrayResp'
                 default:
                     description: Default error response
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /micros/rc/v1/report/infos:
+    /micros/dw/v2/enterprise/info:
         get:
             tags:
-                - RcService
-            operationId: RcService_ListReportInfos
+                - DwService
+            operationId: DwService_GetEnterpriseInfo
             parameters:
-                - name: pageSize
-                  in: query
-                  schema:
-                    type: integer
-                    format: uint32
-                - name: pageNum
-                  in: query
-                  schema:
-                    type: integer
-                    format: uint32
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ReportInfosResp'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-    /micros/rc/v1/report/infos/search:
-        get:
-            tags:
-                - RcService
-            operationId: RcService_SearchReportInfosByKwd
-            parameters:
-                - name: kwd
-                  in: query
-                  schema:
-                    type: string
-                - name: searchOn
-                  in: query
-                  schema:
-                    type: integer
-                    format: uint32
-                - name: pageSize
-                  in: query
-                  schema:
-                    type: integer
-                    format: uint32
-                - name: pageNum
-                  in: query
-                  schema:
-                    type: integer
-                    format: uint32
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ReportInfosResp'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-    /micros/rc/v1/report/internal/for-convert:
-        get:
-            tags:
-                - RcService
-            operationId: RcService_GetReportContentByDepIdNoDs
-            parameters:
-                - name: depId
-                  in: query
-                  schema:
-                    type: integer
-                    format: int64
-                - name: lang
+                - name: uscId
                   in: query
                   schema:
                     type: string
@@ -247,7 +91,53 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ReportContentResp'
+                                $ref: '#/components/schemas/EntStructResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/dw/v2/enterprise/product:
+        get:
+            tags:
+                - DwService
+            operationId: DwService_GetEnterpriseProduct
+            parameters:
+                - name: uscId
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/EntStrArrayResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/dw/v2/enterprise/ranking-list:
+        get:
+            tags:
+                - DwService
+            operationId: DwService_GetEnterpriseRankingList
+            parameters:
+                - name: uscId
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/EntArrayResp'
                 default:
                     description: Default error response
                     content:
@@ -256,41 +146,58 @@ paths:
                                 $ref: '#/components/schemas/Status'
 components:
     schemas:
-        GetDependencyDataResp:
+        EntArrayResp:
             type: object
             properties:
-                id:
+                success:
+                    type: boolean
+                code:
                     type: integer
-                    format: int64
-                contentId:
+                    format: int32
+                msg:
+                    type: string
+                data:
+                    type: array
+                    items:
+                        type: object
+        EntIdentResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                code:
                     type: integer
-                    format: int64
+                    format: int32
+                msg:
+                    type: string
                 uscId:
                     type: string
-                lhQylx:
+        EntStrArrayResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                code:
                     type: integer
                     format: int32
-                lhCylwz:
-                    type: integer
-                    format: int32
-                lhGdct:
-                    type: integer
-                    format: int32
-                lhQybq:
-                    type: integer
-                    format: int32
-                lhYhsx:
-                    type: integer
-                    format: int32
-                lhSfsx:
-                    type: integer
-                    format: int32
-                additionData:
+                msg:
                     type: string
-                createdAt:
+                data:
+                    type: array
+                    items:
+                        type: string
+        EntStructResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                code:
+                    type: integer
+                    format: int32
+                msg:
                     type: string
-                updatedAt:
-                    type: string
+                data:
+                    type: object
         GoogleProtobufAny:
             type: object
             properties:
@@ -299,141 +206,6 @@ components:
                     description: The type of the serialized message.
             additionalProperties: true
             description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
-        InsertDependencyDataReq:
-            type: object
-            properties:
-                uscId:
-                    type: string
-                lhQylx:
-                    type: integer
-                    format: int32
-                lhCylwz:
-                    type: integer
-                    format: int32
-                lhGdct:
-                    type: integer
-                    format: int32
-                lhYhsx:
-                    type: integer
-                    description: int32 lh_qybq = 5;
-                    format: int32
-                lhSfsx:
-                    type: integer
-                    format: int32
-                additionData:
-                    type: string
-        OssFileDownloadResp:
-            type: object
-            properties:
-                available:
-                    type: boolean
-                msg:
-                    type: string
-                url:
-                    type: string
-                createdAt:
-                    type: string
-        RefreshReportContentReq:
-            type: object
-            properties:
-                contentId:
-                    type: integer
-                    format: int64
-        RefreshReportContentResp:
-            type: object
-            properties:
-                success:
-                    type: boolean
-                msgPubTime:
-                    type: string
-                msg:
-                    type: string
-        ReportContentResp:
-            type: object
-            properties:
-                content:
-                    type: object
-                    description: 报告内容
-                available:
-                    type: boolean
-                msg:
-                    type: string
-        ReportI18nInfo:
-            type: object
-            properties:
-                lang:
-                    type: string
-                contentId:
-                    type: integer
-                    format: int64
-                available:
-                    type: boolean
-        ReportInfo:
-            type: object
-            properties:
-                contentId:
-                    type: integer
-                    description: 报告id
-                    format: int64
-                enterpriseName:
-                    type: string
-                    description: 企业名称
-                unifiedCreditId:
-                    type: string
-                    description: 企业统一信用社会代码
-                dataCollectMonth:
-                    type: string
-                    description: 报文更新月份
-                available:
-                    type: boolean
-                    description: 报告是否可用
-                contentUpdatedTime:
-                    type: string
-                    description: 报告生成时间 yyyy-MM-dd HH:mm:ss
-                lhQylx:
-                    type: integer
-                    description: 报告状态码
-                    format: int32
-                i18nInfos:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/ReportI18nInfo'
-                    description: 英文报告id
-                depId:
-                    type: integer
-                    description: rc_dependency_data.id
-                    format: int64
-        ReportInfosResp:
-            type: object
-            properties:
-                reportInfos:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/ReportInfo'
-                pageNum:
-                    type: integer
-                    format: uint32
-                pageSize:
-                    type: integer
-                    format: uint32
-                total:
-                    type: integer
-                    format: uint32
-                totalPage:
-                    type: integer
-                    format: uint32
-        SetDependencyDataResp:
-            type: object
-            properties:
-                success:
-                    type: boolean
-                isGenerated:
-                    type: boolean
-                code:
-                    type: integer
-                    format: int32
-                msg:
-                    type: string
         Status:
             type: object
             properties:
@@ -450,29 +222,5 @@ components:
                         $ref: '#/components/schemas/GoogleProtobufAny'
                     description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
             description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
-        UpdateDependencyDataReq:
-            type: object
-            properties:
-                id:
-                    type: integer
-                    format: int64
-                lhQylx:
-                    type: integer
-                    format: int32
-                lhCylwz:
-                    type: integer
-                    format: int32
-                lhGdct:
-                    type: integer
-                    format: int32
-                lhYhsx:
-                    type: integer
-                    description: int32 lh_qybq = 6;
-                    format: int32
-                lhSfsx:
-                    type: integer
-                    format: int32
-                additionData:
-                    type: string
 tags:
-    - name: RcService
+    - name: DwService

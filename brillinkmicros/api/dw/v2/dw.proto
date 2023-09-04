@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+package api.dw.v2;
+
+import "google/api/annotations.proto";
+import "google/protobuf/struct.proto";
+
+option go_package = "brillinkmicros/api/dw/v2;dwV2";
+option java_multiple_files = true;
+option java_outer_classname = "DwV2";
+option java_package = "api.dw.v2";
+
+
+service DwService {
+
+  rpc GetEnterpriseIdent(GetEntIdentReq) returns (EntIdentResp) {
+    option (google.api.http) = {
+      get: "/micros/dw/v2/enterprise/ident"
+    };
+  }
+
+  rpc GetEnterpriseInfo(GetEntInfoReq) returns (EntStructResp) {
+    option (google.api.http) = {
+      get: "/micros/dw/v2/enterprise/info"
+    };
+  }
+
+
+  rpc GetEnterpriseCredential(GetEntInfoReq) returns (EntArrayResp) {
+    option (google.api.http) = {
+      get: "/micros/dw/v2/enterprise/credential"
+    };
+  }
+
+  rpc GetEnterpriseRankingList(GetEntInfoReq) returns (EntArrayResp) {
+    option (google.api.http) = {
+      get: "/micros/dw/v2/enterprise/ranking-list"
+    };
+  }
+
+  rpc GetEnterpriseIndustry(GetEntInfoReq) returns (EntStrArrayResp) {
+    option (google.api.http) = {
+      get: "/micros/dw/v2/enterprise/industry"
+    };
+  }
+
+  rpc GetEnterpriseProduct(GetEntInfoReq) returns (EntStrArrayResp) {
+    option (google.api.http) = {
+      get: "/micros/dw/v2/enterprise/product"
+    };
+  }
+
+}
+
+message GetEntIdentReq {
+  string enterprise_name = 1;
+}
+
+message EntIdentResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  string usc_id = 4;
+}
+
+message GetEntInfoReq {
+  string usc_id = 1;
+}
+
+message EntStructResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  google.protobuf.Struct data = 4;
+}
+
+message EntArrayResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  repeated google.protobuf.Struct data = 4;
+}
+
+message EntStrArrayResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  repeated string data = 4;
+}

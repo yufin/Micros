@@ -1,6 +1,7 @@
 package server
 
 import (
+	dwV22 "brillinkmicros/api/dw/v2"
 	gv1 "brillinkmicros/api/graph/v1"
 	rcv1 "brillinkmicros/api/rc/v1"
 	rcv2 "brillinkmicros/api/rc/v2"
@@ -8,6 +9,7 @@ import (
 	"brillinkmicros/internal/data"
 	"brillinkmicros/internal/midware"
 	"brillinkmicros/internal/service"
+	dwV2 "brillinkmicros/internal/service/dw/v2"
 	v2 "brillinkmicros/internal/service/rc/v2"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/logging"
@@ -25,6 +27,7 @@ func NewHTTPServer(c *conf.Server,
 	rrs *service.RcRdmServiceServicer,
 	tgs *service.TreeGraphServiceServicer,
 	ngs *service.NetGraphServiceServicer,
+	dwV2Ent *dwV2.DwServiceServicer,
 	logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		// 一个请求进入时的处理顺序为 Middleware 注册的顺序，而响应返回的处理顺序为注册顺序的倒序
@@ -53,6 +56,7 @@ func NewHTTPServer(c *conf.Server,
 	gv1.RegisterTreeGraphServiceHTTPServer(srv, tgs)
 	rcv1.RegisterRcRdmServiceHTTPServer(srv, rrs)
 	gv1.RegisterNetGraphServiceHTTPServer(srv, ngs)
+	dwV22.RegisterDwServiceHTTPServer(srv, dwV2Ent)
 
 	return srv
 }

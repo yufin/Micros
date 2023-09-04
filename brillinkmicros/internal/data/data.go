@@ -42,6 +42,7 @@ var ProviderSet = wire.NewSet(
 	NewRcRdmResultRepo,
 	NewRcRdmResDetailRepo,
 	NewMgoRcRepo,
+	NewDwEnterpriseRepo,
 )
 
 type Data struct {

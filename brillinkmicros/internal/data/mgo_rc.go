@@ -64,6 +64,31 @@ func (repo *MgoRcRepo) GetProcessedContentByObjId(ctx context.Context, objIdHex 
 	return data, nil
 }
 
+func (repo *MgoRcRepo) GetProcessedContentInfoByObjId(ctx context.Context, objIdHex string) (bson.M, error) {
+	var data bson.M
+	objId, err := primitive.ObjectIDFromHex(objIdHex)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	err = repo.data.MgoCli.Client.Database("rc").Collection("processed_content").
+		FindOne(
+			context.TODO(),
+			bson.M{"_id": objId},
+			options.FindOne().SetProjection(bson.D{
+				{"content", -1},
+				{"content_id", 1},
+				{"_id", 1},
+				{"created_at", 1}}),
+		).Decode(&data)
+	if err != nil {
+		if errors.Is(mongo.ErrNoDocuments, err) {
+			return nil, nil
+		}
+		return nil, errors.WithStack(err)
+	}
+	return data, nil
+}
+
 func (repo *MgoRcRepo) GetContentInfos(ctx context.Context, page *dto.PaginationReq) (*dto.RcOriginContentInfosRespV3, error) {
 	dsi, err := pkg.ParseBlDataScope(ctx)
 	if err != nil {
