@@ -26,7 +26,6 @@ const OperationRcServiceGetReportPdfByDepId = "/api.rc.v1.RcService/GetReportPdf
 const OperationRcServiceInsertReportDependencyData = "/api.rc.v1.RcService/InsertReportDependencyData"
 const OperationRcServiceListReportInfos = "/api.rc.v1.RcService/ListReportInfos"
 const OperationRcServiceRefreshReportContent = "/api.rc.v1.RcService/RefreshReportContent"
-const OperationRcServiceSearchReportInfosByKwd = "/api.rc.v1.RcService/SearchReportInfosByKwd"
 const OperationRcServiceUpdateReportDependencyData = "/api.rc.v1.RcService/UpdateReportDependencyData"
 
 type RcServiceHTTPServer interface {
@@ -35,16 +34,14 @@ type RcServiceHTTPServer interface {
 	GetReportDependencyData(context.Context, *GetDependencyDataReq) (*GetDependencyDataResp, error)
 	GetReportPdfByDepId(context.Context, *ReportDownloadReq) (*OssFileDownloadResp, error)
 	InsertReportDependencyData(context.Context, *InsertDependencyDataReq) (*SetDependencyDataResp, error)
-	ListReportInfos(context.Context, *PaginationReq) (*ReportInfosResp, error)
+	ListReportInfos(context.Context, *ReportInfoKwdSearchReq) (*ReportInfosResp, error)
 	RefreshReportContent(context.Context, *RefreshReportContentReq) (*RefreshReportContentResp, error)
-	SearchReportInfosByKwd(context.Context, *ReportInfoKwgSearchReq) (*ReportInfosResp, error)
 	UpdateReportDependencyData(context.Context, *UpdateDependencyDataReq) (*SetDependencyDataResp, error)
 }
 
 func RegisterRcServiceHTTPServer(s *http.Server, srv RcServiceHTTPServer) {
 	r := s.Route("/")
 	r.GET("/micros/rc/v1/report/infos", _RcService_ListReportInfos0_HTTP_Handler(srv))
-	r.GET("/micros/rc/v1/report/infos/search", _RcService_SearchReportInfosByKwd0_HTTP_Handler(srv))
 	r.GET("/micros/rc/v1/report/content", _RcService_GetReportContent0_HTTP_Handler(srv))
 	r.GET("/micros/rc/v1/report/download", _RcService_GetReportPdfByDepId0_HTTP_Handler(srv))
 	r.GET("/micros/rc/v1/report/internal/for-convert", _RcService_GetReportContentByDepIdNoDs0_HTTP_Handler(srv))
@@ -56,32 +53,13 @@ func RegisterRcServiceHTTPServer(s *http.Server, srv RcServiceHTTPServer) {
 
 func _RcService_ListReportInfos0_HTTP_Handler(srv RcServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PaginationReq
+		var in ReportInfoKwdSearchReq
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationRcServiceListReportInfos)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListReportInfos(ctx, req.(*PaginationReq))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*ReportInfosResp)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _RcService_SearchReportInfosByKwd0_HTTP_Handler(srv RcServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in ReportInfoKwgSearchReq
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationRcServiceSearchReportInfosByKwd)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.SearchReportInfosByKwd(ctx, req.(*ReportInfoKwgSearchReq))
+			return srv.ListReportInfos(ctx, req.(*ReportInfoKwdSearchReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -231,9 +209,8 @@ type RcServiceHTTPClient interface {
 	GetReportDependencyData(ctx context.Context, req *GetDependencyDataReq, opts ...http.CallOption) (rsp *GetDependencyDataResp, err error)
 	GetReportPdfByDepId(ctx context.Context, req *ReportDownloadReq, opts ...http.CallOption) (rsp *OssFileDownloadResp, err error)
 	InsertReportDependencyData(ctx context.Context, req *InsertDependencyDataReq, opts ...http.CallOption) (rsp *SetDependencyDataResp, err error)
-	ListReportInfos(ctx context.Context, req *PaginationReq, opts ...http.CallOption) (rsp *ReportInfosResp, err error)
+	ListReportInfos(ctx context.Context, req *ReportInfoKwdSearchReq, opts ...http.CallOption) (rsp *ReportInfosResp, err error)
 	RefreshReportContent(ctx context.Context, req *RefreshReportContentReq, opts ...http.CallOption) (rsp *RefreshReportContentResp, err error)
-	SearchReportInfosByKwd(ctx context.Context, req *ReportInfoKwgSearchReq, opts ...http.CallOption) (rsp *ReportInfosResp, err error)
 	UpdateReportDependencyData(ctx context.Context, req *UpdateDependencyDataReq, opts ...http.CallOption) (rsp *SetDependencyDataResp, err error)
 }
 
@@ -310,7 +287,7 @@ func (c *RcServiceHTTPClientImpl) InsertReportDependencyData(ctx context.Context
 	return &out, err
 }
 
-func (c *RcServiceHTTPClientImpl) ListReportInfos(ctx context.Context, in *PaginationReq, opts ...http.CallOption) (*ReportInfosResp, error) {
+func (c *RcServiceHTTPClientImpl) ListReportInfos(ctx context.Context, in *ReportInfoKwdSearchReq, opts ...http.CallOption) (*ReportInfosResp, error) {
 	var out ReportInfosResp
 	pattern := "/micros/rc/v1/report/infos"
 	path := binding.EncodeURL(pattern, in, true)
@@ -330,19 +307,6 @@ func (c *RcServiceHTTPClientImpl) RefreshReportContent(ctx context.Context, in *
 	opts = append(opts, http.Operation(OperationRcServiceRefreshReportContent))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, err
-}
-
-func (c *RcServiceHTTPClientImpl) SearchReportInfosByKwd(ctx context.Context, in *ReportInfoKwgSearchReq, opts ...http.CallOption) (*ReportInfosResp, error) {
-	var out ReportInfosResp
-	pattern := "/micros/rc/v1/report/infos/search"
-	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationRcServiceSearchReportInfosByKwd))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

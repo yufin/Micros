@@ -33,7 +33,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RcServiceClient interface {
-	ListReportInfos(ctx context.Context, in *PaginationReq, opts ...grpc.CallOption) (*ReportInfosResp, error)
+	ListReportInfos(ctx context.Context, in *ReportInfoKwdSearchReq, opts ...grpc.CallOption) (*ReportInfosResp, error)
 	GetReportContent(ctx context.Context, in *ReportContentReq, opts ...grpc.CallOption) (*ReportContentResp, error)
 	GetReportPdfByDepId(ctx context.Context, in *ReportDownloadReq, opts ...grpc.CallOption) (*OssFileDownloadResp, error)
 	GetReportContentByDepIdNoDs(ctx context.Context, in *ReportContentByDepIdReq, opts ...grpc.CallOption) (*ReportContentResp, error)
@@ -51,7 +51,7 @@ func NewRcServiceClient(cc grpc.ClientConnInterface) RcServiceClient {
 	return &rcServiceClient{cc}
 }
 
-func (c *rcServiceClient) ListReportInfos(ctx context.Context, in *PaginationReq, opts ...grpc.CallOption) (*ReportInfosResp, error) {
+func (c *rcServiceClient) ListReportInfos(ctx context.Context, in *ReportInfoKwdSearchReq, opts ...grpc.CallOption) (*ReportInfosResp, error) {
 	out := new(ReportInfosResp)
 	err := c.cc.Invoke(ctx, RcService_ListReportInfos_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -127,7 +127,7 @@ func (c *rcServiceClient) GetReportDependencyData(ctx context.Context, in *GetDe
 // All implementations must embed UnimplementedRcServiceServer
 // for forward compatibility
 type RcServiceServer interface {
-	ListReportInfos(context.Context, *PaginationReq) (*ReportInfosResp, error)
+	ListReportInfos(context.Context, *ReportInfoKwdSearchReq) (*ReportInfosResp, error)
 	GetReportContent(context.Context, *ReportContentReq) (*ReportContentResp, error)
 	GetReportPdfByDepId(context.Context, *ReportDownloadReq) (*OssFileDownloadResp, error)
 	GetReportContentByDepIdNoDs(context.Context, *ReportContentByDepIdReq) (*ReportContentResp, error)
@@ -142,7 +142,7 @@ type RcServiceServer interface {
 type UnimplementedRcServiceServer struct {
 }
 
-func (UnimplementedRcServiceServer) ListReportInfos(context.Context, *PaginationReq) (*ReportInfosResp, error) {
+func (UnimplementedRcServiceServer) ListReportInfos(context.Context, *ReportInfoKwdSearchReq) (*ReportInfosResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListReportInfos not implemented")
 }
 func (UnimplementedRcServiceServer) GetReportContent(context.Context, *ReportContentReq) (*ReportContentResp, error) {
@@ -180,7 +180,7 @@ func RegisterRcServiceServer(s grpc.ServiceRegistrar, srv RcServiceServer) {
 }
 
 func _RcService_ListReportInfos_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PaginationReq)
+	in := new(ReportInfoKwdSearchReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -192,7 +192,7 @@ func _RcService_ListReportInfos_Handler(srv interface{}, ctx context.Context, de
 		FullMethod: RcService_ListReportInfos_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RcServiceServer).ListReportInfos(ctx, req.(*PaginationReq))
+		return srv.(RcServiceServer).ListReportInfos(ctx, req.(*ReportInfoKwdSearchReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }

@@ -9,7 +9,7 @@ import (
 type RcOriginContentRepo interface {
 	GetPage(ctx context.Context, page *dto.PaginationReq) (*dto.RcOriginContentGetPageResp, error)
 	GetInfos(ctx context.Context, page *dto.PaginationReq) (*dto.RcOriginContentInfosResp, error)
-	GetInfosByKwg(ctx context.Context, page *dto.PaginationReq, kwg string, searchOn int) (*dto.RcOriginContentInfosResp, error)
+	GetInfosByKwd(ctx context.Context, page *dto.PaginationReq, kwd string) (*dto.RcOriginContentInfosResp, error)
 	Get(ctx context.Context, id int64) (*dto.RcOriginContent, error)
 	CheckContentIdAllowed(ctx context.Context, contentId int64) (bool, error)
 }
@@ -33,9 +33,9 @@ func (uc *RcOriginContentUsecase) GetInfos(ctx context.Context, page *dto.Pagina
 	return uc.repo.GetInfos(ctx, page)
 }
 
-func (uc *RcOriginContentUsecase) GetInfosByKwg(ctx context.Context, page *dto.PaginationReq, kwg string, searchOn int) (*dto.RcOriginContentInfosResp, error) {
-	uc.log.WithContext(ctx).Infof("biz.RcOriginContentUsecase.GetInfosByKwg %d", page.PageNum)
-	return uc.repo.GetInfosByKwg(ctx, page, kwg, searchOn)
+func (uc *RcOriginContentUsecase) GetInfosByKwd(ctx context.Context, page *dto.PaginationReq, kwd string) (*dto.RcOriginContentInfosResp, error) {
+	uc.log.WithContext(ctx).Infof("biz.RcOriginContentUsecase.GetInfosByKwd %d", page.PageNum)
+	return uc.repo.GetInfosByKwd(ctx, page, kwd)
 }
 
 func (uc *RcOriginContentUsecase) Get(ctx context.Context, id int64) (*dto.RcOriginContent, error) {

@@ -5,6 +5,7 @@ import (
 	"brillinkmicros/internal/biz/dto"
 	"brillinkmicros/pkg"
 	"context"
+	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
@@ -165,7 +166,88 @@ func (repo *RcOriginContentRepo) Get(ctx context.Context, id int64) (*dto.RcOrig
 	return &modelRoc, nil
 }
 
-func (repo *RcOriginContentRepo) GetInfosByKwg(ctx context.Context, page *dto.PaginationReq, kwg string, searchOn int) (*dto.RcOriginContentInfosResp, error) {
+func (repo *RcOriginContentRepo) GetInfosByKwd(ctx context.Context, page *dto.PaginationReq, kwd string) (*dto.RcOriginContentInfosResp, error) {
+	dsi, err := pkg.ParseBlDataScope(ctx)
+	if err != nil {
+		return nil, err
+	}
+	kwdLike := fmt.Sprintf("%%%s%%", kwd)
+	pageNum := int(math.Max(1, float64(page.PageNum)))
+	offset := (pageNum - 1) * page.PageSize
+	var count int64
+	if err := repo.data.Db.
+		Raw(`WITH rpc_cte AS (SELECT content_id, MAX(created_at) AS max_created_at
+							 FROM rc_processed_content
+							 WHERE deleted_at IS NULL
+							 GROUP BY content_id),
+				 rdd_cte AS (SELECT content_id, MAX(created_at) AS max_created_at
+							 FROM rc_dependency_data
+							 WHERE deleted_at IS NULL
+							   AND content_id IS NOT NULL
+							 GROUP BY content_id)
+				SELECT count(roc.id)
+				FROM rc_origin_content roc
+						 LEFT JOIN rpc_cte rpc_max ON rpc_max.content_id = roc.id
+						 LEFT JOIN rc_processed_content rpc ON rpc.content_id = roc.id
+					AND rpc.created_at = rpc_max.max_created_at
+					AND rpc.deleted_at IS NULL
+						 INNER JOIN rdd_cte rdd_max ON rdd_max.content_id = roc.id
+						 INNER JOIN rc_dependency_data rdd ON rdd.content_id = roc.id
+					AND rdd.created_at = rdd_max.max_created_at
+					AND rdd.deleted_at IS NULL
+				WHERE roc.deleted_at IS NULL
+				And roc.enterprise_name like ?
+				AND rdd.create_by IN ?`, kwdLike, dsi.AccessibleIds).
+		First(&count).
+		Error; err != nil {
+		return nil, err
+	}
 
-	return nil, nil
+	var Infos = make([]dto.RcOriginContentInfo, 0)
+	err = repo.data.Db.
+		Raw(`WITH rpc_cte AS (SELECT content_id, MAX(created_at) AS max_created_at
+							 FROM rc_processed_content
+							 WHERE deleted_at IS NULL
+							 GROUP BY content_id),
+				 rdd_cte AS (SELECT content_id, MAX(created_at) AS max_created_at
+							 FROM rc_dependency_data
+							 WHERE deleted_at IS NULL
+							   AND content_id IS NOT NULL
+							 GROUP BY content_id)
+				SELECT roc.id         AS content_id,
+					   roc.usc_id,
+					   roc.enterprise_name,
+					   roc.year_month AS data_collect_month,
+					   rdd.lh_qylx,
+					   rpc.id         AS processed_id,
+					   rpc.created_at AS processed_updated_at,
+					   rdd.create_by,
+					   rdd.id         as dep_id
+				FROM rc_origin_content roc
+						 LEFT JOIN rpc_cte rpc_max ON rpc_max.content_id = roc.id
+						 LEFT JOIN rc_processed_content rpc ON rpc.content_id = roc.id
+					AND rpc.created_at = rpc_max.max_created_at
+					AND rpc.deleted_at IS NULL
+						 INNER JOIN rdd_cte rdd_max ON rdd_max.content_id = roc.id
+						 INNER JOIN rc_dependency_data rdd ON rdd.content_id = roc.id
+					AND rdd.created_at = rdd_max.max_created_at
+					AND rdd.deleted_at IS NULL
+				WHERE roc.deleted_at IS NULL
+				AND rdd.create_by IN ?
+				And roc.enterprise_name like ?
+				LIMIT ? OFFSET ?;`, dsi.AccessibleIds, kwdLike, page.PageSize, offset).
+		Scan(&Infos).
+		Error
+	if err != nil {
+		return nil, err
+	}
+	return &dto.RcOriginContentInfosResp{
+		PaginationResp: dto.PaginationResp{
+			Total:     count,
+			TotalPage: int(math.Ceil(float64(count) / float64(page.PageSize))),
+			PageNum:   pageNum,
+			PageSize:  page.PageSize,
+		},
+		Data: &Infos,
+	}, nil
 }

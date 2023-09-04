@@ -12,15 +12,9 @@ option java_package = "api.rc.v1";
 
 
 service RcService {
-	rpc ListReportInfos(PaginationReq) returns (ReportInfosResp) {
+	rpc ListReportInfos(ReportInfoKwdSearchReq) returns (ReportInfosResp) {
 		option (google.api.http) = {
 			get: "/micros/rc/v1/report/infos"
-		};
-	}
-
-	rpc SearchReportInfosByKwd(ReportInfoKwgSearchReq) returns (ReportInfosResp) {
-		option (google.api.http) = {
-			get: "/micros/rc/v1/report/infos/search"
 		};
 	}
 
@@ -127,11 +121,10 @@ message ReportInfosResp {
 	uint32 total_page = 5;
 }
 
-message ReportInfoKwgSearchReq {
-	string kwd = 1;
-	uint32 search_on = 2;
-	uint32 page_size = 3;
-	uint32 page_num = 4;
+message ReportInfoKwdSearchReq {
+	string kwd_name = 1;
+	uint32 page_size = 2;
+	uint32 page_num = 3;
 }
 
 

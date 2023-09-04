@@ -2,7 +2,7 @@ package service
 
 import (
 	"brillinkmicros/internal/biz"
-	dto2 "brillinkmicros/internal/biz/dto"
+	"brillinkmicros/internal/biz/dto"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -45,20 +45,65 @@ func NewRcServiceServicer(
 	}
 }
 
-func (s *RcServiceServicer) SearchReportInfosByKwd(ctx context.Context, req *pb.ReportInfoKwgSearchReq) (*pb.ReportInfosResp, error) {
-
-	return nil, nil
-}
+//func (s *RcServiceServicer) SearchReportInfosByKwd(ctx context.Context, req *pb.ReportInfoKwdSearchReq) (*pb.ReportInfosResp, error) {
+//	pageReq := &dto.PaginationReq{
+//		PageNum:  int(req.PageNum),
+//		PageSize: int(req.PageSize),
+//	}
+//	infosResp, err := s.rcOriginContent.GetInfosByKwd(ctx, pageReq, req.KwdName)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	pbInfos := make([]*pb.ReportInfo, 0)
+//	for _, v := range *infosResp.Data {
+//		v := v
+//		available := false
+//		if v.ProcessedId != 0 {
+//			available = true
+//		}
+//		info := &pb.ReportInfo{
+//			ContentId:          v.ContentId,
+//			EnterpriseName:     v.EnterpriseName,
+//			UnifiedCreditId:    v.UscId,
+//			DataCollectMonth:   v.DataCollectMonth,
+//			Available:          available,
+//			ContentUpdatedTime: v.ProcessedUpdatedAt.Format("2006-01-02 15:04:05"),
+//			LhQylx:             int32(v.LhQylx),
+//			DepId:              v.DepId,
+//			// TODO: add i18n info
+//		}
+//		pbInfos = append(pbInfos, info)
+//
+//	}
+//
+//	return &pb.ReportInfosResp{
+//		PageNum:     uint32(infosResp.PageNum),
+//		PageSize:    uint32(infosResp.PageSize),
+//		Total:       uint32(infosResp.Total),
+//		TotalPage:   uint32(infosResp.TotalPage),
+//		ReportInfos: pbInfos,
+//	}, nil
+//}
 
 // ListReportInfos 获取报告列表
-func (s *RcServiceServicer) ListReportInfos(ctx context.Context, req *pb.PaginationReq) (*pb.ReportInfosResp, error) {
-	pageReq := &dto2.PaginationReq{
+func (s *RcServiceServicer) ListReportInfos(ctx context.Context, req *pb.ReportInfoKwdSearchReq) (*pb.ReportInfosResp, error) {
+	pageReq := &dto.PaginationReq{
 		PageNum:  int(req.PageNum),
 		PageSize: int(req.PageSize),
 	}
-	infosResp, err := s.rcOriginContent.GetInfos(ctx, pageReq)
-	if err != nil {
-		return nil, err
+	var infosResp *dto.RcOriginContentInfosResp
+	var err error
+	if req.KwdName == "" {
+		infosResp, err = s.rcOriginContent.GetInfos(ctx, pageReq)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		infosResp, err = s.rcOriginContent.GetInfosByKwd(ctx, pageReq, req.KwdName)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	pbInfos := make([]*pb.ReportInfo, 0)
@@ -190,7 +235,7 @@ func (s *RcServiceServicer) InsertReportDependencyData(ctx context.Context, req 
 		return nil, err
 	}
 	if len(contentIds) == 0 {
-		insertReq := dto2.RcDependencyData{
+		insertReq := dto.RcDependencyData{
 			UscId:   req.UscId,
 			LhQylx:  int(req.LhQylx),
 			LhCylwz: int(req.LhCylwz),
@@ -219,7 +264,7 @@ func (s *RcServiceServicer) InsertReportDependencyData(ctx context.Context, req 
 		if err != nil {
 			return nil, err
 		}
-		insertReq := dto2.RcDependencyData{
+		insertReq := dto.RcDependencyData{
 			ContentId:       &contentId,
 			AttributedMonth: &dataRoc.YearMonth,
 			UscId:           dataRoc.UscId,
@@ -262,7 +307,7 @@ func (s *RcServiceServicer) UpdateReportDependencyData(ctx context.Context, req 
 		}
 	}
 
-	insertReq := dto2.RcDependencyData{
+	insertReq := dto.RcDependencyData{
 		ContentId:       rdd.ContentId,
 		AttributedMonth: rdd.AttributedMonth,
 		UscId:           rdd.UscId,

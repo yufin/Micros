@@ -12,6 +12,7 @@ type MgoRcRepo interface {
 	GetProcessedContentByObjId(ctx context.Context, objIdHex string) (bson.M, error)
 	GetProcessedContentInfoByObjId(ctx context.Context, objIdHex string) (bson.M, error)
 	GetContentInfos(ctx context.Context, page *dto.PaginationReq) (*dto.RcOriginContentInfosRespV3, error)
+	GetContentInfosByKwd(ctx context.Context, page *dto.PaginationReq, kwd string) (*dto.RcOriginContentInfosRespV3, error)
 }
 
 type MgoRcUsecase struct {
@@ -41,4 +42,9 @@ func (uc *MgoRcUsecase) GetProcessedContentByObjId(ctx context.Context, objIdHex
 func (uc *MgoRcUsecase) GetProcessedContentInfoByObjId(ctx context.Context, objIdHex string) (bson.M, error) {
 	uc.log.WithContext(ctx).Infof("biz.MgoRcUsecase.GetProcessedContentInfoByObjId %s", objIdHex)
 	return uc.repo.GetProcessedContentInfoByObjId(ctx, objIdHex)
+}
+
+func (uc *MgoRcUsecase) GetContentInfosByKwd(ctx context.Context, page *dto.PaginationReq, kwd string) (*dto.RcOriginContentInfosRespV3, error) {
+	uc.log.WithContext(ctx).Infof("biz.MgoRcUsecase.SearchReportInfosByKwd %d", page.PageNum)
+	return uc.repo.GetContentInfosByKwd(ctx, page, kwd)
 }

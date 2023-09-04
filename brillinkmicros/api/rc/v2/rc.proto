@@ -13,11 +13,12 @@ option java_package = "api.rc.v2";
 
 service RcService {
 
-  rpc ListReportInfos(PaginationReq) returns (ReportInfosResp) {
+  rpc ListReportInfos(ReportInfoKwdSearchReq) returns (ReportInfosResp) {
     option (google.api.http) = {
       get: "/micros/rc/v2/report/infos"
     };
   }
+
 
   rpc GetReportContent(ReportContentReq) returns (ReportContentResp) {
     option (google.api.http) = {
@@ -69,6 +70,13 @@ service RcService {
 message GetDependencyDataReq {
   string content_id = 1;
 }
+
+message ReportInfoKwdSearchReq {
+  string kwd_name = 1;
+  uint32 page_size = 2;
+  uint32 page_num = 3;
+}
+
 
 message GetDependencyDataResp {
   int64 id = 1;
