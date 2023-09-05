@@ -23,7 +23,7 @@ func NewDwEnterpriseRepo(data *Data, logger log.Logger) biz.DwEnterpriseRepo {
 }
 
 func (repo *DwEnterpriseDataRepo) GetEntIdent(ctx context.Context, name string) (string, error) {
-	var uscId string
+	var uscId *string
 	err := repo.data.Db.
 		Table("enterprise_wait_list").
 		Select("usc_id").
@@ -38,7 +38,10 @@ func (repo *DwEnterpriseDataRepo) GetEntIdent(ctx context.Context, name string) 
 		}
 		return "", err
 	}
-	return uscId, nil
+	if uscId == nil {
+		return "", nil
+	}
+	return *uscId, nil
 }
 
 func (repo *DwEnterpriseDataRepo) GetEntInfo(ctx context.Context, uscId string) (*dto.EnterpriseInfo, error) {
