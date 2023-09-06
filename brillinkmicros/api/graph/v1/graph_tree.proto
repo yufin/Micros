@@ -4,6 +4,7 @@ package api.graph.v1;
 
 import "google/api/annotations.proto";
 import "google/protobuf/struct.proto";
+import "google/protobuf/empty.proto";
 
 option go_package = "brillinkmicros/api/graph/v1;v1";
 option java_multiple_files = true;
@@ -35,9 +36,20 @@ service TreeGraphService {
 			get: "/micros/graph/v1/tree/path"
 		};
 	}
+
+	rpc GetConst(google.protobuf.Empty) returns (ConstResp) {
+		option (google.api.http) = {
+			get: "/micros/graph/v1/tree/const"
+		};
+	}
 }
 
-
+message ConstResp {
+	bool success = 1;
+	int32 code = 2;
+	string msg = 3;
+	google.protobuf.Struct data =4;
+}
 
 message IdReq {
 	string id = 3;

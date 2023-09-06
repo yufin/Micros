@@ -35,10 +35,12 @@ func (s *Node) Gen(n neo4j.Node) {
 	s.Data = propsCopy
 }
 
-func (s *Node) GenPb(pb *pb.Node) {
-	pb.Id = s.Id
-	pb.Labels = s.Labels
-	pb.Title = s.Title
+func (s *Node) GenPb() *pb.Node {
+	pbNode := pb.Node{}
+	pbNode.Id = s.Id
+	pbNode.Labels = s.Labels
+	pbNode.Title = s.Title
 	st, _ := structpb.NewStruct(s.Data)
-	pb.Data = st
+	pbNode.Data = st
+	return &pbNode
 }

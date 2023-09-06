@@ -1,12 +1,12 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "api/graph/v1/graph.proto",
+    "title": "api/graph/v1/graph_net.proto",
     "version": "version not set"
   },
   "tags": [
     {
-      "name": "TreeGraphService"
+      "name": "NetGraphService"
     }
   ],
   "consumes": [
@@ -16,14 +16,14 @@
     "application/json"
   ],
   "paths": {
-    "/micros/graph/v1/tree/children": {
+    "/micros/graph/v1/net/children": {
       "get": {
-        "operationId": "TreeGraphService_GetChildren",
+        "operationId": "NetGraphService_GetChildrenNet",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1TreeNodesResp"
+              "$ref": "#/definitions/v1NetPaginationResp"
             }
           },
           "default": {
@@ -56,18 +56,62 @@
           }
         ],
         "tags": [
-          "TreeGraphService"
+          "NetGraphService"
         ]
       }
     },
-    "/micros/graph/v1/tree/node": {
+    "/micros/graph/v1/net/expand": {
       "get": {
-        "operationId": "TreeGraphService_GetNodeById",
+        "operationId": "NetGraphService_GetNetExpand",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1TreeNodeResp"
+              "$ref": "#/definitions/v1NetResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "depth",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "NetGraphService"
+        ]
+      }
+    },
+    "/micros/graph/v1/net/node": {
+      "get": {
+        "operationId": "NetGraphService_GetNode",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1NodeResp"
             }
           },
           "default": {
@@ -86,54 +130,18 @@
           }
         ],
         "tags": [
-          "TreeGraphService"
+          "NetGraphService"
         ]
       }
     },
-    "/micros/graph/v1/tree/path": {
+    "/micros/graph/v1/net/parents": {
       "get": {
-        "operationId": "TreeGraphService_GetPathBetween",
+        "operationId": "NetGraphService_GetParentsNet",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1TreeNodeResp"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "source_id",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "target_id",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "TreeGraphService"
-        ]
-      }
-    },
-    "/micros/graph/v1/tree/title-autocomplete": {
-      "get": {
-        "operationId": "TreeGraphService_GetTitleAutoComplete",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1TitleAutoCompleteResp"
+              "$ref": "#/definitions/v1NetPaginationResp"
             }
           },
           "default": {
@@ -159,20 +167,14 @@
             "format": "int64"
           },
           {
-            "name": "key_word",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "limit_label",
+            "name": "id",
             "in": "query",
             "required": false,
             "type": "string"
           }
         ],
         "tags": [
-          "TreeGraphService"
+          "NetGraphService"
         ]
       }
     }
@@ -186,6 +188,14 @@
         }
       },
       "additionalProperties": {}
+    },
+    "protobufNullValue": {
+      "type": "string",
+      "enum": [
+        "NULL_VALUE"
+      ],
+      "default": "NULL_VALUE",
+      "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\n The JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
     },
     "rpcStatus": {
       "type": "object",
@@ -206,32 +216,78 @@
         }
       }
     },
-    "v1TitleAutoComplete": {
+    "v1Edge": {
       "type": "object",
       "properties": {
-        "title": {
+        "source_id": {
+          "type": "string"
+        },
+        "target_id": {
           "type": "string"
         },
         "id": {
           "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object"
         }
       }
     },
-    "v1TitleAutoCompleteResp": {
+    "v1Net": {
       "type": "object",
       "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Node"
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Edge"
+          }
+        }
+      }
+    },
+    "v1NetPaginationResp": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        },
         "total": {
           "type": "integer",
-          "format": "int64"
+          "format": "int32"
         },
         "current": {
           "type": "integer",
-          "format": "int64"
+          "format": "int32"
         },
         "page_size": {
           "type": "integer",
-          "format": "int64"
+          "format": "int32"
         },
+        "data": {
+          "$ref": "#/definitions/v1Net"
+        }
+      }
+    },
+    "v1NetResp": {
+      "type": "object",
+      "properties": {
         "success": {
           "type": "boolean"
         },
@@ -243,20 +299,13 @@
           "type": "string"
         },
         "data": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1TitleAutoComplete"
-          }
+          "$ref": "#/definitions/v1Net"
         }
       }
     },
-    "v1TreeNode": {
+    "v1Node": {
       "type": "object",
       "properties": {
-        "entity_id": {
-          "type": "string"
-        },
         "id": {
           "type": "string"
         },
@@ -269,20 +318,12 @@
             "type": "string"
           }
         },
-        "children_count": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "children": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1TreeNode"
-          }
+        "data": {
+          "type": "object"
         }
       }
     },
-    "v1TreeNodeResp": {
+    "v1NodeResp": {
       "type": "object",
       "properties": {
         "success": {
@@ -296,41 +337,7 @@
           "type": "string"
         },
         "data": {
-          "$ref": "#/definitions/v1TreeNode"
-        }
-      }
-    },
-    "v1TreeNodesResp": {
-      "type": "object",
-      "properties": {
-        "total": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "current": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "page_size": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "success": {
-          "type": "boolean"
-        },
-        "code": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "msg": {
-          "type": "string"
-        },
-        "data": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1TreeNode"
-          }
+          "$ref": "#/definitions/v1Node"
         }
       }
     }

@@ -50,8 +50,7 @@ func (n *Net) GenPb(pbNet *pb.Net) {
 		pbNet.Nodes = make([]*pb.Node, 0)
 	}
 	for _, node := range *n.Nodes {
-		pbNode := &pb.Node{}
-		node.GenPb(pbNode)
+		pbNode := node.GenPb()
 		pbNet.Nodes = append(pbNet.Nodes, pbNode)
 	}
 

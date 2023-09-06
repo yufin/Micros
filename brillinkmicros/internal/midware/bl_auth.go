@@ -91,14 +91,14 @@ func CheckToken(token string, clientId string, clientSecret string, apiUrl strin
 		return nil, errors.New(int(code), "invalid token", msg)
 	}
 
-	data, dt, _, err := jsonparser.Get(respBody, "data")
+	authData, dt, _, err := jsonparser.Get(respBody, "data")
 	if err != nil {
 		return nil, err
 	}
 	if dt != jsonparser.ValueType(3) {
 		return nil, errors.New(401, "invalid token", msg)
 	}
-	return data, nil
+	return authData, nil
 }
 
 //{"code":401,"data":null,"msg":"访问令牌不存在"}

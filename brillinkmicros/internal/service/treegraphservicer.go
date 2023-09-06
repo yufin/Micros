@@ -5,11 +5,12 @@ import (
 	"context"
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
+	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/structpb"
 	"sync"
 
 	pb "brillinkmicros/api/graph/v1"
 	"brillinkmicros/internal/biz"
-	"brillinkmicros/pkg"
 )
 
 type TreeGraphServiceServicer struct {
@@ -26,53 +27,25 @@ func NewTreeGraphServiceServicer(gn *biz.GraphUsecase, logger log.Logger) *TreeG
 }
 
 func (s *TreeGraphServiceServicer) GetTreeNode(ctx context.Context, req *pb.IdReq) (*pb.TreeNodeResp, error) {
-	var (
-		n                *dto.Node
-		count            int64
-		errGet, errCount error
-	)
-	filter := dto.PathFilter{
-		NodeLabels: treeGraphLimitNodeLabels(),
-		RelLabels:  treeGraphLimitRelLabels(),
+	n, err := s.graph.GetNode(ctx, req.Id)
+	if err != nil {
+		return nil, err
 	}
-	var wg sync.WaitGroup
-	wg.Add(2)
-	func() {
-		defer wg.Done()
-		n, errGet = s.graph.GetNode(ctx, req.Id)
-	}()
-	go func() {
-		defer wg.Done()
-		errCount = s.graph.CountChildren(ctx, req.Id, filter, &count)
-	}()
-	wg.Wait()
-	if errGet != nil {
-		return nil, errGet
+	node := dto.TreeNode{}
+	if err := node.AutoGen(n, s.graph, nil); err != nil {
+		return nil, err
 	}
-	if errCount != nil {
-		return nil, errCount
-	}
-	treeNode := &pb.TreeNode{
-		EntityId:      n.Id,
-		Id:            pkg.RandUuid(),
-		Title:         n.Title,
-		Labels:        n.Labels,
-		ChildrenCount: int32(count),
-		Children:      nil,
-	}
+	data := node.GenPb()
 	return &pb.TreeNodeResp{
 		Success: true,
 		Code:    0,
 		Msg:     "",
-		Data:    treeNode,
+		Data:    data,
 	}, nil
 }
 
 func (s *TreeGraphServiceServicer) GetChildren(ctx context.Context, req *pb.PgIdReq) (*pb.TreeNodesResp, error) {
-	var (
-		children *[]dto.Node
-		errGet   error
-	)
+
 	filter := dto.PathFilter{
 		NodeLabels: treeGraphLimitNodeLabels(),
 		RelLabels:  treeGraphLimitRelLabels(),
@@ -81,37 +54,23 @@ func (s *TreeGraphServiceServicer) GetChildren(ctx context.Context, req *pb.PgId
 		PageNum:  int(req.PageNum),
 		PageSize: int(req.PageSize),
 	}
-	children, errGet = s.graph.GetChildren(ctx, req.Id, filter, p)
-	if errGet != nil {
-		return nil, errGet
+	children, err := s.graph.GetChildren(ctx, req.Id, filter, p)
+	if err != nil {
+		return nil, err
 	}
-
+	nodes := make([]*dto.TreeNode, 0)
+	for _, item := range *children {
+		node := dto.TreeNode{}
+		node.Gen(item)
+		nodes = append(nodes, &node)
+	}
+	err = dto.CountChildrenParallel(s.graph, &nodes, &filter)
+	if err != nil {
+		return nil, err
+	}
 	treeNodes := make([]*pb.TreeNode, 0)
-	var mutex sync.Mutex
-	errCh := make(chan error, len(*children))
-	for _, node := range *children {
-		node := node
-		go func() {
-			var count int64
-			errCh <- s.graph.CountChildren(ctx, node.Id, filter, &count)
-			mutex.Lock()
-			defer mutex.Unlock()
-			treeNodes = append(treeNodes, &pb.TreeNode{
-				EntityId:      node.Id,
-				Id:            pkg.RandUuid(),
-				Title:         node.Title,
-				Labels:        node.Labels,
-				ChildrenCount: int32(count),
-				Children:      nil,
-			})
-		}()
-	}
-
-	for range *children {
-		err := <-errCh
-		if err != nil {
-			return nil, err
-		}
+	for _, item := range nodes {
+		treeNodes = append(treeNodes, item.GenPb())
 	}
 
 	return &pb.TreeNodesResp{
@@ -139,7 +98,6 @@ func (s *TreeGraphServiceServicer) GetTitleAutoComplete(ctx context.Context, req
 		PageNum:  int(req.PageNum),
 		PageSize: int(req.PageSize),
 	}
-	//resGet := make([]dto.TitleAutoCompleteRes, 0)
 	var resGet *[]dto.TitleAutoCompleteRes
 	data := make([]*pb.TitleAutoComplete, 0)
 	var (
@@ -194,7 +152,6 @@ func (s *TreeGraphServiceServicer) GetPathBetween(ctx context.Context, req *pb.G
 	if err != nil {
 		return nil, err
 	}
-
 	if len(*neoPath) == 0 {
 		return &pb.TreeNodeResp{
 			Success: true,
@@ -204,7 +161,7 @@ func (s *TreeGraphServiceServicer) GetPathBetween(ctx context.Context, req *pb.G
 		}, nil
 	}
 
-	root, err := dto.NewTreeNodeFromPath(ctx, s.graph.CountChildren, neoPath, filter)
+	root, err := dto.NewTreeNodeFromPath(ctx, s.graph, neoPath, filter)
 	if err != nil {
 		return nil, err
 	}
@@ -215,4 +172,20 @@ func (s *TreeGraphServiceServicer) GetPathBetween(ctx context.Context, req *pb.G
 		Msg:     "",
 		Data:    data,
 	}, nil
+}
+
+func (s *TreeGraphServiceServicer) GetConst(ctx context.Context, empty *emptypb.Empty) (*pb.ConstResp, error) {
+	data := make(map[string]any)
+	data["rootId"] = "3f543cff-5d66-44e9-805f-4d3f8c27ecd2"
+	st, err := structpb.NewStruct(data)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.ConstResp{
+		Success: true,
+		Code:    200,
+		Msg:     "",
+		Data:    st,
+	}, nil
+
 }

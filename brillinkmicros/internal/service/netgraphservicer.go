@@ -58,14 +58,15 @@ func (s *NetGraphServiceServicer) GetNode(ctx context.Context, req *pb.GetNodeRe
 	if err != nil {
 		return nil, err
 	}
-	data := pb.Node{}
-	n.GenPb(&data)
-
+	//data := pb.Node{}
+	node := dto.Node{}
+	node.Gen(n)
+	data := node.GenPb()
 	return &pb.NodeResp{
 		Success: true,
 		Code:    0,
 		Msg:     "success",
-		Data:    &data,
+		Data:    data,
 	}, nil
 }
 
