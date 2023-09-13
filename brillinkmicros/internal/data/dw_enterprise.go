@@ -66,7 +66,7 @@ func (repo *DwEnterpriseDataRepo) GetEntCredential(ctx context.Context, uscId st
 	err := repo.data.Db.
 		Model(&dto.EnterpriseCertification{}).
 		Where("usc_id = ?", uscId).
-		Order("created_at desc").
+		Order("certification_date desc").
 		Scan(&data).
 		Error
 	if err != nil {
@@ -94,7 +94,8 @@ func (repo *DwEnterpriseDataRepo) GetEntRankingList(ctx context.Context, uscId s
 			list_url_origin
 			from enterprise_ranking
 					 left join ranking_list on enterprise_ranking.list_id = ranking_list.id
-			where usc_id = ?`, uscId).
+			where usc_id = ?
+			order by list_published_date desc`, uscId).
 		Scan(&data).
 		Error
 	if err != nil {

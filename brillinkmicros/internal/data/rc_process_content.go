@@ -111,7 +111,6 @@ func (repo *RcProcessedContentRepo) GetContentUpToDateByDepId(ctx context.Contex
 }
 
 func (repo *RcProcessedContentRepo) RefreshReportContent(ctx context.Context, contentId int64) (bool, error) {
-	// TODO:REBUILD ME
 	err := func() error {
 		msg := make([]byte, 8)
 		binary.BigEndian.PutUint64(msg, uint64(contentId))
