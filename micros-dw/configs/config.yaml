@@ -1,0 +1,18 @@
+server:
+  http:
+    addr: 0.0.0.0:8000
+    timeout: 1s
+  grpc:
+    addr: 0.0.0.0:50052
+    timeout: 1s
+
+data:
+  database:
+    driver: mysql
+    source: root:password-dev@tcp(192.168.44.169:3306)/data_spider?charset=utf8mb4&parseTime=True&loc=Local&timeout=10000ms
+  redis:
+    addr: 127.0.0.1:6379
+    read_timeout: 0.2s
+    write_timeout: 0.2s
+  mongoDb:
+    uri: mongodb://root:dev-password@192.168.44.169:27020

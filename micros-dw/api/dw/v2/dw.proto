@@ -1,0 +1,141 @@
+syntax = "proto3";
+
+package api.dw.v2;
+
+import "google/api/annotations.proto";
+import "google/protobuf/struct.proto";
+
+option go_package = "brillinkmicros/api/dw/v2;dwV2";
+option java_multiple_files = true;
+option java_outer_classname = "DwV2";
+option java_package = "api.dw.v2";
+
+
+service DwService {
+
+  rpc GetEnterpriseIdent(GetEntIdentReq) returns (EntIdentResp) {
+    option (google.api.http) = {
+      get: "/micros/dw/v2/enterprise/ident"
+    };
+  }
+
+  rpc GetEnterpriseInfo(GetEntInfoReq) returns (EntInfoResp) {
+    option (google.api.http) = {
+      get: "/micros/dw/v2/enterprise/info"
+    };
+  }
+
+
+  rpc GetEnterpriseCredential(GetEntInfoReq) returns (EntCredentialResp) {
+    option (google.api.http) = {
+      get: "/micros/dw/v2/enterprise/credential"
+    };
+  }
+
+  rpc GetEnterpriseRankingList(GetEntInfoReq) returns (EntArrayResp) {
+    option (google.api.http) = {
+      get: "/micros/dw/v2/enterprise/ranking-list"
+    };
+  }
+
+  rpc GetEnterpriseIndustry(GetEntInfoReq) returns (EntStrArrayResp) {
+    option (google.api.http) = {
+      get: "/micros/dw/v2/enterprise/industry"
+    };
+  }
+
+  rpc GetEnterpriseProduct(GetEntInfoReq) returns (EntStrArrayResp) {
+    option (google.api.http) = {
+      get: "/micros/dw/v2/enterprise/product"
+    };
+  }
+
+}
+
+message GetEntIdentReq {
+  string enterprise_name = 1;
+}
+
+message EntIdentResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  string usc_id = 4;
+}
+
+message EntInfoResp {
+  string usc_id = 1;
+  string enterprise_title = 2;
+  string enterprise_title_en = 3;
+  string business_registration_number = 4;
+  string establish_date = 5;
+  string region = 6;
+  string approved_date = 7;
+  string registered_address = 8;
+  string registered_capital = 9;
+  string paid_in_capital = 10;
+  string enterprise_type = 11;
+  string stuff_size = 12;
+  int32 stuff_insured_number = 13;
+  string business_scope = 14;
+  string import_export_qualification_code = 15;
+  string legal_representative = 16;
+  string registration_authority = 17;
+  string registration_status = 18;
+  string taxpayer_qualification = 19;
+  string organization_code = 20;
+  string url_qcc = 21;
+  string url_homepage = 22;
+  string business_term_start = 23;
+  string business_term_end = 24;
+  int64 id = 25;
+  string created_at = 26;
+  string updated_at = 27;
+}
+
+message EntCredential {
+  int64 id = 1;
+  string usc_id = 2;
+  string certification_title = 3;
+  string certification_code = 4;
+  string certification_level = 5;
+  string certification_type = 6;
+  string certification_source = 7;
+  string certification_date = 8;
+  string certification_term_start = 9;
+  string certification_term_end = 10;
+  string certification_authority = 11;
+  string created_at = 12;
+  string updated_at = 13;
+}
+
+message EntCredentialResp {
+  repeated EntCredential data = 1;
+}
+
+
+
+message GetEntInfoReq {
+  string usc_id = 1;
+}
+
+message EntStructResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  google.protobuf.Struct data = 4;
+}
+
+message EntArrayResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  repeated google.protobuf.Struct data = 4;
+}
+
+message EntStrArrayResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  repeated string data = 4;
+}
