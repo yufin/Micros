@@ -50,7 +50,28 @@ service DwService {
     };
   }
 
+  rpc GetEnterpriseEquityTransparency(GetEntInfoReq) returns(EquityTransparencyResp) {
+    option (google.api.http) = {
+      get: "/micros/dw/v2/enterprise/equity-transparency"
+    };
+  }
+
 }
+
+message EquityTransparencyResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  EquityTransparency data = 4;
+}
+
+message EquityTransparency {
+  string conclusion = 1;
+  string name = 2;
+  repeated google.protobuf.Struct detail = 3;
+  string usc_id = 4;
+}
+
 
 message GetEntIdentReq {
   string enterprise_name = 1;

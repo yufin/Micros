@@ -3,26 +3,16 @@
 
 openapi: 3.0.3
 info:
-    title: TreeGraphService API
+    title: DwService API
     version: 0.0.1
 paths:
-    /micros/graph/v1/tree/children:
+    /micros/dw/v2/enterprise/credential:
         get:
             tags:
-                - TreeGraphService
-            operationId: TreeGraphService_GetChildren
+                - DwService
+            operationId: DwService_GetEnterpriseCredential
             parameters:
-                - name: pageNum
-                  in: query
-                  schema:
-                    type: integer
-                    format: uint32
-                - name: pageSize
-                  in: query
-                  schema:
-                    type: integer
-                    format: uint32
-                - name: id
+                - name: uscId
                   in: query
                   schema:
                     type: string
@@ -32,38 +22,43 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/TreeNodesResp'
+                                $ref: '#/components/schemas/EntArrayResp'
                 default:
                     description: Default error response
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /micros/graph/v1/tree/const:
+    /micros/dw/v2/enterprise/equity-transparency:
         get:
             tags:
-                - TreeGraphService
-            operationId: TreeGraphService_GetConst
+                - DwService
+            operationId: DwService_GetEnterpriseEquityTransparency
+            parameters:
+                - name: uscId
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ConstResp'
+                                $ref: '#/components/schemas/EquityTransparencyResp'
                 default:
                     description: Default error response
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /micros/graph/v1/tree/node:
+    /micros/dw/v2/enterprise/ident:
         get:
             tags:
-                - TreeGraphService
-            operationId: TreeGraphService_GetTreeNode
+                - DwService
+            operationId: DwService_GetEnterpriseIdent
             parameters:
-                - name: id
+                - name: enterpriseName
                   in: query
                   schema:
                     type: string
@@ -73,24 +68,20 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/TreeNodeResp'
+                                $ref: '#/components/schemas/EntIdentResp'
                 default:
                     description: Default error response
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /micros/graph/v1/tree/path:
+    /micros/dw/v2/enterprise/industry:
         get:
             tags:
-                - TreeGraphService
-            operationId: TreeGraphService_GetPathBetween
+                - DwService
+            operationId: DwService_GetEnterpriseIndustry
             parameters:
-                - name: sourceId
-                  in: query
-                  schema:
-                    type: string
-                - name: targetId
+                - name: uscId
                   in: query
                   schema:
                     type: string
@@ -100,34 +91,20 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/TreeNodeResp'
+                                $ref: '#/components/schemas/EntStrArrayResp'
                 default:
                     description: Default error response
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /micros/graph/v1/tree/title-autocomplete:
+    /micros/dw/v2/enterprise/info:
         get:
             tags:
-                - TreeGraphService
-            operationId: TreeGraphService_GetTitleAutoComplete
+                - DwService
+            operationId: DwService_GetEnterpriseInfo
             parameters:
-                - name: pageNum
-                  in: query
-                  schema:
-                    type: integer
-                    format: uint32
-                - name: pageSize
-                  in: query
-                  schema:
-                    type: integer
-                    format: uint32
-                - name: keyWord
-                  in: query
-                  schema:
-                    type: string
-                - name: limitLabel
+                - name: uscId
                   in: query
                   schema:
                     type: string
@@ -137,7 +114,53 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/TitleAutoCompleteResp'
+                                $ref: '#/components/schemas/EntStructResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/dw/v2/enterprise/product:
+        get:
+            tags:
+                - DwService
+            operationId: DwService_GetEnterpriseProduct
+            parameters:
+                - name: uscId
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/EntStrArrayResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/dw/v2/enterprise/ranking-list:
+        get:
+            tags:
+                - DwService
+            operationId: DwService_GetEnterpriseRankingList
+            parameters:
+                - name: uscId
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/EntArrayResp'
                 default:
                     description: Default error response
                     content:
@@ -146,7 +169,47 @@ paths:
                                 $ref: '#/components/schemas/Status'
 components:
     schemas:
-        ConstResp:
+        EntArrayResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                code:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+                data:
+                    type: array
+                    items:
+                        type: object
+        EntIdentResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                code:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+                uscId:
+                    type: string
+        EntStrArrayResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                code:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+                data:
+                    type: array
+                    items:
+                        type: string
+        EntStructResp:
             type: object
             properties:
                 success:
@@ -158,6 +221,31 @@ components:
                     type: string
                 data:
                     type: object
+        EquityTransparency:
+            type: object
+            properties:
+                conclusion:
+                    type: string
+                name:
+                    type: string
+                detail:
+                    type: array
+                    items:
+                        type: object
+                uscId:
+                    type: string
+        EquityTransparencyResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                code:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/EquityTransparency'
         GoogleProtobufAny:
             type: object
             properties:
@@ -182,90 +270,5 @@ components:
                         $ref: '#/components/schemas/GoogleProtobufAny'
                     description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
             description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
-        TitleAutoComplete:
-            type: object
-            properties:
-                title:
-                    type: string
-                id:
-                    type: string
-        TitleAutoCompleteResp:
-            type: object
-            properties:
-                success:
-                    type: boolean
-                code:
-                    type: integer
-                    format: int32
-                msg:
-                    type: string
-                total:
-                    type: integer
-                    format: uint32
-                current:
-                    type: integer
-                    format: uint32
-                pageSize:
-                    type: integer
-                    format: uint32
-                data:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/TitleAutoComplete'
-        TreeNode:
-            type: object
-            properties:
-                entityId:
-                    type: string
-                id:
-                    type: string
-                title:
-                    type: string
-                labels:
-                    type: array
-                    items:
-                        type: string
-                childrenCount:
-                    type: integer
-                    format: int32
-                children:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/TreeNode'
-        TreeNodeResp:
-            type: object
-            properties:
-                success:
-                    type: boolean
-                code:
-                    type: integer
-                    format: int32
-                msg:
-                    type: string
-                data:
-                    $ref: '#/components/schemas/TreeNode'
-        TreeNodesResp:
-            type: object
-            properties:
-                success:
-                    type: boolean
-                code:
-                    type: integer
-                    format: int32
-                msg:
-                    type: string
-                total:
-                    type: integer
-                    format: uint32
-                current:
-                    type: integer
-                    format: uint32
-                pageSize:
-                    type: integer
-                    format: uint32
-                data:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/TreeNode'
 tags:
-    - name: TreeGraphService
+    - name: DwService

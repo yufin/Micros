@@ -3,7 +3,6 @@ package data
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"go.mongodb.org/mongo-driver/bson"
@@ -121,10 +120,10 @@ func (repo *DwEnterpriseDataRepo) GetEntIndustry(ctx context.Context, uscId stri
 		Scan(&dataStr).
 		Error
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
 		return nil, err
+	}
+	if dataStr == "" {
+		return nil, nil
 	}
 	data := make([]string, 0)
 	if err := json.Unmarshal([]byte(dataStr), &data); err != nil {
@@ -144,10 +143,10 @@ func (repo *DwEnterpriseDataRepo) GetEntProduct(ctx context.Context, uscId strin
 		Scan(&dataStr).
 		Error
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
 		return nil, err
+	}
+	if dataStr == "" {
+		return nil, nil
 	}
 	data := make([]string, 0)
 	if err := json.Unmarshal([]byte(dataStr), &data); err != nil {
@@ -173,7 +172,6 @@ func (repo *DwEnterpriseDataRepo) GetEntEquityTransparency(ctx context.Context, 
 
 	jsonBytes, err := bson.MarshalExtJSON(bson.M{"arr": detail.(bson.A)}, false, false)
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 	var m map[string]any
@@ -189,5 +187,6 @@ func (repo *DwEnterpriseDataRepo) GetEntEquityTransparency(ctx context.Context, 
 	return &dto.EnterpriseEquityTransparency{
 		Conclusion: data["conclusion"].(string),
 		Data:       detailArr,
+		UscId:      data["usc_id"].(string),
 	}, nil
 }

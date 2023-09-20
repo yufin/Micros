@@ -19,12 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	DwService_GetEnterpriseIdent_FullMethodName       = "/api.dw.v2.DwService/GetEnterpriseIdent"
-	DwService_GetEnterpriseInfo_FullMethodName        = "/api.dw.v2.DwService/GetEnterpriseInfo"
-	DwService_GetEnterpriseCredential_FullMethodName  = "/api.dw.v2.DwService/GetEnterpriseCredential"
-	DwService_GetEnterpriseRankingList_FullMethodName = "/api.dw.v2.DwService/GetEnterpriseRankingList"
-	DwService_GetEnterpriseIndustry_FullMethodName    = "/api.dw.v2.DwService/GetEnterpriseIndustry"
-	DwService_GetEnterpriseProduct_FullMethodName     = "/api.dw.v2.DwService/GetEnterpriseProduct"
+	DwService_GetEnterpriseIdent_FullMethodName              = "/api.dw.v2.DwService/GetEnterpriseIdent"
+	DwService_GetEnterpriseInfo_FullMethodName               = "/api.dw.v2.DwService/GetEnterpriseInfo"
+	DwService_GetEnterpriseCredential_FullMethodName         = "/api.dw.v2.DwService/GetEnterpriseCredential"
+	DwService_GetEnterpriseRankingList_FullMethodName        = "/api.dw.v2.DwService/GetEnterpriseRankingList"
+	DwService_GetEnterpriseIndustry_FullMethodName           = "/api.dw.v2.DwService/GetEnterpriseIndustry"
+	DwService_GetEnterpriseProduct_FullMethodName            = "/api.dw.v2.DwService/GetEnterpriseProduct"
+	DwService_GetEnterpriseEquityTransparency_FullMethodName = "/api.dw.v2.DwService/GetEnterpriseEquityTransparency"
 )
 
 // DwServiceClient is the client API for DwService service.
@@ -37,6 +38,7 @@ type DwServiceClient interface {
 	GetEnterpriseRankingList(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*EntArrayResp, error)
 	GetEnterpriseIndustry(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*EntStrArrayResp, error)
 	GetEnterpriseProduct(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*EntStrArrayResp, error)
+	GetEnterpriseEquityTransparency(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*EquityTransparencyResp, error)
 }
 
 type dwServiceClient struct {
@@ -101,6 +103,15 @@ func (c *dwServiceClient) GetEnterpriseProduct(ctx context.Context, in *GetEntIn
 	return out, nil
 }
 
+func (c *dwServiceClient) GetEnterpriseEquityTransparency(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*EquityTransparencyResp, error) {
+	out := new(EquityTransparencyResp)
+	err := c.cc.Invoke(ctx, DwService_GetEnterpriseEquityTransparency_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DwServiceServer is the server API for DwService service.
 // All implementations must embed UnimplementedDwServiceServer
 // for forward compatibility
@@ -111,6 +122,7 @@ type DwServiceServer interface {
 	GetEnterpriseRankingList(context.Context, *GetEntInfoReq) (*EntArrayResp, error)
 	GetEnterpriseIndustry(context.Context, *GetEntInfoReq) (*EntStrArrayResp, error)
 	GetEnterpriseProduct(context.Context, *GetEntInfoReq) (*EntStrArrayResp, error)
+	GetEnterpriseEquityTransparency(context.Context, *GetEntInfoReq) (*EquityTransparencyResp, error)
 	mustEmbedUnimplementedDwServiceServer()
 }
 
@@ -135,6 +147,9 @@ func (UnimplementedDwServiceServer) GetEnterpriseIndustry(context.Context, *GetE
 }
 func (UnimplementedDwServiceServer) GetEnterpriseProduct(context.Context, *GetEntInfoReq) (*EntStrArrayResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetEnterpriseProduct not implemented")
+}
+func (UnimplementedDwServiceServer) GetEnterpriseEquityTransparency(context.Context, *GetEntInfoReq) (*EquityTransparencyResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetEnterpriseEquityTransparency not implemented")
 }
 func (UnimplementedDwServiceServer) mustEmbedUnimplementedDwServiceServer() {}
 
@@ -257,6 +272,24 @@ func _DwService_GetEnterpriseProduct_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DwService_GetEnterpriseEquityTransparency_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEntInfoReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DwServiceServer).GetEnterpriseEquityTransparency(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DwService_GetEnterpriseEquityTransparency_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DwServiceServer).GetEnterpriseEquityTransparency(ctx, req.(*GetEntInfoReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // DwService_ServiceDesc is the grpc.ServiceDesc for DwService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -287,6 +320,10 @@ var DwService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetEnterpriseProduct",
 			Handler:    _DwService_GetEnterpriseProduct_Handler,
+		},
+		{
+			MethodName: "GetEnterpriseEquityTransparency",
+			Handler:    _DwService_GetEnterpriseEquityTransparency_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

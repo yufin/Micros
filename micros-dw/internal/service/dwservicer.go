@@ -5,24 +5,24 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/types/known/structpb"
-	pb "micros-dw/api/dw/v2"
+	pb "micros-dw/api/dwdata/v2"
 	"micros-dw/internal/biz"
 )
 
-type DwServiceServicer struct {
-	pb.UnimplementedDwServiceServer
+type DwdataServiceServicer struct {
+	pb.UnimplementedDwdataServiceServer
 	log          *log.Helper
 	dwEnterprise *biz.DwEnterpriseUsecase
 }
 
-func NewDwServiceServicer(dwe *biz.DwEnterpriseUsecase, logger log.Logger) *DwServiceServicer {
-	return &DwServiceServicer{
+func NewDwdataServiceServicer(dwe *biz.DwEnterpriseUsecase, logger log.Logger) *DwdataServiceServicer {
+	return &DwdataServiceServicer{
 		dwEnterprise: dwe,
 		log:          log.NewHelper(logger),
 	}
 }
 
-func (s *DwServiceServicer) GetEnterpriseIdent(ctx context.Context, req *pb.GetEntIdentReq) (*pb.EntIdentResp, error) {
+func (s *DwdataServiceServicer) GetEnterpriseIdent(ctx context.Context, req *pb.GetEntIdentReq) (*pb.EntIdentResp, error) {
 	res, err := s.dwEnterprise.GetEntIdent(ctx, req.EnterpriseName)
 	if err != nil {
 		return nil, err
@@ -37,7 +37,7 @@ func (s *DwServiceServicer) GetEnterpriseIdent(ctx context.Context, req *pb.GetE
 	}, nil
 }
 
-func (s *DwServiceServicer) GetEnterpriseInfo(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntInfoResp, error) {
+func (s *DwdataServiceServicer) GetEnterpriseInfo(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntInfoResp, error) {
 	res, err := s.dwEnterprise.GetEntInfo(ctx, req.UscId)
 	if err != nil {
 		return nil, err
@@ -75,7 +75,7 @@ func (s *DwServiceServicer) GetEnterpriseInfo(ctx context.Context, req *pb.GetEn
 		UpdatedAt:                     res.UpdatedAt.Format("2006-01-02 15:04:05"),
 	}, nil
 }
-func (s *DwServiceServicer) GetEnterpriseCredential(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntCredentialResp, error) {
+func (s *DwdataServiceServicer) GetEnterpriseCredential(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntCredentialResp, error) {
 	res, err := s.dwEnterprise.GetEntCredential(ctx, req.UscId)
 	if err != nil {
 		return nil, err
@@ -104,7 +104,7 @@ func (s *DwServiceServicer) GetEnterpriseCredential(ctx context.Context, req *pb
 	return &pb.EntCredentialResp{Data: data}, nil
 }
 
-func (s *DwServiceServicer) GetEnterpriseRankingList(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntRankingListResp, error) {
+func (s *DwdataServiceServicer) GetEnterpriseRankingList(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntRankingListResp, error) {
 	res, err := s.dwEnterprise.GetEntRankingList(ctx, req.UscId)
 	if err != nil {
 		return nil, err
@@ -137,7 +137,7 @@ func (s *DwServiceServicer) GetEnterpriseRankingList(ctx context.Context, req *p
 		Data: stArray,
 	}, nil
 }
-func (s *DwServiceServicer) GetEnterpriseIndustry(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntStrArrayResp, error) {
+func (s *DwdataServiceServicer) GetEnterpriseIndustry(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntStrArrayResp, error) {
 	res, err := s.dwEnterprise.GetEntIndustry(ctx, req.UscId)
 	if err != nil {
 		return nil, err
@@ -151,7 +151,7 @@ func (s *DwServiceServicer) GetEnterpriseIndustry(ctx context.Context, req *pb.G
 		Data: *res,
 	}, nil
 }
-func (s *DwServiceServicer) GetEnterpriseProduct(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntStrArrayResp, error) {
+func (s *DwdataServiceServicer) GetEnterpriseProduct(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntStrArrayResp, error) {
 	res, err := s.dwEnterprise.GetEntProduct(ctx, req.UscId)
 	if err != nil {
 		return nil, err
@@ -166,7 +166,7 @@ func (s *DwServiceServicer) GetEnterpriseProduct(ctx context.Context, req *pb.Ge
 	}, nil
 }
 
-func (s *DwServiceServicer) GetEntEquityTransparency(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EquityTransparencyResp, error) {
+func (s *DwdataServiceServicer) GetEntEquityTransparency(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EquityTransparencyResp, error) {
 	res, err := s.dwEnterprise.GetEntEquityTransparency(ctx, req.UscId)
 	if err != nil {
 		return nil, err
@@ -186,6 +186,6 @@ func (s *DwServiceServicer) GetEntEquityTransparency(ctx context.Context, req *p
 	return &pb.EquityTransparencyResp{
 		Conclusion: res.Conclusion,
 		Data:       stArr,
-		UscId:      req.UscId,
+		UscId:      res.UscId,
 	}, nil
 }

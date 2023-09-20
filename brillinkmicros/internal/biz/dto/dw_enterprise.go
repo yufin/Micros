@@ -2,6 +2,7 @@ package dto
 
 import (
 	"fmt"
+	"google.golang.org/protobuf/types/known/structpb"
 	"time"
 )
 
@@ -12,67 +13,60 @@ func (dt *Date) MarshalJSON() ([]byte, error) {
 }
 
 type EnterpriseInfo struct {
-	InfoId                        int64  `gorm:"primaryKey" json:"-"`
-	UscId                         string `gorm:"column:usc_id" json:"uscId"`
-	EnterpriseTitle               string `gorm:"column:enterprise_title" json:"enterpriseTitle"`
-	EnterpriseTitleEn             string `gorm:"column:enterprise_title_en" json:"enterpriseTitleEn"`
-	BusinessRegistrationNumber    string `gorm:"column:business_registration_number" json:"businessRegistrationNumber"`
-	EstablishedDate               *Date  `gorm:"column:established_date" json:"establishedDate"`
-	Region                        string `gorm:"column:region" json:"region"`
-	ApprovedDate                  *Date  `gorm:"column:approved_date" json:"approvedDate"`
-	RegisteredAddress             string `gorm:"column:registered_address" json:"registeredAddress"`
-	RegisteredCapital             string `gorm:"column:registered_capital" json:"registeredCapital"`
-	PaidInCapital                 string `gorm:"column:paid_in_capital" json:"paidInCapital"`
-	EnterpriseType                string `gorm:"column:enterprise_type" json:"enterpriseType"`
-	StuffSize                     string `gorm:"column:stuff_size" json:"stuffSize"`
-	StuffInsuredNumber            int    `gorm:"column:stuff_insured_number" json:"stuffInsuredNumber"`
-	BusinessScope                 string `gorm:"column:business_scope" json:"businessScope"`
-	ImportExportQualificationCode string `gorm:"column:import_export_qualification_code" json:"importExportQualificationCode"`
-	LegalRepresentative           string `gorm:"column:legal_representative" json:"legalRepresentative"`
-	RegistrationAuthority         string `gorm:"column:registration_authority" json:"registrationAuthority"`
-	RegistrationStatus            string `gorm:"column:registration_status" json:"registrationStatus"`
-	TaxpayerQualification         string `gorm:"column:taxpayer_qualification" json:"taxpayerQualification"`
-	OrganizationCode              string `gorm:"column:organization_code" json:"organizationCode"`
-	UrlQcc                        string `gorm:"column:url_qcc" json:"urlQcc"`
-	UrlHomepage                   string `gorm:"column:url_homepage" json:"urlHomepage"`
-	BusinessTermStart             *Date  `gorm:"column:business_term_start" json:"businessTermStart"`
-	BusinessTermEnd               *Date  `gorm:"column:business_term_end" json:"businessTermEnd"`
-	StatusCode                    int    `gorm:"column:status_code" json:"-"`
-	BaseField
-}
-
-func (EnterpriseInfo) TableName() string {
-	return "enterprise_info"
+	UscId                         string `json:"uscId"`
+	EnterpriseTitle               string `json:"enterpriseTitle"`
+	EnterpriseTitleEn             string `json:"enterpriseTitleEn"`
+	BusinessRegistrationNumber    string `json:"businessRegistrationNumber"`
+	EstablishedDate               string `json:"establishedDate"`
+	Region                        string `json:"region"`
+	ApprovedDate                  string `json:"approvedDate"`
+	RegisteredAddress             string `json:"registeredAddress"`
+	RegisteredCapital             string `json:"registeredCapital"`
+	PaidInCapital                 string `json:"paidInCapital"`
+	EnterpriseType                string `json:"enterpriseType"`
+	StuffSize                     string `json:"stuffSize"`
+	StuffInsuredNumber            int    `json:"stuffInsuredNumber"`
+	BusinessScope                 string `json:"businessScope"`
+	ImportExportQualificationCode string `json:"importExportQualificationCode"`
+	LegalRepresentative           string `json:"legalRepresentative"`
+	RegistrationAuthority         string `json:"registrationAuthority"`
+	RegistrationStatus            string `json:"registrationStatus"`
+	TaxpayerQualification         string `json:"taxpayerQualification"`
+	OrganizationCode              string `json:"organizationCode"`
+	UrlQcc                        string `json:"urlQcc"`
+	UrlHomepage                   string `json:"urlHomepage"`
+	BusinessTermStart             string `json:"businessTermStart"`
+	BusinessTermEnd               string `json:"businessTermEnd"`
 }
 
 type EnterpriseCertification struct {
-	CertId                 int64  `gorm:"primaryKey" json:"-"`
-	UscId                  string `gorm:"column:usc_id" json:"uscId"`
-	CertificationTitle     string `gorm:"column:certification_title" json:"certificationTitle"`
-	CertificationCode      string `gorm:"column:certification_code" json:"certificationCode"`
-	CertificationLevel     string `gorm:"column:certification_level" json:"certificationLevel"`
-	CertificationType      string `gorm:"column:certification_type" json:"certificationType"`
-	CertificationSource    string `gorm:"column:certification_source" json:"certificationSource"`
-	CertificationDate      *Date  `gorm:"column:certification_date" json:"certificationDate"`
-	CertificationTermStart *Date  `gorm:"column:certification_term_start" json:"certificationTermStart"`
-	CertificationTermEnd   *Date  `gorm:"column:certification_term_end" json:"certificationTermEnd"`
-	CertificationAuthority string `gorm:"column:certification_authority" json:"certificationAuthority"`
-	StatusCode             int    `gorm:"column:status_code" json:"-"`
-	BaseField
-}
-
-func (EnterpriseCertification) TableName() string {
-	return "enterprise_certification"
+	UscId                  string `json:"uscId"`
+	CertificationTitle     string `json:"certificationTitle"`
+	CertificationCode      string `json:"certificationCode"`
+	CertificationLevel     string `json:"certificationLevel"`
+	CertificationType      string `json:"certificationType"`
+	CertificationSource    string `json:"certificationSource"`
+	CertificationDate      string `json:"certificationDate"`
+	CertificationTermStart string `json:"certificationTermStart"`
+	CertificationTermEnd   string `json:"certificationTermEnd"`
+	CertificationAuthority string `json:"certificationAuthority"`
 }
 
 type EnterpriseRankingList struct {
-	UscId                 string `gorm:"column:usc_id" json:"uscId"`
-	RankingPosition       *int   `gorm:"column:ranking_position" json:"rankingPosition"`
-	ListTitle             string `gorm:"column:list_title" json:"listTitle"`
-	ListType              string `gorm:"column:list_type" json:"listType"`
-	ListSource            string `gorm:"column:list_source" json:"listSource"`
-	ListParticipantsTotal *int   `gorm:"column:list_participants_total" json:"listParticipantsTotal"`
-	ListPublishDate       *Date  `gorm:"column:list_published_date" json:"listPublishDate"`
-	ListUrlQcc            string `gorm:"column:list_url_qcc" json:"listUrlQcc"`
-	ListUrlOrigin         string `gorm:"column:list_url_origin" json:"listUrlOrigin"`
+	UscId                 string `json:"uscId"`
+	RankingPosition       int    `json:"rankingPosition"`
+	ListTitle             string `json:"listTitle"`
+	ListType              string `json:"listType"`
+	ListSource            string `json:"listSource"`
+	ListParticipantsTotal int    `json:"listParticipantsTotal"`
+	ListPublishedDate     string `json:"listPublishDate"`
+	ListUrlQcc            string `json:"listUrlQcc"`
+	ListUrlOrigin         string `json:"listUrlOrigin"`
+}
+
+type EnterpriseEquityTransparency struct {
+	UscId      string
+	Conclusion string
+	Name       string
+	Data       []*structpb.Struct
 }

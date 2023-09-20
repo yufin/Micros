@@ -13,6 +13,7 @@ type DwEnterpriseRepo interface {
 	GetEntRankingList(ctx context.Context, uscId string) (*[]dto.EnterpriseRankingList, error)
 	GetEntIndustry(ctx context.Context, uscId string) (*[]string, error)
 	GetEntProduct(ctx context.Context, uscId string) (*[]string, error)
+	GetEquityTransparency(ctx context.Context, uscId string) (*dto.EnterpriseEquityTransparency, error)
 }
 
 type DwEnterpriseUsecase struct {
@@ -52,4 +53,9 @@ func (uc *DwEnterpriseUsecase) GetEntIndustry(ctx context.Context, uscId string)
 func (uc *DwEnterpriseUsecase) GetEntProduct(ctx context.Context, uscId string) (*[]string, error) {
 	uc.log.WithContext(ctx).Infof("biz.DwEnterpriseUsecase.GetEntProduct %s", uscId)
 	return uc.repo.GetEntProduct(ctx, uscId)
+}
+
+func (uc *DwEnterpriseUsecase) GetEquityTransparency(ctx context.Context, uscId string) (*dto.EnterpriseEquityTransparency, error) {
+	uc.log.WithContext(ctx).Infof("biz.DwEnterpriseUsecase.GetEquityTransparency %s", uscId)
+	return uc.repo.GetEquityTransparency(ctx, uscId)
 }

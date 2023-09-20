@@ -46,8 +46,14 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	if err != nil {
 		return nil, nil, err
 	}
-	dataData, cleanup, err := data.NewData(logger, dbs, natsWrap, neoCli, minioClient, mgoCli)
+	clientConn, cleanup, err := data.NewGrpcConn(confData)
 	if err != nil {
+		return nil, nil, err
+	}
+	dwdataServiceClient := data.NewDwdataServiceClient(clientConn)
+	dataData, cleanup2, err := data.NewData(logger, dbs, natsWrap, neoCli, minioClient, mgoCli, dwdataServiceClient)
+	if err != nil {
+		cleanup()
 		return nil, nil, err
 	}
 	rcProcessedContentRepo := data.NewRcProcessedContentRepo(dataData, logger)
@@ -80,6 +86,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	httpServer := server.NewHTTPServer(confServer, dataData, confData, rcServiceServicer, v2RcServiceServicer, rcRdmServiceServicer, treeGraphServiceServicer, netGraphServiceServicer, dwServiceServicer, logger)
 	app := newApp(logger, grpcServer, httpServer)
 	return app, func() {
+		cleanup2()
 		cleanup()
 	}, nil
 }

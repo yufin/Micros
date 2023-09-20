@@ -79,10 +79,11 @@ func (s *DwServiceServicer) GetEnterpriseInfo(ctx context.Context, req *pb.GetEn
 }
 func (s *DwServiceServicer) GetEnterpriseCredential(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntArrayResp, error) {
 	res, err := s.dwEnterprise.GetEntCredential(ctx, req.UscId)
+
 	if err != nil {
 		return nil, err
 	}
-	if res == nil {
+	if res == nil || len(*res) == 0 {
 		return &pb.EntArrayResp{
 			Success: false,
 			Code:    0,
@@ -191,5 +192,31 @@ func (s *DwServiceServicer) GetEnterpriseProduct(ctx context.Context, req *pb.Ge
 		Code:    200,
 		Msg:     "",
 		Data:    *res,
+	}, nil
+}
+
+func (s *DwServiceServicer) GetEnterpriseEquityTransparency(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EquityTransparencyResp, error) {
+	res, err := s.dwEnterprise.GetEquityTransparency(ctx, req.UscId)
+	if err != nil {
+		return nil, err
+	}
+	if res == nil {
+		return &pb.EquityTransparencyResp{
+			Success: false,
+			Code:    1,
+			Msg:     "data not found",
+		}, nil
+	}
+	data := &pb.EquityTransparency{
+		Conclusion: res.Conclusion,
+		Detail:     res.Data,
+		UscId:      req.UscId,
+		Name:       res.Name,
+	}
+	return &pb.EquityTransparencyResp{
+		Success: true,
+		Code:    200,
+		Msg:     "",
+		Data:    data,
 	}, nil
 }

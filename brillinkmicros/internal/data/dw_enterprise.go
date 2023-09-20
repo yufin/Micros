@@ -1,13 +1,11 @@
 package data
 
 import (
+	dwdataV2 "brillinkmicros/api/dwdata/v2"
 	"brillinkmicros/internal/biz"
 	"brillinkmicros/internal/biz/dto"
 	"context"
-	"encoding/json"
-	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
-	"gorm.io/gorm"
 )
 
 type DwEnterpriseDataRepo struct {
@@ -23,132 +21,131 @@ func NewDwEnterpriseRepo(data *Data, logger log.Logger) biz.DwEnterpriseRepo {
 }
 
 func (repo *DwEnterpriseDataRepo) GetEntIdent(ctx context.Context, name string) (string, error) {
-	var uscId *string
-	err := repo.data.Db.
-		Table("enterprise_wait_list").
-		Select("usc_id").
-		Where("enterprise_name = ?", name).
-		Order("created_at desc").
-		Limit(1).
-		Scan(&uscId).
-		Error
+	resp, err := repo.data.DwDataClient.GetEnterpriseIdent(context.TODO(), &dwdataV2.GetEntIdentReq{EnterpriseName: name})
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return "", nil
-		}
 		return "", err
 	}
-	if uscId == nil {
-		return "", nil
-	}
-	return *uscId, nil
+	return resp.UscId, nil
 }
 
 func (repo *DwEnterpriseDataRepo) GetEntInfo(ctx context.Context, uscId string) (*dto.EnterpriseInfo, error) {
-	var data dto.EnterpriseInfo
-	err := repo.data.Db.
-		Model(&dto.EnterpriseInfo{}).
-		Where("usc_id = ?", uscId).
-		Order("created_at desc").
-		First(&data).
-		Error
+	resp, err := repo.data.DwDataClient.GetEnterpriseInfo(context.TODO(), &dwdataV2.GetEntInfoReq{UscId: uscId})
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
 		return nil, err
 	}
-	return &data, nil
+	if resp == nil {
+		return nil, nil
+	}
+	return &dto.EnterpriseInfo{
+		UscId:                         resp.UscId,
+		EnterpriseTitle:               resp.EnterpriseTitle,
+		EnterpriseTitleEn:             resp.EnterpriseTitleEn,
+		BusinessRegistrationNumber:    resp.BusinessRegistrationNumber,
+		EstablishedDate:               resp.EstablishDate,
+		Region:                        resp.Region,
+		ApprovedDate:                  resp.ApprovedDate,
+		RegisteredAddress:             resp.RegisteredAddress,
+		RegisteredCapital:             resp.RegisteredCapital,
+		PaidInCapital:                 resp.PaidInCapital,
+		EnterpriseType:                resp.EnterpriseType,
+		StuffSize:                     resp.StuffSize,
+		StuffInsuredNumber:            int(resp.StuffInsuredNumber),
+		BusinessScope:                 resp.BusinessScope,
+		ImportExportQualificationCode: resp.ImportExportQualificationCode,
+		LegalRepresentative:           resp.LegalRepresentative,
+		RegistrationAuthority:         resp.RegistrationAuthority,
+		RegistrationStatus:            resp.RegistrationStatus,
+		TaxpayerQualification:         resp.TaxpayerQualification,
+		OrganizationCode:              resp.OrganizationCode,
+		UrlQcc:                        resp.UrlQcc,
+		UrlHomepage:                   resp.UrlHomepage,
+		BusinessTermStart:             resp.BusinessTermStart,
+		BusinessTermEnd:               resp.BusinessTermEnd,
+	}, nil
 }
 
 func (repo *DwEnterpriseDataRepo) GetEntCredential(ctx context.Context, uscId string) (*[]dto.EnterpriseCertification, error) {
-	data := make([]dto.EnterpriseCertification, 0)
-	err := repo.data.Db.
-		Model(&dto.EnterpriseCertification{}).
-		Where("usc_id = ?", uscId).
-		Order("certification_date desc").
-		Scan(&data).
-		Error
+	resp, err := repo.data.DwDataClient.GetEnterpriseCredential(context.TODO(), &dwdataV2.GetEntInfoReq{UscId: uscId})
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
 		return nil, err
 	}
-
+	data := make([]dto.EnterpriseCertification, 0)
+	for _, v := range resp.Data {
+		data = append(data, dto.EnterpriseCertification{
+			UscId:                  v.UscId,
+			CertificationTitle:     v.CertificationTitle,
+			CertificationCode:      v.CertificationCode,
+			CertificationLevel:     v.CertificationLevel,
+			CertificationType:      v.CertificationType,
+			CertificationSource:    v.CertificationSource,
+			CertificationDate:      v.CertificationDate,
+			CertificationTermStart: v.CertificationTermStart,
+			CertificationTermEnd:   v.CertificationTermEnd,
+			CertificationAuthority: v.CertificationAuthority,
+		})
+	}
 	return &data, nil
 }
 
 func (repo *DwEnterpriseDataRepo) GetEntRankingList(ctx context.Context, uscId string) (*[]dto.EnterpriseRankingList, error) {
-	data := make([]dto.EnterpriseRankingList, 0)
-	err := repo.data.Db.
-		Raw(
-			`select usc_id,
-			ranking_position,
-			list_title,
-			list_type,
-			list_source,
-			list_participants_total,
-			list_published_date,
-			list_url_qcc,
-			list_url_origin
-			from enterprise_ranking
-					 left join ranking_list on enterprise_ranking.list_id = ranking_list.id
-			where usc_id = ?
-			order by list_published_date desc`, uscId).
-		Scan(&data).
-		Error
+	resp, err := repo.data.DwDataClient.GetEnterpriseRankingList(context.TODO(), &dwdataV2.GetEntInfoReq{UscId: uscId})
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
 		return nil, err
 	}
+	if resp.Data == nil {
+		return nil, nil
+	}
+	data := make([]dto.EnterpriseRankingList, 0)
+	for _, v := range resp.Data {
+		data = append(data, dto.EnterpriseRankingList{
+			UscId:                 v.UscId,
+			RankingPosition:       int(v.RankingPosition),
+			ListTitle:             v.ListTitle,
+			ListType:              v.ListType,
+			ListSource:            v.ListSource,
+			ListParticipantsTotal: int(v.ListParticipantsTotal),
+			ListPublishedDate:     v.ListPublishedDate,
+			ListUrlQcc:            v.ListUrlQcc,
+			ListUrlOrigin:         v.ListUrlOrigin,
+		})
+	}
+
 	return &data, nil
 }
 
 func (repo *DwEnterpriseDataRepo) GetEntIndustry(ctx context.Context, uscId string) (*[]string, error) {
-	var dataStr string
-	err := repo.data.Db.
-		Table("enterprise_industry").
-		Select("industry_data").
-		Where("usc_id = ?", uscId).
-		Order("created_at desc").
-		Limit(1).
-		Scan(&dataStr).
-		Error
+	resp, err := repo.data.DwDataClient.GetEnterpriseIndustry(context.TODO(), &dwdataV2.GetEntInfoReq{UscId: uscId})
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
 		return nil, err
 	}
-	data := make([]string, 0)
-	if err := json.Unmarshal([]byte(dataStr), &data); err != nil {
-		return nil, err
-	}
-	return &data, nil
+	return &resp.Data, nil
 }
 
 func (repo *DwEnterpriseDataRepo) GetEntProduct(ctx context.Context, uscId string) (*[]string, error) {
-	var dataStr string
-	err := repo.data.Db.
-		Table("enterprise_product").
-		Select("product_data").
-		Where("usc_id = ?", uscId).
-		Order("created_at desc").
-		Limit(1).
-		Scan(&dataStr).
-		Error
+	resp, err := repo.data.DwDataClient.GetEnterpriseProduct(context.TODO(), &dwdataV2.GetEntInfoReq{UscId: uscId})
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
 		return nil, err
 	}
-	data := make([]string, 0)
-	if err := json.Unmarshal([]byte(dataStr), &data); err != nil {
+	return &resp.Data, nil
+}
+
+func (repo *DwEnterpriseDataRepo) GetEquityTransparency(ctx context.Context, uscId string) (*dto.EnterpriseEquityTransparency, error) {
+	resp, err := repo.data.DwDataClient.GetEntEquityTransparency(context.TODO(), &dwdataV2.GetEntInfoReq{UscId: uscId})
+	if err != nil {
 		return nil, err
 	}
-	return &data, nil
+	if resp.UscId == "" {
+		return nil, nil
+	}
+	info, err := repo.data.DwDataClient.GetEnterpriseInfo(context.TODO(), &dwdataV2.GetEntInfoReq{UscId: uscId})
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.EnterpriseEquityTransparency{
+		UscId:      resp.UscId,
+		Name:       info.EnterpriseTitle,
+		Conclusion: resp.Conclusion,
+		Data:       resp.Data,
+	}, nil
 }

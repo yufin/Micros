@@ -1,17 +1,17 @@
 syntax = "proto3";
 
-package api.dw.v2;
+package api.dwdata.v2;
 
 //import "google/api/annotations.proto";
 import "google/protobuf/struct.proto";
-
-option go_package = "micros-dw/api/dw/v2;dwV2";
+//option go_package = "brillink-data-mid-end/pkg/proto/dw/v2;dwV2";
+option go_package = "micros-dw/api/dwdata/v2;dwdataV2";
 option java_multiple_files = true;
-option java_outer_classname = "DwV2";
-option java_package = "api.dw.v2";
+option java_outer_classname = "DwdataV2";
+option java_package = "api.dwdata.v2";
 
 
-service DwService {
+service DwdataService {
   rpc GetEnterpriseIdent(GetEntIdentReq) returns (EntIdentResp) {
   }
 
@@ -128,3 +128,7 @@ message EnterpriseRankingList {
 //  string msg = 3;
 //  google.protobuf.Struct data = 4;
 //}
+
+//    protoc --go_out=. --go_opt=paths=source_relative \
+//    --go-grpc_out=. --go-grpc_opt=paths=source_relative \
+//    dw.proto

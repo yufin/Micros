@@ -20,6 +20,7 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 const OperationDwServiceGetEnterpriseCredential = "/api.dw.v2.DwService/GetEnterpriseCredential"
+const OperationDwServiceGetEnterpriseEquityTransparency = "/api.dw.v2.DwService/GetEnterpriseEquityTransparency"
 const OperationDwServiceGetEnterpriseIdent = "/api.dw.v2.DwService/GetEnterpriseIdent"
 const OperationDwServiceGetEnterpriseIndustry = "/api.dw.v2.DwService/GetEnterpriseIndustry"
 const OperationDwServiceGetEnterpriseInfo = "/api.dw.v2.DwService/GetEnterpriseInfo"
@@ -28,6 +29,7 @@ const OperationDwServiceGetEnterpriseRankingList = "/api.dw.v2.DwService/GetEnte
 
 type DwServiceHTTPServer interface {
 	GetEnterpriseCredential(context.Context, *GetEntInfoReq) (*EntArrayResp, error)
+	GetEnterpriseEquityTransparency(context.Context, *GetEntInfoReq) (*EquityTransparencyResp, error)
 	GetEnterpriseIdent(context.Context, *GetEntIdentReq) (*EntIdentResp, error)
 	GetEnterpriseIndustry(context.Context, *GetEntInfoReq) (*EntStrArrayResp, error)
 	GetEnterpriseInfo(context.Context, *GetEntInfoReq) (*EntStructResp, error)
@@ -43,6 +45,7 @@ func RegisterDwServiceHTTPServer(s *http.Server, srv DwServiceHTTPServer) {
 	r.GET("/micros/dw/v2/enterprise/ranking-list", _DwService_GetEnterpriseRankingList0_HTTP_Handler(srv))
 	r.GET("/micros/dw/v2/enterprise/industry", _DwService_GetEnterpriseIndustry0_HTTP_Handler(srv))
 	r.GET("/micros/dw/v2/enterprise/product", _DwService_GetEnterpriseProduct0_HTTP_Handler(srv))
+	r.GET("/micros/dw/v2/enterprise/equity-transparency", _DwService_GetEnterpriseEquityTransparency0_HTTP_Handler(srv))
 }
 
 func _DwService_GetEnterpriseIdent0_HTTP_Handler(srv DwServiceHTTPServer) func(ctx http.Context) error {
@@ -159,8 +162,28 @@ func _DwService_GetEnterpriseProduct0_HTTP_Handler(srv DwServiceHTTPServer) func
 	}
 }
 
+func _DwService_GetEnterpriseEquityTransparency0_HTTP_Handler(srv DwServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetEntInfoReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationDwServiceGetEnterpriseEquityTransparency)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetEnterpriseEquityTransparency(ctx, req.(*GetEntInfoReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*EquityTransparencyResp)
+		return ctx.Result(200, reply)
+	}
+}
+
 type DwServiceHTTPClient interface {
 	GetEnterpriseCredential(ctx context.Context, req *GetEntInfoReq, opts ...http.CallOption) (rsp *EntArrayResp, err error)
+	GetEnterpriseEquityTransparency(ctx context.Context, req *GetEntInfoReq, opts ...http.CallOption) (rsp *EquityTransparencyResp, err error)
 	GetEnterpriseIdent(ctx context.Context, req *GetEntIdentReq, opts ...http.CallOption) (rsp *EntIdentResp, err error)
 	GetEnterpriseIndustry(ctx context.Context, req *GetEntInfoReq, opts ...http.CallOption) (rsp *EntStrArrayResp, err error)
 	GetEnterpriseInfo(ctx context.Context, req *GetEntInfoReq, opts ...http.CallOption) (rsp *EntStructResp, err error)
@@ -181,6 +204,19 @@ func (c *DwServiceHTTPClientImpl) GetEnterpriseCredential(ctx context.Context, i
 	pattern := "/micros/dw/v2/enterprise/credential"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationDwServiceGetEnterpriseCredential))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *DwServiceHTTPClientImpl) GetEnterpriseEquityTransparency(ctx context.Context, in *GetEntInfoReq, opts ...http.CallOption) (*EquityTransparencyResp, error) {
+	var out EquityTransparencyResp
+	pattern := "/micros/dw/v2/enterprise/equity-transparency"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationDwServiceGetEnterpriseEquityTransparency))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

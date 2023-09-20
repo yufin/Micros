@@ -3,7 +3,7 @@ server:
     addr: 0.0.0.0:8000
     timeout: 1s
   grpc:
-    addr: 0.0.0.0:50052
+    addr: 0.0.0.0:50051
     timeout: 1s
 
 data:
@@ -40,4 +40,6 @@ data:
     use_ssl: false
   mongoDb:
     uri: mongodb://root:dev-password@192.168.44.169:27020
+  service:
+    dwdata_uri: localhost:50052
 #    uri: mongodb://root:dev-password@localhost:27020

@@ -1,6 +1,7 @@
 package data
 
 import (
+	dwdataV2 "brillinkmicros/api/dwdata/v2"
 	"brillinkmicros/internal/conf"
 	"brillinkmicros/pkg/miniocli"
 	"context"
@@ -33,6 +34,10 @@ var ProviderSet = wire.NewSet(
 	NewNeoCli,
 	NewMinioClient,
 	NewMgoCli,
+	NewGrpcConn,
+
+	NewDwdataServiceClient,
+
 	NewRcProcessedContentRepo,
 	NewRcOriginContentRepo,
 	NewRcDependencyDataRepo,
@@ -46,12 +51,13 @@ var ProviderSet = wire.NewSet(
 )
 
 type Data struct {
-	Db       *gorm.DB
-	DbBl     *gorm.DB
-	Nw       *NatsWrap
-	Neo      *NeoCli
-	MinioCli *miniocli.MinioClient
-	MgoCli   *MgoCli
+	Db           *gorm.DB
+	DbBl         *gorm.DB
+	Nw           *NatsWrap
+	Neo          *NeoCli
+	MinioCli     *miniocli.MinioClient
+	MgoCli       *MgoCli
+	DwDataClient dwdataV2.DwdataServiceClient
 }
 
 func newGormDB(dsn string) (*gorm.DB, error) {
@@ -151,7 +157,15 @@ func NewMgoCli(c *conf.Data) (*MgoCli, error) {
 }
 
 // NewData .
-func NewData(logger log.Logger, dbs *Dbs, nw *NatsWrap, neo *NeoCli, miCli *miniocli.MinioClient, mgoCli *MgoCli) (*Data, func(), error) {
+func NewData(
+	logger log.Logger,
+	dbs *Dbs,
+	nw *NatsWrap,
+	neo *NeoCli,
+	miCli *miniocli.MinioClient,
+	mgoCli *MgoCli,
+	dwdata dwdataV2.DwdataServiceClient,
+) (*Data, func(), error) {
 	ndLog := log.NewHelper(logger)
 
 	cleanup := func() {
@@ -179,11 +193,12 @@ func NewData(logger log.Logger, dbs *Dbs, nw *NatsWrap, neo *NeoCli, miCli *mini
 	}
 
 	return &Data{
-		Db:       dbs.Db,
-		DbBl:     dbs.DbBl,
-		Nw:       nw,
-		Neo:      neo,
-		MinioCli: miCli,
-		MgoCli:   mgoCli,
+		Db:           dbs.Db,
+		DbBl:         dbs.DbBl,
+		Nw:           nw,
+		Neo:          neo,
+		MinioCli:     miCli,
+		MgoCli:       mgoCli,
+		DwDataClient: dwdata,
 	}, cleanup, nil
 }
