@@ -32,7 +32,7 @@ type DwServiceHTTPServer interface {
 	GetEnterpriseIndustry(context.Context, *GetEntInfoReq) (*EntStrArrayResp, error)
 	GetEnterpriseInfo(context.Context, *GetEntInfoReq) (*EntInfoResp, error)
 	GetEnterpriseProduct(context.Context, *GetEntInfoReq) (*EntStrArrayResp, error)
-	GetEnterpriseRankingList(context.Context, *GetEntInfoReq) (*EntArrayResp, error)
+	GetEnterpriseRankingList(context.Context, *GetEntInfoReq) (*EntRankingListResp, error)
 }
 
 func RegisterDwServiceHTTPServer(s *http.Server, srv DwServiceHTTPServer) {
@@ -116,7 +116,7 @@ func _DwService_GetEnterpriseRankingList0_HTTP_Handler(srv DwServiceHTTPServer) 
 		if err != nil {
 			return err
 		}
-		reply := out.(*EntArrayResp)
+		reply := out.(*EntRankingListResp)
 		return ctx.Result(200, reply)
 	}
 }
@@ -165,7 +165,7 @@ type DwServiceHTTPClient interface {
 	GetEnterpriseIndustry(ctx context.Context, req *GetEntInfoReq, opts ...http.CallOption) (rsp *EntStrArrayResp, err error)
 	GetEnterpriseInfo(ctx context.Context, req *GetEntInfoReq, opts ...http.CallOption) (rsp *EntInfoResp, err error)
 	GetEnterpriseProduct(ctx context.Context, req *GetEntInfoReq, opts ...http.CallOption) (rsp *EntStrArrayResp, err error)
-	GetEnterpriseRankingList(ctx context.Context, req *GetEntInfoReq, opts ...http.CallOption) (rsp *EntArrayResp, err error)
+	GetEnterpriseRankingList(ctx context.Context, req *GetEntInfoReq, opts ...http.CallOption) (rsp *EntRankingListResp, err error)
 }
 
 type DwServiceHTTPClientImpl struct {
@@ -241,8 +241,8 @@ func (c *DwServiceHTTPClientImpl) GetEnterpriseProduct(ctx context.Context, in *
 	return &out, err
 }
 
-func (c *DwServiceHTTPClientImpl) GetEnterpriseRankingList(ctx context.Context, in *GetEntInfoReq, opts ...http.CallOption) (*EntArrayResp, error) {
-	var out EntArrayResp
+func (c *DwServiceHTTPClientImpl) GetEnterpriseRankingList(ctx context.Context, in *GetEntInfoReq, opts ...http.CallOption) (*EntRankingListResp, error) {
+	var out EntRankingListResp
 	pattern := "/micros/dw/v2/enterprise/ranking-list"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationDwServiceGetEnterpriseRankingList))

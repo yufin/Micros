@@ -25,6 +25,7 @@ const (
 	DwService_GetEnterpriseRankingList_FullMethodName = "/api.dw.v2.DwService/GetEnterpriseRankingList"
 	DwService_GetEnterpriseIndustry_FullMethodName    = "/api.dw.v2.DwService/GetEnterpriseIndustry"
 	DwService_GetEnterpriseProduct_FullMethodName     = "/api.dw.v2.DwService/GetEnterpriseProduct"
+	DwService_GetEntEquityTransparency_FullMethodName = "/api.dw.v2.DwService/GetEntEquityTransparency"
 )
 
 // DwServiceClient is the client API for DwService service.
@@ -34,9 +35,10 @@ type DwServiceClient interface {
 	GetEnterpriseIdent(ctx context.Context, in *GetEntIdentReq, opts ...grpc.CallOption) (*EntIdentResp, error)
 	GetEnterpriseInfo(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*EntInfoResp, error)
 	GetEnterpriseCredential(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*EntCredentialResp, error)
-	GetEnterpriseRankingList(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*EntArrayResp, error)
+	GetEnterpriseRankingList(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*EntRankingListResp, error)
 	GetEnterpriseIndustry(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*EntStrArrayResp, error)
 	GetEnterpriseProduct(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*EntStrArrayResp, error)
+	GetEntEquityTransparency(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*EquityTransparencyResp, error)
 }
 
 type dwServiceClient struct {
@@ -74,8 +76,8 @@ func (c *dwServiceClient) GetEnterpriseCredential(ctx context.Context, in *GetEn
 	return out, nil
 }
 
-func (c *dwServiceClient) GetEnterpriseRankingList(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*EntArrayResp, error) {
-	out := new(EntArrayResp)
+func (c *dwServiceClient) GetEnterpriseRankingList(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*EntRankingListResp, error) {
+	out := new(EntRankingListResp)
 	err := c.cc.Invoke(ctx, DwService_GetEnterpriseRankingList_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -101,6 +103,15 @@ func (c *dwServiceClient) GetEnterpriseProduct(ctx context.Context, in *GetEntIn
 	return out, nil
 }
 
+func (c *dwServiceClient) GetEntEquityTransparency(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*EquityTransparencyResp, error) {
+	out := new(EquityTransparencyResp)
+	err := c.cc.Invoke(ctx, DwService_GetEntEquityTransparency_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DwServiceServer is the server API for DwService service.
 // All implementations must embed UnimplementedDwServiceServer
 // for forward compatibility
@@ -108,9 +119,10 @@ type DwServiceServer interface {
 	GetEnterpriseIdent(context.Context, *GetEntIdentReq) (*EntIdentResp, error)
 	GetEnterpriseInfo(context.Context, *GetEntInfoReq) (*EntInfoResp, error)
 	GetEnterpriseCredential(context.Context, *GetEntInfoReq) (*EntCredentialResp, error)
-	GetEnterpriseRankingList(context.Context, *GetEntInfoReq) (*EntArrayResp, error)
+	GetEnterpriseRankingList(context.Context, *GetEntInfoReq) (*EntRankingListResp, error)
 	GetEnterpriseIndustry(context.Context, *GetEntInfoReq) (*EntStrArrayResp, error)
 	GetEnterpriseProduct(context.Context, *GetEntInfoReq) (*EntStrArrayResp, error)
+	GetEntEquityTransparency(context.Context, *GetEntInfoReq) (*EquityTransparencyResp, error)
 	mustEmbedUnimplementedDwServiceServer()
 }
 
@@ -127,7 +139,7 @@ func (UnimplementedDwServiceServer) GetEnterpriseInfo(context.Context, *GetEntIn
 func (UnimplementedDwServiceServer) GetEnterpriseCredential(context.Context, *GetEntInfoReq) (*EntCredentialResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetEnterpriseCredential not implemented")
 }
-func (UnimplementedDwServiceServer) GetEnterpriseRankingList(context.Context, *GetEntInfoReq) (*EntArrayResp, error) {
+func (UnimplementedDwServiceServer) GetEnterpriseRankingList(context.Context, *GetEntInfoReq) (*EntRankingListResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetEnterpriseRankingList not implemented")
 }
 func (UnimplementedDwServiceServer) GetEnterpriseIndustry(context.Context, *GetEntInfoReq) (*EntStrArrayResp, error) {
@@ -135,6 +147,9 @@ func (UnimplementedDwServiceServer) GetEnterpriseIndustry(context.Context, *GetE
 }
 func (UnimplementedDwServiceServer) GetEnterpriseProduct(context.Context, *GetEntInfoReq) (*EntStrArrayResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetEnterpriseProduct not implemented")
+}
+func (UnimplementedDwServiceServer) GetEntEquityTransparency(context.Context, *GetEntInfoReq) (*EquityTransparencyResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetEntEquityTransparency not implemented")
 }
 func (UnimplementedDwServiceServer) mustEmbedUnimplementedDwServiceServer() {}
 
@@ -257,6 +272,24 @@ func _DwService_GetEnterpriseProduct_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DwService_GetEntEquityTransparency_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEntInfoReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DwServiceServer).GetEntEquityTransparency(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DwService_GetEntEquityTransparency_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DwServiceServer).GetEntEquityTransparency(ctx, req.(*GetEntInfoReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // DwService_ServiceDesc is the grpc.ServiceDesc for DwService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -287,6 +320,10 @@ var DwService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetEnterpriseProduct",
 			Handler:    _DwService_GetEnterpriseProduct_Handler,
+		},
+		{
+			MethodName: "GetEntEquityTransparency",
+			Handler:    _DwService_GetEntEquityTransparency_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

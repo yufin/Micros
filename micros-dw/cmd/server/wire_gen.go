@@ -13,7 +13,7 @@ import (
 	"micros-dw/internal/conf"
 	"micros-dw/internal/data"
 	"micros-dw/internal/server"
-	"micros-dw/internal/service/dw/v2"
+	"micros-dw/internal/service"
 )
 
 import (
@@ -36,9 +36,9 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	dataData := data.NewData(db, mongoDb)
 	dwEnterpriseRepo := data.NewDwEnterpriseRepo(dataData, logger)
 	dwEnterpriseUsecase := biz.NewDwEnterpriseUsecase(dwEnterpriseRepo, logger)
-	dwServiceServicer := v2.NewDwServiceServicer(dwEnterpriseUsecase, logger)
+	dwServiceServicer := service.NewDwServiceServicer(dwEnterpriseUsecase, logger)
 	grpcServer := server.NewGRPCServer(confServer, dwServiceServicer, logger)
-	httpServer := server.NewHTTPServer(confServer, dwServiceServicer, logger)
+	httpServer := server.NewHTTPServer(confServer, logger)
 	app := newApp(logger, grpcServer, httpServer)
 	return app, func() {
 		cleanup2()

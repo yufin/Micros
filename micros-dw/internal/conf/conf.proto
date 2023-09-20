@@ -16,7 +16,6 @@ message Server {
     string addr = 2;
     google.protobuf.Duration timeout = 3;
   }
-
   message GRPC {
     string network = 1;
     string addr = 2;
@@ -37,12 +36,12 @@ message Data {
     google.protobuf.Duration read_timeout = 3;
     google.protobuf.Duration write_timeout = 4;
   }
-
   message MongoDb {
     string uri = 1;
   }
-
   Database database = 1;
   Redis redis = 2;
   MongoDb mongoDb = 3;
 }
+
+//ca7dcb57e00d4724895fb1d2fa29985b085ba1504ee54ebbb23d5a14adac9da0

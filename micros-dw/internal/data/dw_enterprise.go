@@ -3,8 +3,11 @@ package data
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"gorm.io/gorm"
 	"micros-dw/internal/biz"
 	"micros-dw/internal/biz/dto"
@@ -151,4 +154,40 @@ func (repo *DwEnterpriseDataRepo) GetEntProduct(ctx context.Context, uscId strin
 		return nil, err
 	}
 	return &data, nil
+}
+
+func (repo *DwEnterpriseDataRepo) GetEntEquityTransparency(ctx context.Context, uscId string) (*dto.EnterpriseEquityTransparency, error) {
+	data := bson.M{}
+	err := repo.data.Mongo.Client.Database("spider").Collection("qcc_equity_penetration").FindOne(
+		context.TODO(),
+		bson.M{"usc_id": uscId},
+	).Decode(&data)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	detail := data["penitration"]
+
+	jsonBytes, err := bson.MarshalExtJSON(bson.M{"arr": detail.(bson.A)}, false, false)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	var m map[string]any
+	err = json.Unmarshal(jsonBytes, &m)
+	if err != nil {
+		return nil, err
+	}
+	detailArr := make([]map[string]any, 0)
+	for _, v := range m["arr"].([]any) {
+		detailArr = append(detailArr, v.(map[string]any))
+	}
+
+	return &dto.EnterpriseEquityTransparency{
+		Conclusion: data["conclusion"].(string),
+		Data:       detailArr,
+	}, nil
 }

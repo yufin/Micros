@@ -1,8 +1,7 @@
-package v2
+package service
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -30,17 +29,11 @@ func (s *DwServiceServicer) GetEnterpriseIdent(ctx context.Context, req *pb.GetE
 	}
 	if res == "" {
 		return &pb.EntIdentResp{
-			Success: false,
-			Code:    0,
-			Msg:     "enterpriseName not found",
-			UscId:   "",
+			UscId: "",
 		}, nil
 	}
 	return &pb.EntIdentResp{
-		Success: true,
-		Code:    200,
-		Msg:     "",
-		UscId:   res,
+		UscId: res,
 	}, nil
 }
 
@@ -111,42 +104,37 @@ func (s *DwServiceServicer) GetEnterpriseCredential(ctx context.Context, req *pb
 	return &pb.EntCredentialResp{Data: data}, nil
 }
 
-func (s *DwServiceServicer) GetEnterpriseRankingList(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntArrayResp, error) {
+func (s *DwServiceServicer) GetEnterpriseRankingList(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntRankingListResp, error) {
 	res, err := s.dwEnterprise.GetEntRankingList(ctx, req.UscId)
 	if err != nil {
 		return nil, err
 	}
 	if res == nil {
-		return &pb.EntArrayResp{
-			Success: false,
-			Code:    0,
-			Msg:     "uscId not found",
-			Data:    nil,
+		return &pb.EntRankingListResp{
+			Data: nil,
 		}, nil
 	}
 
-	stArray := make([]*structpb.Struct, 0)
+	stArray := make([]*pb.EnterpriseRankingList, 0)
 	for _, v := range *res {
-		b, err := json.Marshal(v)
-		if err != nil {
-			return nil, err
-		}
-		m := make(map[string]interface{})
-		err = json.Unmarshal(b, &m)
-		if err != nil {
-			return nil, err
-		}
-		st, err := structpb.NewStruct(m)
-		if err != nil {
-			return nil, err
-		}
-		stArray = append(stArray, st)
+		stArray = append(
+			stArray,
+			&pb.EnterpriseRankingList{
+				UscId:                 v.UscId,
+				RankingPosition:       int32(v.RankingPosition),
+				ListTitle:             v.ListTitle,
+				ListType:              v.ListType,
+				ListSource:            v.ListSource,
+				ListParticipantsTotal: int32(v.ListParticipantsTotal),
+				ListPublishedDate:     v.ListPublishedDate.Format("2006-01-02"),
+				ListUrlQcc:            v.ListUrlQcc,
+				ListUrlOrigin:         v.ListUrlOrigin,
+			},
+		)
+
 	}
-	return &pb.EntArrayResp{
-		Success: true,
-		Code:    200,
-		Msg:     "",
-		Data:    stArray,
+	return &pb.EntRankingListResp{
+		Data: stArray,
 	}, nil
 }
 func (s *DwServiceServicer) GetEnterpriseIndustry(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntStrArrayResp, error) {
@@ -156,17 +144,11 @@ func (s *DwServiceServicer) GetEnterpriseIndustry(ctx context.Context, req *pb.G
 	}
 	if res == nil {
 		return &pb.EntStrArrayResp{
-			Success: false,
-			Code:    0,
-			Msg:     "uscId not found",
-			Data:    nil,
+			Data: nil,
 		}, nil
 	}
 	return &pb.EntStrArrayResp{
-		Success: true,
-		Code:    200,
-		Msg:     "",
-		Data:    *res,
+		Data: *res,
 	}, nil
 }
 func (s *DwServiceServicer) GetEnterpriseProduct(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntStrArrayResp, error) {
@@ -176,16 +158,34 @@ func (s *DwServiceServicer) GetEnterpriseProduct(ctx context.Context, req *pb.Ge
 	}
 	if res == nil {
 		return &pb.EntStrArrayResp{
-			Success: false,
-			Code:    0,
-			Msg:     "uscId not found",
-			Data:    nil,
+			Data: nil,
 		}, nil
 	}
 	return &pb.EntStrArrayResp{
-		Success: true,
-		Code:    200,
-		Msg:     "",
-		Data:    *res,
+		Data: *res,
+	}, nil
+}
+
+func (s *DwServiceServicer) GetEntEquityTransparency(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EquityTransparencyResp, error) {
+	res, err := s.dwEnterprise.GetEntEquityTransparency(ctx, req.UscId)
+	if err != nil {
+		return nil, err
+	}
+	if res == nil {
+		return &pb.EquityTransparencyResp{}, nil
+	}
+	stArr := make([]*structpb.Struct, 0)
+	for _, v := range res.Data {
+		st, err := structpb.NewStruct(v)
+		if err != nil {
+			return nil, err
+		}
+		stArr = append(stArr, st)
+	}
+
+	return &pb.EquityTransparencyResp{
+		Conclusion: res.Conclusion,
+		Data:       stArr,
+		UscId:      req.UscId,
 	}, nil
 }
