@@ -45,47 +45,6 @@ func NewRcServiceServicer(
 	}
 }
 
-//func (s *RcServiceServicer) SearchReportInfosByKwd(ctx context.Context, req *pb.ReportInfoKwdSearchReq) (*pb.ReportInfosResp, error) {
-//	pageReq := &dto.PaginationReq{
-//		PageNum:  int(req.PageNum),
-//		PageSize: int(req.PageSize),
-//	}
-//	infosResp, err := s.rcOriginContent.GetInfosByKwd(ctx, pageReq, req.KwdName)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	pbInfos := make([]*pb.ReportInfo, 0)
-//	for _, v := range *infosResp.Data {
-//		v := v
-//		available := false
-//		if v.ProcessedId != 0 {
-//			available = true
-//		}
-//		info := &pb.ReportInfo{
-//			ContentId:          v.ContentId,
-//			EnterpriseName:     v.EnterpriseName,
-//			UnifiedCreditId:    v.UscId,
-//			DataCollectMonth:   v.DataCollectMonth,
-//			Available:          available,
-//			ContentUpdatedTime: v.ProcessedUpdatedAt.Format("2006-01-02 15:04:05"),
-//			LhQylx:             int32(v.LhQylx),
-//			DepId:              v.DepId,
-//			// TODO: add i18n info
-//		}
-//		pbInfos = append(pbInfos, info)
-//
-//	}
-//
-//	return &pb.ReportInfosResp{
-//		PageNum:     uint32(infosResp.PageNum),
-//		PageSize:    uint32(infosResp.PageSize),
-//		Total:       uint32(infosResp.Total),
-//		TotalPage:   uint32(infosResp.TotalPage),
-//		ReportInfos: pbInfos,
-//	}, nil
-//}
-
 // ListReportInfos 获取报告列表
 func (s *RcServiceServicer) ListReportInfos(ctx context.Context, req *pb.ReportInfoKwdSearchReq) (*pb.ReportInfosResp, error) {
 	pageReq := &dto.PaginationReq{

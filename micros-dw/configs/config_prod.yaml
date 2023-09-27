@@ -1,18 +1,18 @@
-server:
-  http:
-    addr: 0.0.0.0:8000
-    timeout: 1s
-  grpc:
-    addr: 0.0.0.0:50052
-    timeout: 1s
-
-data:
-  database:
-    driver: mysql
-    source: blscf:Dzkw46MZDbB7axDC@tcp(10.0.232.121:3308)/bl_business?charset=utf8mb4&parseTime=True&loc=Local&timeout=10000ms
-  redis:
-    addr: 127.0.0.1:6379
-    read_timeout: 0.2s
-    write_timeout: 0.2s
-  mongoDb:
-    uri: mongodb://root:brillink8818mgo@10.0.232.121:27017
+#server:
+#  http:
+#    addr: 0.0.0.0:8000
+#    timeout: 1s
+#  grpc:
+#    addr: 0.0.0.0:50052
+#    timeout: 1s
+#
+#data:
+#  database:
+#    driver: mysql
+#    source: blscf:Dzkw46MZDbB7axDC@tcp(10.0.232.121:3308)/bl_business?charset=utf8mb4&parseTime=True&loc=Local&timeout=10000ms
+#  redis:
+#    addr: 127.0.0.1:6379
+#    read_timeout: 0.2s
+#    write_timeout: 0.2s
+#  mongoDb:
+#    uri: mongodb://root:brillink8818mgo@10.0.232.121:27017

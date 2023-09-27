@@ -24,26 +24,21 @@ func NewDwEnterpriseRepo(data *Data, logger log.Logger) biz.DwEnterpriseRepo {
 	}
 }
 
-func (repo *DwEnterpriseDataRepo) GetEntIdent(ctx context.Context, name string) (string, error) {
-	var uscId *string
+func (repo *DwEnterpriseDataRepo) GetEntIdent(ctx context.Context, name string) (*dto.EnterpriseWaitList, error) {
+	var data dto.EnterpriseWaitList
 	err := repo.data.Dbs.Db.
-		Table("enterprise_wait_list").
-		Select("usc_id").
+		Model(&dto.EnterpriseWaitList{}).
 		Where("enterprise_name = ?", name).
 		Order("created_at desc").
-		Limit(1).
-		Scan(&uscId).
+		First(&data).
 		Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return "", nil
+			return nil, nil
 		}
-		return "", err
+		return nil, err
 	}
-	if uscId == nil {
-		return "", nil
-	}
-	return *uscId, nil
+	return &data, nil
 }
 
 func (repo *DwEnterpriseDataRepo) GetEntInfo(ctx context.Context, uscId string) (*dto.EnterpriseInfo, error) {

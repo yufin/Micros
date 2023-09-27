@@ -27,13 +27,23 @@ func (s *DwdataServiceServicer) GetEnterpriseIdent(ctx context.Context, req *pb.
 	if err != nil {
 		return nil, err
 	}
-	if res == "" {
+	if res == nil {
 		return &pb.EntIdentResp{
-			UscId: "",
+			Exists: false,
+			UscId:  "",
 		}, nil
 	}
+	if res.StatusCode == 9 {
+		return &pb.EntIdentResp{
+			Exists:  true,
+			IsLegal: false,
+		}, nil
+	}
+
 	return &pb.EntIdentResp{
-		UscId: res,
+		UscId:   res.UscId,
+		Exists:  true,
+		IsLegal: true,
 	}, nil
 }
 

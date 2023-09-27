@@ -50,64 +50,6 @@ func NewRcServiceServicer(
 	}
 }
 
-func (s *RcServiceServicer) SearchReportInfosByKwd(ctx context.Context, req *pb.ReportInfoKwdSearchReq) (*pb.ReportInfosResp, error) {
-	pageReq := &dto.PaginationReq{
-		PageNum:  int(req.PageNum),
-		PageSize: int(req.PageSize),
-	}
-	infosResp, err := s.mgoRc.GetContentInfosByKwd(ctx, pageReq, req.KwdName)
-	if err != nil {
-		return nil, err
-	}
-	pbInfos := make([]*pb.ReportInfo, 0)
-	for _, v := range *infosResp.Data {
-		v := v
-		available := false
-		t := ""
-		if v.ProcessedId != "" {
-			available = true
-			cInfo, err := s.mgoRc.GetProcessedContentInfoByObjId(ctx, v.ProcessedId)
-			if err != nil {
-				return nil, err
-			}
-			t = cInfo["created_at"].(primitive.DateTime).Time().Format("2006-01-02 15:04:05")
-		}
-
-		info := &pb.ReportInfo{
-			ContentId:          v.ContentId,
-			EnterpriseName:     v.EnterpriseName,
-			UnifiedCreditId:    v.UscId,
-			DataCollectMonth:   v.DataCollectMonth,
-			Available:          available,
-			ContentUpdatedTime: t,
-			LhQylx:             int32(v.LhQylx),
-			DepId:              v.DepId,
-			ProcessedId:        v.ProcessedId,
-			// TODO: add i18n info
-		}
-		pbInfos = append(pbInfos, info)
-	}
-	orderedPbInfos := make([]*pb.ReportInfo, 0)
-	for _, pbInfo := range pbInfos {
-		if pbInfo.Available {
-			orderedPbInfos = append(orderedPbInfos, pbInfo)
-		}
-	}
-	for _, pbInfo := range pbInfos {
-		if !pbInfo.Available {
-			orderedPbInfos = append(orderedPbInfos, pbInfo)
-		}
-	}
-
-	return &pb.ReportInfosResp{
-		PageNum:     uint32(infosResp.PageNum),
-		PageSize:    uint32(infosResp.PageSize),
-		Total:       uint32(infosResp.Total),
-		TotalPage:   uint32(infosResp.TotalPage),
-		ReportInfos: orderedPbInfos,
-	}, nil
-}
-
 // ListReportInfos 获取报告列表
 func (s *RcServiceServicer) ListReportInfos(ctx context.Context, req *pb.ReportInfoKwdSearchReq) (*pb.ReportInfosResp, error) {
 	pageReq := &dto.PaginationReq{

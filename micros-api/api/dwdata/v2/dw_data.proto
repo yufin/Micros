@@ -45,7 +45,9 @@ message GetEntIdentReq {
 }
 
 message EntIdentResp {
-  string usc_id = 4;
+  bool exists = 1;
+  bool isLegal = 2;
+  string usc_id = 3;
 }
 
 message EntInfoResp {

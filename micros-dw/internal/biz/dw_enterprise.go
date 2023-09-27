@@ -7,7 +7,7 @@ import (
 )
 
 type DwEnterpriseRepo interface {
-	GetEntIdent(ctx context.Context, name string) (string, error)
+	GetEntIdent(ctx context.Context, name string) (*dto.EnterpriseWaitList, error)
 	GetEntInfo(ctx context.Context, uscId string) (*dto.EnterpriseInfo, error)
 	GetEntCredential(ctx context.Context, uscId string) (*[]dto.EnterpriseCertification, error)
 	GetEntRankingList(ctx context.Context, uscId string) (*[]dto.EnterpriseRankingList, error)
@@ -25,7 +25,7 @@ func NewDwEnterpriseUsecase(repo DwEnterpriseRepo, logger log.Logger) *DwEnterpr
 	return &DwEnterpriseUsecase{repo: repo, log: log.NewHelper(logger)}
 }
 
-func (uc *DwEnterpriseUsecase) GetEntIdent(ctx context.Context, name string) (string, error) {
+func (uc *DwEnterpriseUsecase) GetEntIdent(ctx context.Context, name string) (*dto.EnterpriseWaitList, error) {
 	uc.log.WithContext(ctx).Infof("biz.DwEnterpriseUsecase.GetEntIdent %s", name)
 	return uc.repo.GetEntIdent(ctx, name)
 }

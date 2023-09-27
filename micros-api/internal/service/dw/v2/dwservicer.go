@@ -203,14 +203,14 @@ func (s *DwServiceServicer) GetEnterpriseEquityTransparency(ctx context.Context,
 	if res == nil {
 		return &pb.EquityTransparencyResp{
 			Success: false,
-			Code:    1,
+			Code:    0,
 			Msg:     "data not found",
 		}, nil
 	}
 	data := &pb.EquityTransparency{
 		Conclusion:  res.Conclusion,
 		Shareholder: res.Data,
-		UscId:       req.UscId,
+		KeyNo:       req.UscId,
 		Name:        res.Name,
 	}
 	return &pb.EquityTransparencyResp{

@@ -33,8 +33,8 @@ func (e *Edge) Gen(r neo4j.Relationship) {
 
 func (e *Edge) GenPb(pb *pb.Edge) {
 	pb.Id = e.Id
-	pb.SourceId = e.SourceId
-	pb.TargetId = e.TargetId
+	pb.Source = e.SourceId
+	pb.Target = e.TargetId
 	pb.Label = e.Type
 	st, _ := structpb.NewStruct(e.Data)
 	pb.Data = st

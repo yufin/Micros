@@ -113,6 +113,6 @@ message TitleAutoCompleteResp {
 }
 
 message GetPathReq {
-	string source_id = 1;
-	string target_id = 2;
+	string source = 1;
+	string target = 2;
 }

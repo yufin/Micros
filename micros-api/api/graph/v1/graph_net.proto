@@ -62,8 +62,8 @@ message Node {
 }
 
 message Edge {
-	string source_id = 1;
-	string target_id = 2;
+	string source = 1;
+	string target = 2;
 	string id = 3;
 	string label = 4;
 	google.protobuf.Struct data = 5;

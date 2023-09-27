@@ -69,7 +69,7 @@ message EquityTransparency {
   string conclusion = 1;
   string name = 2;
   repeated google.protobuf.Struct shareholder = 3;
-  string usc_id = 4;
+  string key_no = 4;
 }
 
 
