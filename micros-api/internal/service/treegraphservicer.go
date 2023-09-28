@@ -38,14 +38,13 @@ func (s *TreeGraphServiceServicer) GetTreeNode(ctx context.Context, req *pb.IdRe
 	data := node.GenPb()
 	return &pb.TreeNodeResp{
 		Success: true,
-		Code:    0,
+		Code:    200,
 		Msg:     "",
 		Data:    data,
 	}, nil
 }
 
 func (s *TreeGraphServiceServicer) GetChildren(ctx context.Context, req *pb.PgIdReq) (*pb.TreeNodesResp, error) {
-
 	filter := dto.PathFilter{
 		NodeLabels: treeGraphLimitNodeLabels(),
 		RelLabels:  treeGraphLimitRelLabels(),
@@ -75,25 +74,29 @@ func (s *TreeGraphServiceServicer) GetChildren(ctx context.Context, req *pb.PgId
 
 	return &pb.TreeNodesResp{
 		Success: true,
-		Code:    0,
+		Code:    200,
 		Msg:     "",
 		Data:    treeNodes,
 	}, nil
 }
 
 func (s *TreeGraphServiceServicer) GetTitleAutoComplete(ctx context.Context, req *pb.TitleAutoCompleteReq) (*pb.TitleAutoCompleteResp, error) {
-	var relLabel string
-	if req.LimitLabel == "Company" {
-		relLabel = "ATTACH_TO"
-	} else if req.LimitLabel == "Tag" {
-		relLabel = "CLASSIFY_OF"
-	} else {
-		return nil, errors.New(401, "Invalid limit label", "")
+	var filter dto.PathFilter
+	switch req.NodeLabel {
+	case pb.LabelType_COMPANY:
+		filter = dto.PathFilter{
+			RelLabels:  []string{"ATTACH_TO"},
+			NodeLabels: []string{"Company"},
+		}
+	case pb.LabelType_TAG:
+		filter = dto.PathFilter{
+			RelLabels:  []string{"CLASSIFY_OF"},
+			NodeLabels: []string{"Tag"},
+		}
+	default:
+		return nil, errors.New(401, "Invalid nodeType", "")
 	}
-	filter := dto.PathFilter{
-		RelLabels:  []string{relLabel},
-		NodeLabels: []string{req.LimitLabel},
-	}
+
 	p := dto.PaginationReq{
 		PageNum:  int(req.PageNum),
 		PageSize: int(req.PageSize),
@@ -136,7 +139,7 @@ func (s *TreeGraphServiceServicer) GetTitleAutoComplete(ctx context.Context, req
 		Current:  req.PageNum,
 		PageSize: req.PageSize,
 		Success:  true,
-		Code:     0,
+		Code:     200,
 		Msg:      "",
 		Data:     data,
 	}, nil
@@ -168,7 +171,7 @@ func (s *TreeGraphServiceServicer) GetPathBetween(ctx context.Context, req *pb.G
 	data := root.GenPb()
 	return &pb.TreeNodeResp{
 		Success: true,
-		Code:    0,
+		Code:    200,
 		Msg:     "",
 		Data:    data,
 	}, nil

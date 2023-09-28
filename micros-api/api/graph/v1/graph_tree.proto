@@ -44,6 +44,8 @@ service TreeGraphService {
 	}
 }
 
+
+
 message ConstResp {
 	bool success = 1;
 	int32 code = 2;
@@ -89,12 +91,16 @@ message TreeNodesResp {
 	repeated TreeNode data = 7;
 }
 
+enum LabelType {
+	COMPANY = 0;
+	TAG = 1;
+}
 
 message TitleAutoCompleteReq {
 	uint32 page_num = 1;
 	uint32 page_size = 2;
 	string key_word = 3;
-	string limit_label = 4;
+	LabelType node_label = 4;
 }
 
 message TitleAutoComplete {

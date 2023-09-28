@@ -47,7 +47,7 @@ func (s *NetGraphServiceServicer) GetNetExpand(ctx context.Context, req *pb.NetE
 
 	return &pb.NetResp{
 		Success: true,
-		Code:    0,
+		Code:    200,
 		Msg:     "success",
 		Data:    &data,
 	}, nil
@@ -64,7 +64,7 @@ func (s *NetGraphServiceServicer) GetNode(ctx context.Context, req *pb.GetNodeRe
 	data := node.GenPb()
 	return &pb.NodeResp{
 		Success: true,
-		Code:    0,
+		Code:    200,
 		Msg:     "success",
 		Data:    data,
 	}, nil
@@ -97,7 +97,7 @@ func (s *NetGraphServiceServicer) GetChildrenNet(ctx context.Context, req *pb.Ge
 
 	return &pb.NetPaginationResp{
 		Success:  true,
-		Code:     0,
+		Code:     200,
 		Msg:      "",
 		Total:    int32(count),
 		Current:  int32(req.PageNum),
@@ -105,6 +105,7 @@ func (s *NetGraphServiceServicer) GetChildrenNet(ctx context.Context, req *pb.Ge
 		Data:     &data,
 	}, nil
 }
+
 func (s *NetGraphServiceServicer) GetParentsNet(ctx context.Context, req *pb.GetPaginationNodeReq) (*pb.NetPaginationResp, error) {
 	pReq := dto.PaginationReq{
 		PageNum:  int(req.PageNum),
@@ -132,7 +133,7 @@ func (s *NetGraphServiceServicer) GetParentsNet(ctx context.Context, req *pb.Get
 
 	return &pb.NetPaginationResp{
 		Success:  true,
-		Code:     0,
+		Code:     200,
 		Msg:      "",
 		Total:    int32(count),
 		Current:  int32(req.PageNum),

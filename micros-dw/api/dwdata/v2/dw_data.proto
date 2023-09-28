@@ -32,7 +32,18 @@ service DwdataService {
 
   rpc GetEntEquityTransparency(GetEntInfoReq) returns (EquityTransparencyResp) {
   }
+
+//  rpc GetEntShareholders(GetEntInfoReq) returns (ShareholdersResp) {
+//  }
+//
+//  rpc GetEntInvestment(GetEntInfoReq) returns (InvestmentResp) {
+//  }
+//
+//  rpc GetEntBranches(GetEntInfoReq) returns (BranchesResp) {
+//  }
 }
+
+
 
 message EquityTransparencyResp {
   string conclusion = 1;

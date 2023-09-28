@@ -76,7 +76,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/v1ReportContentReq"
+              "$ref": "#/definitions/v1RefreshReportContentReq"
             }
           }
         ],
@@ -86,8 +86,36 @@
       }
     },
     "/micros/rc/v1/report/dependency-data": {
+      "get": {
+        "operationId": "RcService_GetReportDependencyData",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetDependencyDataResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "content_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "RcService"
+        ]
+      },
       "post": {
-        "operationId": "RcService_SetReportDependencyData",
+        "operationId": "RcService_InsertReportDependencyData",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -108,7 +136,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/v1SetDependencyDataReq"
+              "$ref": "#/definitions/v1InsertDependencyDataReq"
             }
           }
         ],
@@ -138,8 +166,51 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/v1SetDependencyDataReq"
+              "$ref": "#/definitions/v1UpdateDependencyDataReq"
             }
+          }
+        ],
+        "tags": [
+          "RcService"
+        ]
+      }
+    },
+    "/micros/rc/v1/report/download": {
+      "get": {
+        "operationId": "RcService_GetReportPdfByDepId",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1OssFileDownloadResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "dep_id",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "file_name",
+            "in": "query",
+            "required": false,
+            "type": "string"
           }
         ],
         "tags": [
@@ -166,6 +237,12 @@
         },
         "parameters": [
           {
+            "name": "kwd_name",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
             "name": "page_size",
             "in": "query",
             "required": false,
@@ -185,14 +262,14 @@
         ]
       }
     },
-    "/rc/v1/report/dependency-data": {
+    "/micros/rc/v1/report/internal/for-convert": {
       "get": {
-        "operationId": "RcService_GetReportDependencyData",
+        "operationId": "RcService_GetReportContentByDepIdNoDs",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1GetDependencyDataResp"
+              "$ref": "#/definitions/v1ReportContentResp"
             }
           },
           "default": {
@@ -204,11 +281,17 @@
         },
         "parameters": [
           {
-            "name": "content_id",
+            "name": "dep_id",
             "in": "query",
             "required": false,
             "type": "string",
             "format": "int64"
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "type": "string"
           }
         ],
         "tags": [
@@ -221,14 +304,11 @@
     "protobufAny": {
       "type": "object",
       "properties": {
-        "type_url": {
+        "@type": {
           "type": "string"
-        },
-        "value": {
-          "type": "string",
-          "format": "byte"
         }
-      }
+      },
+      "additionalProperties": {}
     },
     "protobufNullValue": {
       "type": "string",
@@ -251,6 +331,7 @@
         "details": {
           "type": "array",
           "items": {
+            "type": "object",
             "$ref": "#/definitions/protobufAny"
           }
         }
@@ -259,9 +340,16 @@
     "v1GetDependencyDataResp": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
         "content_id": {
           "type": "string",
           "format": "int64"
+        },
+        "usc_id": {
+          "type": "string"
         },
         "lh_qylx": {
           "type": "integer",
@@ -289,31 +377,83 @@
         },
         "addition_data": {
           "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        }
+      }
+    },
+    "v1InsertDependencyDataReq": {
+      "type": "object",
+      "properties": {
+        "usc_id": {
+          "type": "string"
+        },
+        "lh_qylx": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "lh_cylwz": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "lh_gdct": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "lh_yhsx": {
+          "type": "integer",
+          "format": "int32",
+          "title": "int32 lh_qybq = 5;"
+        },
+        "lh_sfsx": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "addition_data": {
+          "type": "string"
+        }
+      }
+    },
+    "v1OssFileDownloadResp": {
+      "type": "object",
+      "properties": {
+        "available": {
+          "type": "boolean"
+        },
+        "msg": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        }
+      }
+    },
+    "v1RefreshReportContentReq": {
+      "type": "object",
+      "properties": {
+        "contentId": {
+          "type": "string",
+          "format": "int64"
         }
       }
     },
     "v1RefreshReportContentResp": {
       "type": "object",
       "properties": {
-        "msg_pub_success": {
+        "success": {
           "type": "boolean"
         },
         "msg_pub_time": {
           "type": "string"
         },
         "msg": {
-          "type": "string"
-        }
-      }
-    },
-    "v1ReportContentReq": {
-      "type": "object",
-      "properties": {
-        "content_id": {
-          "type": "string",
-          "format": "int64"
-        },
-        "lang": {
           "type": "string"
         }
       }
@@ -327,6 +467,9 @@
         },
         "available": {
           "type": "boolean"
+        },
+        "msg": {
+          "type": "string"
         }
       }
     },
@@ -373,7 +516,7 @@
           "type": "string",
           "title": "报告生成时间 yyyy-MM-dd HH:mm:ss"
         },
-        "imp_status": {
+        "lh_qylx": {
           "type": "integer",
           "format": "int32",
           "title": "报告状态码"
@@ -381,9 +524,15 @@
         "i18n_infos": {
           "type": "array",
           "items": {
+            "type": "object",
             "$ref": "#/definitions/v1ReportI18nInfo"
           },
           "title": "英文报告id"
+        },
+        "dep_id": {
+          "type": "string",
+          "format": "int64",
+          "title": "rc_dependency_data.id"
         }
       }
     },
@@ -393,6 +542,7 @@
         "report_infos": {
           "type": "array",
           "items": {
+            "type": "object",
             "$ref": "#/definitions/v1ReportInfo"
           }
         },
@@ -414,46 +564,28 @@
         }
       }
     },
-    "v1SetDependencyDataReq": {
+    "v1SetDependencyDataResp": {
       "type": "object",
       "properties": {
-        "content_id": {
-          "type": "string",
-          "format": "int64"
+        "success": {
+          "type": "boolean"
         },
-        "lh_qylx": {
+        "is_generated": {
+          "type": "boolean"
+        },
+        "code": {
           "type": "integer",
           "format": "int32"
         },
-        "lh_cylwz": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "lh_gdct": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "lh_qybq": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "lh_yhsx": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "lh_sfsx": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "addition_data": {
+        "msg": {
           "type": "string"
         }
       }
     },
-    "v1SetDependencyDataResp": {
+    "v1UpdateDependencyDataReq": {
       "type": "object",
       "properties": {
-        "content_id": {
+        "id": {
           "type": "string",
           "format": "int64"
         },
@@ -469,13 +601,10 @@
           "type": "integer",
           "format": "int32"
         },
-        "lh_qybq": {
-          "type": "integer",
-          "format": "int32"
-        },
         "lh_yhsx": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "title": "int32 lh_qybq = 6;"
         },
         "lh_sfsx": {
           "type": "integer",
@@ -483,9 +612,6 @@
         },
         "addition_data": {
           "type": "string"
-        },
-        "success": {
-          "type": "boolean"
         }
       }
     }

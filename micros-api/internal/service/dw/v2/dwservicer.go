@@ -77,6 +77,7 @@ func (s *DwServiceServicer) GetEnterpriseInfo(ctx context.Context, req *pb.GetEn
 		Data:    st,
 	}, nil
 }
+
 func (s *DwServiceServicer) GetEnterpriseCredential(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntArrayResp, error) {
 	res, err := s.dwEnterprise.GetEntCredential(ctx, req.UscId)
 
@@ -116,6 +117,7 @@ func (s *DwServiceServicer) GetEnterpriseCredential(ctx context.Context, req *pb
 		Data:    stArray,
 	}, nil
 }
+
 func (s *DwServiceServicer) GetEnterpriseRankingList(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntArrayResp, error) {
 	res, err := s.dwEnterprise.GetEntRankingList(ctx, req.UscId)
 	if err != nil {
@@ -154,6 +156,7 @@ func (s *DwServiceServicer) GetEnterpriseRankingList(ctx context.Context, req *p
 		Data:    stArray,
 	}, nil
 }
+
 func (s *DwServiceServicer) GetEnterpriseIndustry(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntStrArrayResp, error) {
 	res, err := s.dwEnterprise.GetEntIndustry(ctx, req.UscId)
 	if err != nil {
@@ -174,6 +177,7 @@ func (s *DwServiceServicer) GetEnterpriseIndustry(ctx context.Context, req *pb.G
 		Data:    *res,
 	}, nil
 }
+
 func (s *DwServiceServicer) GetEnterpriseProduct(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntStrArrayResp, error) {
 	res, err := s.dwEnterprise.GetEntProduct(ctx, req.UscId)
 	if err != nil {

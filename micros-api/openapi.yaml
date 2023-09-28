@@ -3,8 +3,270 @@
 
 openapi: 3.0.3
 info:
-    title: ""
+    title: TreeGraphService API
     version: 0.0.1
-paths: {}
+paths:
+    /micros/graph/v1/tree/children:
+        get:
+            tags:
+                - TreeGraphService
+            operationId: TreeGraphService_GetChildren
+            parameters:
+                - name: pageNum
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: id
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TreeNodesResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/graph/v1/tree/const:
+        get:
+            tags:
+                - TreeGraphService
+            operationId: TreeGraphService_GetConst
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ConstResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/graph/v1/tree/node:
+        get:
+            tags:
+                - TreeGraphService
+            operationId: TreeGraphService_GetTreeNode
+            parameters:
+                - name: id
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TreeNodeResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/graph/v1/tree/path:
+        get:
+            tags:
+                - TreeGraphService
+            operationId: TreeGraphService_GetPathBetween
+            parameters:
+                - name: source
+                  in: query
+                  schema:
+                    type: string
+                - name: target
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TreeNodeResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/graph/v1/tree/title-autocomplete:
+        get:
+            tags:
+                - TreeGraphService
+            operationId: TreeGraphService_GetTitleAutoComplete
+            parameters:
+                - name: pageNum
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: keyWord
+                  in: query
+                  schema:
+                    type: string
+                - name: nodeLabel
+                  in: query
+                  schema:
+                    type: integer
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TitleAutoCompleteResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
 components:
-    schemas: {}
+    schemas:
+        ConstResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                code:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+                data:
+                    type: object
+        GoogleProtobufAny:
+            type: object
+            properties:
+                '@type':
+                    type: string
+                    description: The type of the serialized message.
+            additionalProperties: true
+            description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+        Status:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    description: The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].
+                    format: int32
+                message:
+                    type: string
+                    description: A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
+                details:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GoogleProtobufAny'
+                    description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
+            description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
+        TitleAutoComplete:
+            type: object
+            properties:
+                title:
+                    type: string
+                id:
+                    type: string
+        TitleAutoCompleteResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                code:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+                total:
+                    type: integer
+                    format: uint32
+                current:
+                    type: integer
+                    format: uint32
+                pageSize:
+                    type: integer
+                    format: uint32
+                data:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/TitleAutoComplete'
+        TreeNode:
+            type: object
+            properties:
+                entityId:
+                    type: string
+                id:
+                    type: string
+                title:
+                    type: string
+                labels:
+                    type: array
+                    items:
+                        type: string
+                childrenCount:
+                    type: integer
+                    format: int32
+                children:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/TreeNode'
+        TreeNodeResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                code:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/TreeNode'
+        TreeNodesResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                code:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+                total:
+                    type: integer
+                    format: uint32
+                current:
+                    type: integer
+                    format: uint32
+                pageSize:
+                    type: integer
+                    format: uint32
+                data:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/TreeNode'
+tags:
+    - name: TreeGraphService
