@@ -3,14 +3,14 @@
 
 openapi: 3.0.3
 info:
-    title: TreeGraphService API
+    title: NetGraphService API
     version: 0.0.1
 paths:
-    /micros/graph/v1/tree/children:
+    /micros/graph/v1/net/children:
         get:
             tags:
-                - TreeGraphService
-            operationId: TreeGraphService_GetChildren
+                - NetGraphService
+            operationId: NetGraphService_GetChildrenNet
             parameters:
                 - name: pageNum
                   in: query
@@ -26,42 +26,28 @@ paths:
                   in: query
                   schema:
                     type: string
+                - name: scopeRelType
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/TreeNodesResp'
+                                $ref: '#/components/schemas/NetPaginationResp'
                 default:
                     description: Default error response
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /micros/graph/v1/tree/const:
+    /micros/graph/v1/net/children/availableRelType:
         get:
             tags:
-                - TreeGraphService
-            operationId: TreeGraphService_GetConst
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ConstResp'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-    /micros/graph/v1/tree/node:
-        get:
-            tags:
-                - TreeGraphService
-            operationId: TreeGraphService_GetTreeNode
+                - NetGraphService
+            operationId: NetGraphService_GetAvailableRelTypeToChildren
             parameters:
                 - name: id
                   in: query
@@ -73,24 +59,53 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/TreeNodeResp'
+                                $ref: '#/components/schemas/AvailableRelTypeResp'
                 default:
                     description: Default error response
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /micros/graph/v1/tree/path:
+    /micros/graph/v1/net/expand:
         get:
             tags:
-                - TreeGraphService
-            operationId: TreeGraphService_GetPathBetween
+                - NetGraphService
+            operationId: NetGraphService_GetNetExpand
             parameters:
-                - name: source
+                - name: id
                   in: query
                   schema:
                     type: string
-                - name: target
+                - name: depth
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: limit
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NetResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/graph/v1/net/node:
+        get:
+            tags:
+                - NetGraphService
+            operationId: NetGraphService_GetNode
+            parameters:
+                - name: id
                   in: query
                   schema:
                     type: string
@@ -100,18 +115,18 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/TreeNodeResp'
+                                $ref: '#/components/schemas/NodeResp'
                 default:
                     description: Default error response
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /micros/graph/v1/tree/title-autocomplete:
+    /micros/graph/v1/net/parents:
         get:
             tags:
-                - TreeGraphService
-            operationId: TreeGraphService_GetTitleAutoComplete
+                - NetGraphService
+            operationId: NetGraphService_GetParentsNet
             parameters:
                 - name: pageNum
                   in: query
@@ -123,22 +138,44 @@ paths:
                   schema:
                     type: integer
                     format: uint32
-                - name: keyWord
+                - name: id
                   in: query
                   schema:
                     type: string
-                - name: nodeLabel
+                - name: scopeRelType
                   in: query
                   schema:
-                    type: integer
-                    format: enum
+                    type: string
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/TitleAutoCompleteResp'
+                                $ref: '#/components/schemas/NetPaginationResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/graph/v1/net/parents/availableRelType:
+        get:
+            tags:
+                - NetGraphService
+            operationId: NetGraphService_GetAvailableRelTypeToParents
+            parameters:
+                - name: id
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AvailableRelTypeResp'
                 default:
                     description: Default error response
                     content:
@@ -147,7 +184,7 @@ paths:
                                 $ref: '#/components/schemas/Status'
 components:
     schemas:
-        ConstResp:
+        AvailableRelTypeResp:
             type: object
             properties:
                 success:
@@ -159,6 +196,19 @@ components:
                     type: string
                 data:
                     type: object
+        Edge:
+            type: object
+            properties:
+                source:
+                    type: string
+                target:
+                    type: string
+                id:
+                    type: string
+                label:
+                    type: string
+                data:
+                    type: object
         GoogleProtobufAny:
             type: object
             properties:
@@ -167,6 +217,75 @@ components:
                     description: The type of the serialized message.
             additionalProperties: true
             description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+        Net:
+            type: object
+            properties:
+                nodes:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Node'
+                edges:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Edge'
+        NetPaginationResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                code:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+                total:
+                    type: integer
+                    format: int32
+                current:
+                    type: integer
+                    format: int32
+                pageSize:
+                    type: integer
+                    format: int32
+                data:
+                    $ref: '#/components/schemas/Net'
+        NetResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                code:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/Net'
+        Node:
+            type: object
+            properties:
+                id:
+                    type: string
+                title:
+                    type: string
+                labels:
+                    type: array
+                    items:
+                        type: string
+                data:
+                    type: object
+        NodeResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                code:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/Node'
         Status:
             type: object
             properties:
@@ -183,90 +302,5 @@ components:
                         $ref: '#/components/schemas/GoogleProtobufAny'
                     description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
             description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
-        TitleAutoComplete:
-            type: object
-            properties:
-                title:
-                    type: string
-                id:
-                    type: string
-        TitleAutoCompleteResp:
-            type: object
-            properties:
-                success:
-                    type: boolean
-                code:
-                    type: integer
-                    format: int32
-                msg:
-                    type: string
-                total:
-                    type: integer
-                    format: uint32
-                current:
-                    type: integer
-                    format: uint32
-                pageSize:
-                    type: integer
-                    format: uint32
-                data:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/TitleAutoComplete'
-        TreeNode:
-            type: object
-            properties:
-                entityId:
-                    type: string
-                id:
-                    type: string
-                title:
-                    type: string
-                labels:
-                    type: array
-                    items:
-                        type: string
-                childrenCount:
-                    type: integer
-                    format: int32
-                children:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/TreeNode'
-        TreeNodeResp:
-            type: object
-            properties:
-                success:
-                    type: boolean
-                code:
-                    type: integer
-                    format: int32
-                msg:
-                    type: string
-                data:
-                    $ref: '#/components/schemas/TreeNode'
-        TreeNodesResp:
-            type: object
-            properties:
-                success:
-                    type: boolean
-                code:
-                    type: integer
-                    format: int32
-                msg:
-                    type: string
-                total:
-                    type: integer
-                    format: uint32
-                current:
-                    type: integer
-                    format: uint32
-                pageSize:
-                    type: integer
-                    format: uint32
-                data:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/TreeNode'
 tags:
-    - name: TreeGraphService
+    - name: NetGraphService

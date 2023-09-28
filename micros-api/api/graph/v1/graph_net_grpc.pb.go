@@ -19,10 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	NetGraphService_GetNetExpand_FullMethodName   = "/api.graph.v1.NetGraphService/GetNetExpand"
-	NetGraphService_GetNode_FullMethodName        = "/api.graph.v1.NetGraphService/GetNode"
-	NetGraphService_GetChildrenNet_FullMethodName = "/api.graph.v1.NetGraphService/GetChildrenNet"
-	NetGraphService_GetParentsNet_FullMethodName  = "/api.graph.v1.NetGraphService/GetParentsNet"
+	NetGraphService_GetNetExpand_FullMethodName                  = "/api.graph.v1.NetGraphService/GetNetExpand"
+	NetGraphService_GetNode_FullMethodName                       = "/api.graph.v1.NetGraphService/GetNode"
+	NetGraphService_GetChildrenNet_FullMethodName                = "/api.graph.v1.NetGraphService/GetChildrenNet"
+	NetGraphService_GetParentsNet_FullMethodName                 = "/api.graph.v1.NetGraphService/GetParentsNet"
+	NetGraphService_GetAvailableRelTypeToChildren_FullMethodName = "/api.graph.v1.NetGraphService/GetAvailableRelTypeToChildren"
+	NetGraphService_GetAvailableRelTypeToParents_FullMethodName  = "/api.graph.v1.NetGraphService/GetAvailableRelTypeToParents"
 )
 
 // NetGraphServiceClient is the client API for NetGraphService service.
@@ -33,6 +35,8 @@ type NetGraphServiceClient interface {
 	GetNode(ctx context.Context, in *GetNodeReq, opts ...grpc.CallOption) (*NodeResp, error)
 	GetChildrenNet(ctx context.Context, in *GetPaginationNodeReq, opts ...grpc.CallOption) (*NetPaginationResp, error)
 	GetParentsNet(ctx context.Context, in *GetPaginationNodeReq, opts ...grpc.CallOption) (*NetPaginationResp, error)
+	GetAvailableRelTypeToChildren(ctx context.Context, in *GetNodeReq, opts ...grpc.CallOption) (*AvailableRelTypeResp, error)
+	GetAvailableRelTypeToParents(ctx context.Context, in *GetNodeReq, opts ...grpc.CallOption) (*AvailableRelTypeResp, error)
 }
 
 type netGraphServiceClient struct {
@@ -79,6 +83,24 @@ func (c *netGraphServiceClient) GetParentsNet(ctx context.Context, in *GetPagina
 	return out, nil
 }
 
+func (c *netGraphServiceClient) GetAvailableRelTypeToChildren(ctx context.Context, in *GetNodeReq, opts ...grpc.CallOption) (*AvailableRelTypeResp, error) {
+	out := new(AvailableRelTypeResp)
+	err := c.cc.Invoke(ctx, NetGraphService_GetAvailableRelTypeToChildren_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *netGraphServiceClient) GetAvailableRelTypeToParents(ctx context.Context, in *GetNodeReq, opts ...grpc.CallOption) (*AvailableRelTypeResp, error) {
+	out := new(AvailableRelTypeResp)
+	err := c.cc.Invoke(ctx, NetGraphService_GetAvailableRelTypeToParents_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // NetGraphServiceServer is the server API for NetGraphService service.
 // All implementations must embed UnimplementedNetGraphServiceServer
 // for forward compatibility
@@ -87,6 +109,8 @@ type NetGraphServiceServer interface {
 	GetNode(context.Context, *GetNodeReq) (*NodeResp, error)
 	GetChildrenNet(context.Context, *GetPaginationNodeReq) (*NetPaginationResp, error)
 	GetParentsNet(context.Context, *GetPaginationNodeReq) (*NetPaginationResp, error)
+	GetAvailableRelTypeToChildren(context.Context, *GetNodeReq) (*AvailableRelTypeResp, error)
+	GetAvailableRelTypeToParents(context.Context, *GetNodeReq) (*AvailableRelTypeResp, error)
 	mustEmbedUnimplementedNetGraphServiceServer()
 }
 
@@ -105,6 +129,12 @@ func (UnimplementedNetGraphServiceServer) GetChildrenNet(context.Context, *GetPa
 }
 func (UnimplementedNetGraphServiceServer) GetParentsNet(context.Context, *GetPaginationNodeReq) (*NetPaginationResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetParentsNet not implemented")
+}
+func (UnimplementedNetGraphServiceServer) GetAvailableRelTypeToChildren(context.Context, *GetNodeReq) (*AvailableRelTypeResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAvailableRelTypeToChildren not implemented")
+}
+func (UnimplementedNetGraphServiceServer) GetAvailableRelTypeToParents(context.Context, *GetNodeReq) (*AvailableRelTypeResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAvailableRelTypeToParents not implemented")
 }
 func (UnimplementedNetGraphServiceServer) mustEmbedUnimplementedNetGraphServiceServer() {}
 
@@ -191,6 +221,42 @@ func _NetGraphService_GetParentsNet_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _NetGraphService_GetAvailableRelTypeToChildren_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetNodeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetGraphServiceServer).GetAvailableRelTypeToChildren(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetGraphService_GetAvailableRelTypeToChildren_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetGraphServiceServer).GetAvailableRelTypeToChildren(ctx, req.(*GetNodeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NetGraphService_GetAvailableRelTypeToParents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetNodeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetGraphServiceServer).GetAvailableRelTypeToParents(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetGraphService_GetAvailableRelTypeToParents_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetGraphServiceServer).GetAvailableRelTypeToParents(ctx, req.(*GetNodeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // NetGraphService_ServiceDesc is the grpc.ServiceDesc for NetGraphService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -213,6 +279,14 @@ var NetGraphService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetParentsNet",
 			Handler:    _NetGraphService_GetParentsNet_Handler,
+		},
+		{
+			MethodName: "GetAvailableRelTypeToChildren",
+			Handler:    _NetGraphService_GetAvailableRelTypeToChildren_Handler,
+		},
+		{
+			MethodName: "GetAvailableRelTypeToParents",
+			Handler:    _NetGraphService_GetAvailableRelTypeToParents_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

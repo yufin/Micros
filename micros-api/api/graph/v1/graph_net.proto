@@ -35,7 +35,36 @@ service NetGraphService {
       get: "/micros/graph/v1/net/parents"
     };
   }
+
+  rpc GetAvailableRelTypeToChildren(GetNodeReq) returns (AvailableRelTypeResp) {
+    option (google.api.http) = {
+      get: "/micros/graph/v1/net/children/availableRelType"
+    };
+  }
+
+  rpc GetAvailableRelTypeToParents(GetNodeReq) returns (AvailableRelTypeResp) {
+    option (google.api.http) = {
+      get: "/micros/graph/v1/net/parents/availableRelType"
+    };
+  }
+
 }
+
+
+message AvailableRelTypeResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  google.protobuf.Struct data = 4;
+}
+
+//enum RelType {
+//  ALL = 0;
+//  ATTACH_TO = 1;
+//  CLASSIFY_OF = 2;
+//  INVOICED_TO = 3;
+//}
+
 
 message GetNodeReq {
   string id = 1;
@@ -52,8 +81,8 @@ message GetPaginationNodeReq {
   uint32 page_num = 1;
   uint32 page_size = 2;
   string id = 3;
+  string scope_rel_type = 4;
 }
-
 message Node {
 	string id = 1;
 	string title = 3;

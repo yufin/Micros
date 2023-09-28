@@ -12,6 +12,8 @@ type GraphRepo interface {
 	GetNodes(ctx context.Context, ids []string) (*[]neo4j.Node, error)
 	GetChildren(ctx context.Context, id string, f dto.PathFilter, p dto.PaginationReq) (*[]neo4j.Node, error)
 
+	GetRelTypeAvailable(ctx context.Context, id string, targetType int) ([]string, error)
+
 	CountChildren(ctx context.Context, id string, f dto.PathFilter, amount *int64) error
 
 	GetTitleAutoComplete(ctx context.Context, f dto.PathFilter, p dto.PaginationReq, kw string) (*[]dto.TitleAutoCompleteRes, error)
@@ -21,7 +23,7 @@ type GraphRepo interface {
 	GetPathBetweenByIds(ctx context.Context, sourceId string, targetIds []string, f *dto.PathFilter) (*[]neo4j.Path, error)
 
 	GetPathExpand(ctx context.Context, sourceId string, depth uint32, limit uint32, f *dto.PathFilter) (*[]neo4j.Path, error)
-	GetPathToChildren(ctx context.Context, sourceId string, p dto.PaginationReq, f *dto.PathFilter) (*[]neo4j.Path, int64, error)
+	GetPathToChildren(ctx context.Context, sourceId string, p dto.PaginationReq, ScopeRelType []string) (*[]neo4j.Path, int64, error)
 	GetPathToParent(ctx context.Context, targetId string, p dto.PaginationReq, f *dto.PathFilter) (*[]neo4j.Path, int64, error)
 }
 
@@ -47,6 +49,11 @@ func (uc *GraphUsecase) GetNodes(ctx context.Context, ids []string) (*[]neo4j.No
 func (uc *GraphUsecase) GetChildren(ctx context.Context, id string, f dto.PathFilter, p dto.PaginationReq) (*[]neo4j.Node, error) {
 	uc.log.WithContext(ctx).Infof("biz.GraphUsecase.GetChildren id=%d", id)
 	return uc.repo.GetChildren(ctx, id, f, p)
+}
+
+func (uc *GraphUsecase) GetRelTypeAvailable(ctx context.Context, id string, targetType int) ([]string, error) {
+	uc.log.WithContext(ctx).Infof("biz.GraphUsecase.GetRelTypeAvailableToChildren id=%d", id)
+	return uc.repo.GetRelTypeAvailable(ctx, id, targetType)
 }
 
 func (uc *GraphUsecase) CountChildren(ctx context.Context, id string, f dto.PathFilter, amount *int64) error {
@@ -79,9 +86,9 @@ func (uc *GraphUsecase) GetPathExpand(ctx context.Context, sourceId string, dept
 	return uc.repo.GetPathExpand(ctx, sourceId, depth, limit, f)
 }
 
-func (uc *GraphUsecase) GetPathToChildren(ctx context.Context, sourceId string, p dto.PaginationReq, f *dto.PathFilter) (*[]neo4j.Path, int64, error) {
+func (uc *GraphUsecase) GetPathToChildren(ctx context.Context, sourceId string, p dto.PaginationReq, ScopeRelType []string) (*[]neo4j.Path, int64, error) {
 	uc.log.WithContext(ctx).Infof("biz.GraphUsecase.GetPathToChildren")
-	return uc.repo.GetPathToChildren(ctx, sourceId, p, f)
+	return uc.repo.GetPathToChildren(ctx, sourceId, p, ScopeRelType)
 }
 
 func (uc *GraphUsecase) GetPathToParent(ctx context.Context, targetId string, p dto.PaginationReq, f *dto.PathFilter) (*[]neo4j.Path, int64, error) {

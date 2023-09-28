@@ -279,23 +279,39 @@ func (repo *GraphRepo) GetPathBetweenByIds(ctx context.Context, sourceId string,
 	return &resp, nil
 }
 
-func (repo *GraphRepo) GetPathToChildren(ctx context.Context, sourceId string, p dto.PaginationReq, f *dto.PathFilter) (*[]neo4j.Path, int64, error) {
-	var cypher string
+func (repo *GraphRepo) GetPathToChildren(ctx context.Context, sourceId string, p dto.PaginationReq, ScopeRelType []string) (*[]neo4j.Path, int64, error) {
+	var cypher, cypherCount string
+	paramCount := map[string]any{
+		"sourceId": sourceId,
+	}
 	param := map[string]any{
 		"sourceId": sourceId,
 		"offset":   (p.PageNum - 1) * p.PageSize,
 		"pageSize": p.PageSize,
 	}
-	if f != nil {
+	if len(ScopeRelType) > 0 {
+		//cypher =
+		//	`MATCH p = (s {id:$sourceId})-[r]->(c)
+		//	where any(label IN labels(c) WHERE label IN $nodeLabels)
+		//	AND type(r) in $relTypes
+		//	return p skip $offset limit $pageSize;`
+		//param["nodeLabels"] = f.NodeLabels
+		//param["relTypes"] = f.NodeLabels
 		cypher =
 			`MATCH p = (s {id:$sourceId})-[r]->(c) 
-			where any(label IN labels(c) WHERE label IN $nodeLabels) 
-			AND type(r) in $relTypes 
+			where type(r) in $relTypes 
 			return p skip $offset limit $pageSize;`
-		param["nodeLabels"] = f.NodeLabels
-		param["relTypes"] = f.NodeLabels
+		//param["nodeLabels"] = f.NodeLabels
+		cypherCount =
+			`MATCH (p {id:$sourceId})-[r]->(c)
+			where type(r) in $relTypes 
+			return count(c) as total;`
+
+		param["relTypes"] = ScopeRelType
+		paramCount["relTypes"] = ScopeRelType
 	} else {
 		cypher = `MATCH p = (s {id:$sourceId})-[r]->(c) return p skip $offset limit $pageSize;`
+		cypherCount = `MATCH (p {id:$sourceId})-[r]->(c) return count(c) as total;`
 	}
 	res, err := repo.data.Neo.CypherQuery(ctx, cypher, param)
 	if err != nil {
@@ -308,10 +324,7 @@ func (repo *GraphRepo) GetPathToChildren(ctx context.Context, sourceId string, p
 			resp = append(resp, path.(neo4j.Path))
 		}
 	}
-	cypherCount := `MATCH (p {id:$sourceId})-[r]->(c) return count(c) as total;`
-	resTotal, err := repo.data.Neo.CypherQuery(ctx, cypherCount, map[string]any{
-		"sourceId": sourceId,
-	})
+	resTotal, err := repo.data.Neo.CypherQuery(ctx, cypherCount, paramCount)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -346,4 +359,32 @@ func (repo *GraphRepo) GetPathToParent(ctx context.Context, sourceId string, p d
 		}
 	}
 	return &resp, respTotal.(int64), nil
+}
+
+// GetRelTypeAvailable returns the relationship types available to the specified node targetType(1: toChildren, 0:toParent)
+func (repo *GraphRepo) GetRelTypeAvailable(ctx context.Context, id string, targetType int) ([]string, error) {
+
+	var cypher string
+	switch targetType {
+	case 0:
+		cypher = `MATCH (p)-[r]->(c {id: $id}) return collect(distinct type(r)) as relType;`
+	case 1:
+		cypher = `MATCH (p {id: $id})-[r]->(c) return collect(distinct type(r)) as relType;`
+	default:
+		return nil, errors.New("invalid target type")
+	}
+	res, err := repo.data.Neo.CypherQuery(ctx, cypher, map[string]any{
+		"id": id,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(res) == 0 {
+		return nil, errors.New("empty result")
+	}
+	relType, found := res[0].Get("relType")
+	if !found {
+		return nil, errors.New("key not found")
+	}
+	return relType.([]string), nil
 }

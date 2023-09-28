@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
+	"google.golang.org/protobuf/types/known/structpb"
 	"micros-api/internal/biz"
 	"micros-api/internal/biz/dto"
 
@@ -75,7 +76,11 @@ func (s *NetGraphServiceServicer) GetChildrenNet(ctx context.Context, req *pb.Ge
 		PageNum:  int(req.PageNum),
 		PageSize: int(req.PageSize),
 	}
-	res, count, err := s.graph.GetPathToChildren(ctx, req.Id, pReq, nil)
+	scope := make([]string, 0)
+	if req.ScopeRelType != "" {
+		scope = append(scope, req.ScopeRelType)
+	}
+	res, count, err := s.graph.GetPathToChildren(ctx, req.Id, pReq, []string{})
 	if err != nil {
 		return nil, err
 	}
@@ -139,5 +144,51 @@ func (s *NetGraphServiceServicer) GetParentsNet(ctx context.Context, req *pb.Get
 		Current:  int32(req.PageNum),
 		PageSize: int32(req.PageSize),
 		Data:     &data,
+	}, nil
+}
+
+func (s *NetGraphServiceServicer) GetAvailableRelTypeToParents(ctx context.Context, req *pb.GetNodeReq) (*pb.AvailableRelTypeResp, error) {
+	res, err := s.graph.GetRelTypeAvailable(ctx, req.Id, 0)
+	if err != nil {
+		return nil, err
+	}
+	var edge dto.Edge
+	data := make(map[string]any)
+	for _, rel := range res {
+		data[edge.GetRelTypeAlias(rel)] = rel
+	}
+
+	st, err := structpb.NewStruct(data)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.AvailableRelTypeResp{
+		Success: true,
+		Code:    200,
+		Msg:     "",
+		Data:    st,
+	}, nil
+}
+
+func (s *NetGraphServiceServicer) GetAvailableRelTypeToChildren(ctx context.Context, req *pb.GetNodeReq) (*pb.AvailableRelTypeResp, error) {
+	res, err := s.graph.GetRelTypeAvailable(ctx, req.Id, 1)
+	if err != nil {
+		return nil, err
+	}
+	var edge dto.Edge
+	data := make(map[string]any)
+	for _, rel := range res {
+		data[edge.GetRelTypeAlias(rel)] = rel
+	}
+
+	st, err := structpb.NewStruct(data)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.AvailableRelTypeResp{
+		Success: true,
+		Code:    200,
+		Msg:     "",
+		Data:    st,
 	}, nil
 }

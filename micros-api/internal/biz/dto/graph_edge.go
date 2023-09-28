@@ -36,7 +36,7 @@ func (e *Edge) GenPb(pb *pb.Edge) {
 	pb.Id = e.Id
 	pb.Source = e.SourceId
 	pb.Target = e.TargetId
-	pb.Label = e.translateLabel()
+	pb.Label = e.modifyRelTypeToAlias()
 	e.modifyTimeToStringFromData()
 	st, err := structpb.NewStruct(e.Data)
 	if err != nil {
@@ -45,19 +45,12 @@ func (e *Edge) GenPb(pb *pb.Edge) {
 	pb.Data = st
 }
 
-func (e *Edge) translateLabel() string {
-	switch e.Type {
-	case "ATTACH_TO":
-		return "标签"
-	case "CLASSIFY_OF":
-		return "归属"
-	case "APPLICATION_OF":
-		return "应用"
-	case "INVOICED_TO":
-		return "供货"
-	default:
-		return "关联"
+func (e *Edge) modifyRelTypeToAlias() string {
+	trans, ok := e.RelTypeAliasDict()[e.Type]
+	if ok {
+		return trans
 	}
+	return "关联"
 }
 
 func (e *Edge) modifyTimeToStringFromData() {
@@ -67,4 +60,21 @@ func (e *Edge) modifyTimeToStringFromData() {
 			//e.Data[k] = t.Format(time.RFC3339)
 		}
 	}
+}
+
+func (*Edge) RelTypeAliasDict() map[string]string {
+	return map[string]string{
+		"ATTACH_TO":      "标签",
+		"CLASSIFY_OF":    "归属",
+		"APPLICATION_OF": "应用",
+		"INVOICED_TO":    "供货",
+	}
+}
+
+func (e *Edge) GetRelTypeAlias(relType string) string {
+	alias, ok := e.RelTypeAliasDict()[relType]
+	if ok {
+		return alias
+	}
+	return relType
 }
