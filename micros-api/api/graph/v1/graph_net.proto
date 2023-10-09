@@ -81,7 +81,7 @@ message GetPaginationNodeReq {
   uint32 page_num = 1;
   uint32 page_size = 2;
   string id = 3;
-  string scope_rel_type = 4;
+  repeated string scope_rel_type = 4;
 }
 message Node {
 	string id = 1;

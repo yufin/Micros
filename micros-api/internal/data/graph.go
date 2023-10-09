@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
+	"math"
 	"micros-api/internal/biz"
 	"micros-api/internal/biz/dto"
 )
@@ -284,9 +285,10 @@ func (repo *GraphRepo) GetPathToChildren(ctx context.Context, sourceId string, p
 	paramCount := map[string]any{
 		"sourceId": sourceId,
 	}
+	offset := math.Max(float64((p.PageNum-1)*p.PageSize), float64(0))
 	param := map[string]any{
 		"sourceId": sourceId,
-		"offset":   (p.PageNum - 1) * p.PageSize,
+		"offset":   int(offset),
 		"pageSize": p.PageSize,
 	}
 	if len(ScopeRelType) > 0 {
@@ -386,5 +388,11 @@ func (repo *GraphRepo) GetRelTypeAvailable(ctx context.Context, id string, targe
 	if !found {
 		return nil, errors.New("key not found")
 	}
-	return relType.([]string), nil
+
+	relTypeStr := make([]string, 0)
+	for _, s := range relType.([]interface{}) {
+		relTypeStr = append(relTypeStr, s.(string))
+	}
+
+	return relTypeStr, nil
 }

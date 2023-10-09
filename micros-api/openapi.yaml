@@ -29,7 +29,9 @@ paths:
                 - name: scopeRelType
                   in: query
                   schema:
-                    type: string
+                    type: array
+                    items:
+                        type: string
             responses:
                 "200":
                     description: OK
@@ -145,7 +147,9 @@ paths:
                 - name: scopeRelType
                   in: query
                   schema:
-                    type: string
+                    type: array
+                    items:
+                        type: string
             responses:
                 "200":
                     description: OK

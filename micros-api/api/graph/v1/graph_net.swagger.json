@@ -53,6 +53,46 @@
             "in": "query",
             "required": false,
             "type": "string"
+          },
+          {
+            "name": "scope_rel_type",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "tags": [
+          "NetGraphService"
+        ]
+      }
+    },
+    "/micros/graph/v1/net/children/availableRelType": {
+      "get": {
+        "operationId": "NetGraphService_GetAvailableRelTypeToChildren",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1AvailableRelTypeResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "string"
           }
         ],
         "tags": [
@@ -171,6 +211,46 @@
             "in": "query",
             "required": false,
             "type": "string"
+          },
+          {
+            "name": "scope_rel_type",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "tags": [
+          "NetGraphService"
+        ]
+      }
+    },
+    "/micros/graph/v1/net/parents/availableRelType": {
+      "get": {
+        "operationId": "NetGraphService_GetAvailableRelTypeToParents",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1AvailableRelTypeResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "string"
           }
         ],
         "tags": [
@@ -216,13 +296,31 @@
         }
       }
     },
+    "v1AvailableRelTypeResp": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object"
+        }
+      }
+    },
     "v1Edge": {
       "type": "object",
       "properties": {
-        "source_id": {
+        "source": {
           "type": "string"
         },
-        "target_id": {
+        "target": {
           "type": "string"
         },
         "id": {

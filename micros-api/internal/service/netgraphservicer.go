@@ -76,11 +76,7 @@ func (s *NetGraphServiceServicer) GetChildrenNet(ctx context.Context, req *pb.Ge
 		PageNum:  int(req.PageNum),
 		PageSize: int(req.PageSize),
 	}
-	scope := make([]string, 0)
-	if req.ScopeRelType != "" {
-		scope = append(scope, req.ScopeRelType)
-	}
-	res, count, err := s.graph.GetPathToChildren(ctx, req.Id, pReq, []string{})
+	res, count, err := s.graph.GetPathToChildren(ctx, req.Id, pReq, req.ScopeRelType)
 	if err != nil {
 		return nil, err
 	}
