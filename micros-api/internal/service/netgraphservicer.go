@@ -112,7 +112,7 @@ func (s *NetGraphServiceServicer) GetParentsNet(ctx context.Context, req *pb.Get
 		PageNum:  int(req.PageNum),
 		PageSize: int(req.PageSize),
 	}
-	res, count, err := s.graph.GetPathToParent(ctx, req.Id, pReq, nil)
+	res, count, err := s.graph.GetPathToParent(ctx, req.Id, pReq, req.ScopeRelType)
 	if err != nil {
 		return nil, err
 	}

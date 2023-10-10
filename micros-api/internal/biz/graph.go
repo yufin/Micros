@@ -23,8 +23,8 @@ type GraphRepo interface {
 	GetPathBetweenByIds(ctx context.Context, sourceId string, targetIds []string, f *dto.PathFilter) (*[]neo4j.Path, error)
 
 	GetPathExpand(ctx context.Context, sourceId string, depth uint32, limit uint32, f *dto.PathFilter) (*[]neo4j.Path, error)
-	GetPathToChildren(ctx context.Context, sourceId string, p dto.PaginationReq, ScopeRelType []string) (*[]neo4j.Path, int64, error)
-	GetPathToParent(ctx context.Context, targetId string, p dto.PaginationReq, f *dto.PathFilter) (*[]neo4j.Path, int64, error)
+	GetPathToChildren(ctx context.Context, sourceId string, p dto.PaginationReq, scopeRelType []string) (*[]neo4j.Path, int64, error)
+	GetPathToParent(ctx context.Context, targetId string, p dto.PaginationReq, scopeRelType []string) (*[]neo4j.Path, int64, error)
 }
 
 type GraphUsecase struct {
@@ -86,12 +86,12 @@ func (uc *GraphUsecase) GetPathExpand(ctx context.Context, sourceId string, dept
 	return uc.repo.GetPathExpand(ctx, sourceId, depth, limit, f)
 }
 
-func (uc *GraphUsecase) GetPathToChildren(ctx context.Context, sourceId string, p dto.PaginationReq, ScopeRelType []string) (*[]neo4j.Path, int64, error) {
+func (uc *GraphUsecase) GetPathToChildren(ctx context.Context, sourceId string, p dto.PaginationReq, scopeRelType []string) (*[]neo4j.Path, int64, error) {
 	uc.log.WithContext(ctx).Infof("biz.GraphUsecase.GetPathToChildren")
-	return uc.repo.GetPathToChildren(ctx, sourceId, p, ScopeRelType)
+	return uc.repo.GetPathToChildren(ctx, sourceId, p, scopeRelType)
 }
 
-func (uc *GraphUsecase) GetPathToParent(ctx context.Context, targetId string, p dto.PaginationReq, f *dto.PathFilter) (*[]neo4j.Path, int64, error) {
+func (uc *GraphUsecase) GetPathToParent(ctx context.Context, targetId string, p dto.PaginationReq, scopeRelType []string) (*[]neo4j.Path, int64, error) {
 	uc.log.WithContext(ctx).Infof("biz.GraphUsecase.GetPathToParent")
-	return uc.repo.GetPathToParent(ctx, targetId, p, f)
+	return uc.repo.GetPathToParent(ctx, targetId, p, scopeRelType)
 }
