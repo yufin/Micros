@@ -151,7 +151,7 @@ func (s *TreeGraphServiceServicer) GetPathBetween(ctx context.Context, req *pb.G
 		NodeLabels:   treeGraphLimitNodeLabels(),
 		MaxPathDepth: 3,
 	}
-	neoPath, err := s.graph.GetPathBetween(ctx, req.Source, req.Target, filter)
+	neoPath, err := s.graph.GetPathTo(ctx, req.Source, req.Target, 3, treeGraphLimitRelLabels())
 	if err != nil {
 		return nil, err
 	}

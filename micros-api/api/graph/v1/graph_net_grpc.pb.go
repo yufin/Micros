@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -20,11 +21,14 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	NetGraphService_GetNetExpand_FullMethodName                  = "/api.graph.v1.NetGraphService/GetNetExpand"
+	NetGraphService_GetNetExpands_FullMethodName                 = "/api.graph.v1.NetGraphService/GetNetExpands"
 	NetGraphService_GetNode_FullMethodName                       = "/api.graph.v1.NetGraphService/GetNode"
 	NetGraphService_GetChildrenNet_FullMethodName                = "/api.graph.v1.NetGraphService/GetChildrenNet"
 	NetGraphService_GetParentsNet_FullMethodName                 = "/api.graph.v1.NetGraphService/GetParentsNet"
 	NetGraphService_GetAvailableRelTypeToChildren_FullMethodName = "/api.graph.v1.NetGraphService/GetAvailableRelTypeToChildren"
 	NetGraphService_GetAvailableRelTypeToParents_FullMethodName  = "/api.graph.v1.NetGraphService/GetAvailableRelTypeToParents"
+	NetGraphService_GetPathBetween_FullMethodName                = "/api.graph.v1.NetGraphService/GetPathTo"
+	NetGraphService_GetConst_FullMethodName                      = "/api.graph.v1.NetGraphService/GetConst"
 )
 
 // NetGraphServiceClient is the client API for NetGraphService service.
@@ -32,11 +36,14 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type NetGraphServiceClient interface {
 	GetNetExpand(ctx context.Context, in *NetExpandReq, opts ...grpc.CallOption) (*NetResp, error)
+	GetNetExpands(ctx context.Context, in *NetExpandsReq, opts ...grpc.CallOption) (*NetResp, error)
 	GetNode(ctx context.Context, in *GetNodeReq, opts ...grpc.CallOption) (*NodeResp, error)
 	GetChildrenNet(ctx context.Context, in *GetPaginationNodeReq, opts ...grpc.CallOption) (*NetPaginationResp, error)
 	GetParentsNet(ctx context.Context, in *GetPaginationNodeReq, opts ...grpc.CallOption) (*NetPaginationResp, error)
 	GetAvailableRelTypeToChildren(ctx context.Context, in *GetNodeReq, opts ...grpc.CallOption) (*AvailableRelTypeResp, error)
 	GetAvailableRelTypeToParents(ctx context.Context, in *GetNodeReq, opts ...grpc.CallOption) (*AvailableRelTypeResp, error)
+	GetPathBetween(ctx context.Context, in *GetPathBetweenReq, opts ...grpc.CallOption) (*NetResp, error)
+	GetConst(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*NetConstResp, error)
 }
 
 type netGraphServiceClient struct {
@@ -50,6 +57,15 @@ func NewNetGraphServiceClient(cc grpc.ClientConnInterface) NetGraphServiceClient
 func (c *netGraphServiceClient) GetNetExpand(ctx context.Context, in *NetExpandReq, opts ...grpc.CallOption) (*NetResp, error) {
 	out := new(NetResp)
 	err := c.cc.Invoke(ctx, NetGraphService_GetNetExpand_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *netGraphServiceClient) GetNetExpands(ctx context.Context, in *NetExpandsReq, opts ...grpc.CallOption) (*NetResp, error) {
+	out := new(NetResp)
+	err := c.cc.Invoke(ctx, NetGraphService_GetNetExpands_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -101,16 +117,37 @@ func (c *netGraphServiceClient) GetAvailableRelTypeToParents(ctx context.Context
 	return out, nil
 }
 
+func (c *netGraphServiceClient) GetPathBetween(ctx context.Context, in *GetPathBetweenReq, opts ...grpc.CallOption) (*NetResp, error) {
+	out := new(NetResp)
+	err := c.cc.Invoke(ctx, NetGraphService_GetPathBetween_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *netGraphServiceClient) GetConst(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*NetConstResp, error) {
+	out := new(NetConstResp)
+	err := c.cc.Invoke(ctx, NetGraphService_GetConst_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // NetGraphServiceServer is the server API for NetGraphService service.
 // All implementations must embed UnimplementedNetGraphServiceServer
 // for forward compatibility
 type NetGraphServiceServer interface {
 	GetNetExpand(context.Context, *NetExpandReq) (*NetResp, error)
+	GetNetExpands(context.Context, *NetExpandsReq) (*NetResp, error)
 	GetNode(context.Context, *GetNodeReq) (*NodeResp, error)
 	GetChildrenNet(context.Context, *GetPaginationNodeReq) (*NetPaginationResp, error)
 	GetParentsNet(context.Context, *GetPaginationNodeReq) (*NetPaginationResp, error)
 	GetAvailableRelTypeToChildren(context.Context, *GetNodeReq) (*AvailableRelTypeResp, error)
 	GetAvailableRelTypeToParents(context.Context, *GetNodeReq) (*AvailableRelTypeResp, error)
+	GetPathBetween(context.Context, *GetPathBetweenReq) (*NetResp, error)
+	GetConst(context.Context, *emptypb.Empty) (*NetConstResp, error)
 	mustEmbedUnimplementedNetGraphServiceServer()
 }
 
@@ -120,6 +157,9 @@ type UnimplementedNetGraphServiceServer struct {
 
 func (UnimplementedNetGraphServiceServer) GetNetExpand(context.Context, *NetExpandReq) (*NetResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetNetExpand not implemented")
+}
+func (UnimplementedNetGraphServiceServer) GetNetExpands(context.Context, *NetExpandsReq) (*NetResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetNetExpands not implemented")
 }
 func (UnimplementedNetGraphServiceServer) GetNode(context.Context, *GetNodeReq) (*NodeResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetNode not implemented")
@@ -135,6 +175,12 @@ func (UnimplementedNetGraphServiceServer) GetAvailableRelTypeToChildren(context.
 }
 func (UnimplementedNetGraphServiceServer) GetAvailableRelTypeToParents(context.Context, *GetNodeReq) (*AvailableRelTypeResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAvailableRelTypeToParents not implemented")
+}
+func (UnimplementedNetGraphServiceServer) GetPathBetween(context.Context, *GetPathBetweenReq) (*NetResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPathTo not implemented")
+}
+func (UnimplementedNetGraphServiceServer) GetConst(context.Context, *emptypb.Empty) (*NetConstResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetConst not implemented")
 }
 func (UnimplementedNetGraphServiceServer) mustEmbedUnimplementedNetGraphServiceServer() {}
 
@@ -163,6 +209,24 @@ func _NetGraphService_GetNetExpand_Handler(srv interface{}, ctx context.Context,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(NetGraphServiceServer).GetNetExpand(ctx, req.(*NetExpandReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NetGraphService_GetNetExpands_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NetExpandsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetGraphServiceServer).GetNetExpands(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetGraphService_GetNetExpands_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetGraphServiceServer).GetNetExpands(ctx, req.(*NetExpandsReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -257,6 +321,42 @@ func _NetGraphService_GetAvailableRelTypeToParents_Handler(srv interface{}, ctx 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _NetGraphService_GetPathBetween_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPathBetweenReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetGraphServiceServer).GetPathBetween(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetGraphService_GetPathBetween_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetGraphServiceServer).GetPathBetween(ctx, req.(*GetPathBetweenReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NetGraphService_GetConst_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NetGraphServiceServer).GetConst(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NetGraphService_GetConst_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NetGraphServiceServer).GetConst(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // NetGraphService_ServiceDesc is the grpc.ServiceDesc for NetGraphService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -267,6 +367,10 @@ var NetGraphService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetNetExpand",
 			Handler:    _NetGraphService_GetNetExpand_Handler,
+		},
+		{
+			MethodName: "GetNetExpands",
+			Handler:    _NetGraphService_GetNetExpands_Handler,
 		},
 		{
 			MethodName: "GetNode",
@@ -287,6 +391,14 @@ var NetGraphService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAvailableRelTypeToParents",
 			Handler:    _NetGraphService_GetAvailableRelTypeToParents_Handler,
+		},
+		{
+			MethodName: "GetPathTo",
+			Handler:    _NetGraphService_GetPathBetween_Handler,
+		},
+		{
+			MethodName: "GetConst",
+			Handler:    _NetGraphService_GetConst_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

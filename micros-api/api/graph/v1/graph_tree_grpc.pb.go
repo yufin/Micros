@@ -23,7 +23,7 @@ const (
 	TreeGraphService_GetTreeNode_FullMethodName          = "/api.graph.v1.TreeGraphService/GetTreeNode"
 	TreeGraphService_GetChildren_FullMethodName          = "/api.graph.v1.TreeGraphService/GetChildren"
 	TreeGraphService_GetTitleAutoComplete_FullMethodName = "/api.graph.v1.TreeGraphService/GetTitleAutoComplete"
-	TreeGraphService_GetPathBetween_FullMethodName       = "/api.graph.v1.TreeGraphService/GetPathBetween"
+	TreeGraphService_GetPathBetween_FullMethodName       = "/api.graph.v1.TreeGraphService/GetPathTo"
 	TreeGraphService_GetConst_FullMethodName             = "/api.graph.v1.TreeGraphService/GetConst"
 )
 
@@ -117,7 +117,7 @@ func (UnimplementedTreeGraphServiceServer) GetTitleAutoComplete(context.Context,
 	return nil, status.Errorf(codes.Unimplemented, "method GetTitleAutoComplete not implemented")
 }
 func (UnimplementedTreeGraphServiceServer) GetPathBetween(context.Context, *GetPathReq) (*TreeNodeResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetPathBetween not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method GetPathTo not implemented")
 }
 func (UnimplementedTreeGraphServiceServer) GetConst(context.Context, *emptypb.Empty) (*ConstResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetConst not implemented")
@@ -245,7 +245,7 @@ var TreeGraphService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _TreeGraphService_GetTitleAutoComplete_Handler,
 		},
 		{
-			MethodName: "GetPathBetween",
+			MethodName: "GetPathTo",
 			Handler:    _TreeGraphService_GetPathBetween_Handler,
 		},
 		{

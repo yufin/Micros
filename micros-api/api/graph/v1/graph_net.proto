@@ -4,6 +4,7 @@ package api.graph.v1;
 
 import "google/api/annotations.proto";
 import "google/protobuf/struct.proto";
+import "google/protobuf/empty.proto";
 
 option go_package = "brillinkmicros/api/graph/v1;v1";
 option java_multiple_files = true;
@@ -12,9 +13,16 @@ option java_package = "api.graph.v1";
 
 
 service NetGraphService {
+
   rpc GetNetExpand(NetExpandReq) returns (NetResp) {
     option (google.api.http) = {
       get: "/micros/graph/v1/net/expand"
+    };
+  }
+
+  rpc GetNetExpands(NetExpandsReq) returns (NetResp) {
+    option (google.api.http) = {
+      get: "/micros/graph/v1/net/expands"
     };
   }
 
@@ -48,8 +56,32 @@ service NetGraphService {
     };
   }
 
+  rpc GetPathBetween(GetPathBetweenReq) returns (NetResp) {
+    option (google.api.http) = {
+      get: "/micros/graph/v1/net/pathBetween"
+    };
+  }
+
+  rpc GetConst(google.protobuf.Empty) returns (NetConstResp) {
+    option (google.api.http) = {
+      get : "/micros/graph/v1/net/const"
+    };
+  }
+
 }
 
+message NetConstResp {
+    google.protobuf.Struct availableRelScope = 1;
+    string netDemoDefaultId = 2;
+}
+
+
+message GetPathBetweenReq {
+  string sourceId = 1;
+  string targetId = 2;
+  int64 maxDepth = 3;
+  repeated string relScope = 4;
+}
 
 message AvailableRelTypeResp {
   bool success = 1;
@@ -69,12 +101,18 @@ message AvailableRelTypeResp {
 message GetNodeReq {
   string id = 1;
 }
-
+message NetExpandsReq {
+  repeated string ids = 1;
+  uint32 depth = 2;
+  uint32 limit = 3;
+  repeated string relScope = 4;
+}
 
 message NetExpandReq {
   string id = 1;
   uint32 depth = 2;
   uint32 limit = 3;
+  repeated string relScope = 4;
 }
 
 message GetPaginationNodeReq {
@@ -83,6 +121,7 @@ message GetPaginationNodeReq {
   string id = 3;
   repeated string scope_rel_type = 4;
 }
+
 message Node {
 	string id = 1;
 	string title = 3;

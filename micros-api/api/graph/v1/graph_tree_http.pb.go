@@ -22,7 +22,7 @@ const _ = http.SupportPackageIsVersion1
 
 const OperationTreeGraphServiceGetChildren = "/api.graph.v1.TreeGraphService/GetChildren"
 const OperationTreeGraphServiceGetConst = "/api.graph.v1.TreeGraphService/GetConst"
-const OperationTreeGraphServiceGetPathBetween = "/api.graph.v1.TreeGraphService/GetPathBetween"
+const OperationTreeGraphServiceGetPathBetween = "/api.graph.v1.TreeGraphService/GetPathTo"
 const OperationTreeGraphServiceGetTitleAutoComplete = "/api.graph.v1.TreeGraphService/GetTitleAutoComplete"
 const OperationTreeGraphServiceGetTreeNode = "/api.graph.v1.TreeGraphService/GetTreeNode"
 

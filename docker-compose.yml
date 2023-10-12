@@ -1,0 +1,25 @@
+version: '3'
+services:
+  api:
+    build:
+      context: ./micros-api
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - dw-data
+    volumes:
+        - ./micros-api/configs:/app/configs
+
+  dw-data:
+    build:
+      context: ./micros-dwdata
+      dockerfile: Dockerfile
+    ports:
+      - "50052:50052"
+    depends_on:
+      - api
+    environment:
+      - DWDATA_URI=api:50052
+    volumes:
+      - ./micros-dw/configs:/app/configs

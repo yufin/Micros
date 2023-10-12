@@ -193,24 +193,34 @@ func (repo *GraphRepo) CountTitleAutoComplete(ctx context.Context, f dto.PathFil
 	return nil
 }
 
-func (repo *GraphRepo) GetPathBetween(ctx context.Context, sourceId string, targetId string, f dto.PathFilter) (*[]neo4j.Path, error) {
-	if f.MaxPathDepth == 0 {
-		f.MaxPathDepth = 6
+func (repo *GraphRepo) GetPathTo(ctx context.Context, sourceId string, targetId string, maxDepth int, relScope []string) (*[]neo4j.Path, error) {
+	if maxDepth == 0 {
+		maxDepth = 20
 	}
-	cypher :=
-		fmt.Sprintf(
+	var cypher string
+	param := map[string]any{
+		"sourceId": sourceId,
+		"targetId": targetId,
+		"relTypes": relScope,
+	}
+
+	if len(relScope) == 0 {
+		cypher = fmt.Sprintf(
 			`MATCH (s {id: $sourceId}) 
 		MATCH (t {id: $targetId}) 
 		MATCH p = (s)-[r*..%d]->(t) 
-		WHERE any(label IN labels(t) WHERE label IN $targetLabels) 
-		AND all(rel in relationships(p) where type(rel) in $relTypes) 
-		RETURN p;`, f.MaxPathDepth)
-	param := map[string]any{
-		"sourceId":     sourceId,
-		"targetId":     targetId,
-		"targetLabels": f.NodeLabels,
-		"relTypes":     f.RelLabels,
+		RETURN p;`, maxDepth)
+	} else {
+		cypher =
+			fmt.Sprintf(
+				`MATCH (s {id: $sourceId}) 
+		MATCH (t {id: $targetId}) 
+		MATCH p = (s)-[r*..%d]->(t) 
+		WHERE all(rel in relationships(p) where type(rel) in $relTypes) 
+		RETURN p;`, maxDepth)
+		param["relTypes"] = relScope
 	}
+
 	res, err := repo.data.Neo.CypherQuery(ctx, cypher, param)
 	if err != nil {
 		return nil, err
@@ -225,15 +235,69 @@ func (repo *GraphRepo) GetPathBetween(ctx context.Context, sourceId string, targ
 	return &resp, nil
 }
 
-func (repo *GraphRepo) GetPathExpand(ctx context.Context, sourceId string, depth uint32, limit uint32, f *dto.PathFilter) (*[]neo4j.Path, error) {
-	cypher :=
-		fmt.Sprintf(
-			`MATCH p = (s {id: $sourceId})-[*%d]-(t) 
-		RETURN p LIMIT $limit;`, int(depth))
+func (repo *GraphRepo) GetPathBetween(ctx context.Context, sourceId string, targetId string, maxDepth int, relScope []string) (*[]neo4j.Path, error) {
+	if maxDepth == 0 {
+		maxDepth = 20
+	}
+	var cypher string
+	param := map[string]any{
+		"sourceId": sourceId,
+		"targetId": targetId,
+		"relTypes": relScope,
+	}
+
+	if len(relScope) == 0 {
+		cypher = fmt.Sprintf(
+			`MATCH (s {id: $sourceId}) 
+		MATCH (t {id: $targetId}) 
+		MATCH p = (s)-[r*..%d]-(t) 
+		RETURN p;`, maxDepth)
+	} else {
+		cypher =
+			fmt.Sprintf(
+				`MATCH (s {id: $sourceId}) 
+		MATCH (t {id: $targetId}) 
+		MATCH p = (s)-[r*..%d]-(t) 
+		WHERE all(rel in relationships(p) where type(rel) in $relTypes) 
+		RETURN p;`, maxDepth)
+		param["relTypes"] = relScope
+	}
+
+	res, err := repo.data.Neo.CypherQuery(ctx, cypher, param)
+	if err != nil {
+		return nil, err
+	}
+	var resp []neo4j.Path
+	for _, path := range res {
+		p, found := path.Get("p")
+		if found {
+			resp = append(resp, p.(neo4j.Path))
+		}
+	}
+	return &resp, nil
+}
+
+func (repo *GraphRepo) GetPathExpand(ctx context.Context, sourceId string, depth uint32, limit uint32, relScope []string) (*[]neo4j.Path, error) {
+	var cypher string
 	param := map[string]any{
 		"sourceId": sourceId,
 		"limit":    int(limit),
 	}
+
+	if len(relScope) > 0 {
+		cypher = fmt.Sprintf(
+			`MATCH p = (s {id: $sourceId})-[rels*%d]-(t)
+			WHERE all(r in rels WHERE type(r) in $relScope)
+			RETURN p LIMIT $limit;`,
+			int(depth))
+		param["relScope"] = relScope
+	} else {
+		cypher = fmt.Sprintf(
+			`MATCH p = (s {id: $sourceId})-[*%d]-(t) 
+			RETURN p LIMIT $limit;`,
+			int(depth))
+	}
+
 	res, err := repo.data.Neo.CypherQuery(ctx, cypher, param)
 	if err != nil {
 		return nil, err
@@ -265,7 +329,7 @@ func (repo *GraphRepo) GetPathBetweenByIds(ctx context.Context, sourceId string,
 		"sourceId":   sourceId,
 		"targetIds":  targetIds,
 		"NodeLabels": f.NodeLabels,
-		"$relLabels": f.RelLabels,
+		"relLabels":  f.RelLabels,
 	})
 	if err != nil {
 		return nil, err

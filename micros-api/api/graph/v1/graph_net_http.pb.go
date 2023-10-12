@@ -10,6 +10,7 @@ import (
 	context "context"
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -22,27 +23,36 @@ const _ = http.SupportPackageIsVersion1
 const OperationNetGraphServiceGetAvailableRelTypeToChildren = "/api.graph.v1.NetGraphService/GetAvailableRelTypeToChildren"
 const OperationNetGraphServiceGetAvailableRelTypeToParents = "/api.graph.v1.NetGraphService/GetAvailableRelTypeToParents"
 const OperationNetGraphServiceGetChildrenNet = "/api.graph.v1.NetGraphService/GetChildrenNet"
+const OperationNetGraphServiceGetConst = "/api.graph.v1.NetGraphService/GetConst"
 const OperationNetGraphServiceGetNetExpand = "/api.graph.v1.NetGraphService/GetNetExpand"
+const OperationNetGraphServiceGetNetExpands = "/api.graph.v1.NetGraphService/GetNetExpands"
 const OperationNetGraphServiceGetNode = "/api.graph.v1.NetGraphService/GetNode"
 const OperationNetGraphServiceGetParentsNet = "/api.graph.v1.NetGraphService/GetParentsNet"
+const OperationNetGraphServiceGetPathBetween = "/api.graph.v1.NetGraphService/GetPathTo"
 
 type NetGraphServiceHTTPServer interface {
 	GetAvailableRelTypeToChildren(context.Context, *GetNodeReq) (*AvailableRelTypeResp, error)
 	GetAvailableRelTypeToParents(context.Context, *GetNodeReq) (*AvailableRelTypeResp, error)
 	GetChildrenNet(context.Context, *GetPaginationNodeReq) (*NetPaginationResp, error)
+	GetConst(context.Context, *emptypb.Empty) (*NetConstResp, error)
 	GetNetExpand(context.Context, *NetExpandReq) (*NetResp, error)
+	GetNetExpands(context.Context, *NetExpandsReq) (*NetResp, error)
 	GetNode(context.Context, *GetNodeReq) (*NodeResp, error)
 	GetParentsNet(context.Context, *GetPaginationNodeReq) (*NetPaginationResp, error)
+	GetPathBetween(context.Context, *GetPathBetweenReq) (*NetResp, error)
 }
 
 func RegisterNetGraphServiceHTTPServer(s *http.Server, srv NetGraphServiceHTTPServer) {
 	r := s.Route("/")
 	r.GET("/micros/graph/v1/net/expand", _NetGraphService_GetNetExpand0_HTTP_Handler(srv))
+	r.GET("/micros/graph/v1/net/expands", _NetGraphService_GetNetExpands0_HTTP_Handler(srv))
 	r.GET("/micros/graph/v1/net/node", _NetGraphService_GetNode0_HTTP_Handler(srv))
 	r.GET("/micros/graph/v1/net/children", _NetGraphService_GetChildrenNet0_HTTP_Handler(srv))
 	r.GET("/micros/graph/v1/net/parents", _NetGraphService_GetParentsNet0_HTTP_Handler(srv))
 	r.GET("/micros/graph/v1/net/children/availableRelType", _NetGraphService_GetAvailableRelTypeToChildren0_HTTP_Handler(srv))
 	r.GET("/micros/graph/v1/net/parents/availableRelType", _NetGraphService_GetAvailableRelTypeToParents0_HTTP_Handler(srv))
+	r.GET("/micros/graph/v1/net/pathBetween", _NetGraphService_GetPathBetween0_HTTP_Handler(srv))
+	r.GET("/micros/graph/v1/net/const", _NetGraphService_GetConst0_HTTP_Handler(srv))
 }
 
 func _NetGraphService_GetNetExpand0_HTTP_Handler(srv NetGraphServiceHTTPServer) func(ctx http.Context) error {
@@ -54,6 +64,25 @@ func _NetGraphService_GetNetExpand0_HTTP_Handler(srv NetGraphServiceHTTPServer) 
 		http.SetOperation(ctx, OperationNetGraphServiceGetNetExpand)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.GetNetExpand(ctx, req.(*NetExpandReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*NetResp)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _NetGraphService_GetNetExpands0_HTTP_Handler(srv NetGraphServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in NetExpandsReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationNetGraphServiceGetNetExpands)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetNetExpands(ctx, req.(*NetExpandsReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -159,13 +188,54 @@ func _NetGraphService_GetAvailableRelTypeToParents0_HTTP_Handler(srv NetGraphSer
 	}
 }
 
+func _NetGraphService_GetPathBetween0_HTTP_Handler(srv NetGraphServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetPathBetweenReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationNetGraphServiceGetPathBetween)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetPathBetween(ctx, req.(*GetPathBetweenReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*NetResp)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _NetGraphService_GetConst0_HTTP_Handler(srv NetGraphServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationNetGraphServiceGetConst)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetConst(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*NetConstResp)
+		return ctx.Result(200, reply)
+	}
+}
+
 type NetGraphServiceHTTPClient interface {
 	GetAvailableRelTypeToChildren(ctx context.Context, req *GetNodeReq, opts ...http.CallOption) (rsp *AvailableRelTypeResp, err error)
 	GetAvailableRelTypeToParents(ctx context.Context, req *GetNodeReq, opts ...http.CallOption) (rsp *AvailableRelTypeResp, err error)
 	GetChildrenNet(ctx context.Context, req *GetPaginationNodeReq, opts ...http.CallOption) (rsp *NetPaginationResp, err error)
+	GetConst(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *NetConstResp, err error)
 	GetNetExpand(ctx context.Context, req *NetExpandReq, opts ...http.CallOption) (rsp *NetResp, err error)
+	GetNetExpands(ctx context.Context, req *NetExpandsReq, opts ...http.CallOption) (rsp *NetResp, err error)
 	GetNode(ctx context.Context, req *GetNodeReq, opts ...http.CallOption) (rsp *NodeResp, err error)
 	GetParentsNet(ctx context.Context, req *GetPaginationNodeReq, opts ...http.CallOption) (rsp *NetPaginationResp, err error)
+	GetPathBetween(ctx context.Context, req *GetPathBetweenReq, opts ...http.CallOption) (rsp *NetResp, err error)
 }
 
 type NetGraphServiceHTTPClientImpl struct {
@@ -215,11 +285,37 @@ func (c *NetGraphServiceHTTPClientImpl) GetChildrenNet(ctx context.Context, in *
 	return &out, err
 }
 
+func (c *NetGraphServiceHTTPClientImpl) GetConst(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*NetConstResp, error) {
+	var out NetConstResp
+	pattern := "/micros/graph/v1/net/const"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationNetGraphServiceGetConst))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *NetGraphServiceHTTPClientImpl) GetNetExpand(ctx context.Context, in *NetExpandReq, opts ...http.CallOption) (*NetResp, error) {
 	var out NetResp
 	pattern := "/micros/graph/v1/net/expand"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationNetGraphServiceGetNetExpand))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *NetGraphServiceHTTPClientImpl) GetNetExpands(ctx context.Context, in *NetExpandsReq, opts ...http.CallOption) (*NetResp, error) {
+	var out NetResp
+	pattern := "/micros/graph/v1/net/expands"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationNetGraphServiceGetNetExpands))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
@@ -246,6 +342,19 @@ func (c *NetGraphServiceHTTPClientImpl) GetParentsNet(ctx context.Context, in *G
 	pattern := "/micros/graph/v1/net/parents"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationNetGraphServiceGetParentsNet))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *NetGraphServiceHTTPClientImpl) GetPathBetween(ctx context.Context, in *GetPathBetweenReq, opts ...http.CallOption) (*NetResp, error) {
+	var out NetResp
+	pattern := "/micros/graph/v1/net/pathBetween"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationNetGraphServiceGetPathBetween))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

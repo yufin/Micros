@@ -953,12 +953,12 @@ var file_api_graph_v1_graph_tree_proto_depIdxs = []int32{
 	2,  // 6: api.graph.v1.TreeGraphService.GetTreeNode:input_type -> api.graph.v1.IdReq
 	3,  // 7: api.graph.v1.TreeGraphService.GetChildren:input_type -> api.graph.v1.PgIdReq
 	7,  // 8: api.graph.v1.TreeGraphService.GetTitleAutoComplete:input_type -> api.graph.v1.TitleAutoCompleteReq
-	10, // 9: api.graph.v1.TreeGraphService.GetPathBetween:input_type -> api.graph.v1.GetPathReq
+	10, // 9: api.graph.v1.TreeGraphService.GetPathTo:input_type -> api.graph.v1.GetPathReq
 	12, // 10: api.graph.v1.TreeGraphService.GetConst:input_type -> google.protobuf.Empty
 	5,  // 11: api.graph.v1.TreeGraphService.GetTreeNode:output_type -> api.graph.v1.TreeNodeResp
 	6,  // 12: api.graph.v1.TreeGraphService.GetChildren:output_type -> api.graph.v1.TreeNodesResp
 	9,  // 13: api.graph.v1.TreeGraphService.GetTitleAutoComplete:output_type -> api.graph.v1.TitleAutoCompleteResp
-	5,  // 14: api.graph.v1.TreeGraphService.GetPathBetween:output_type -> api.graph.v1.TreeNodeResp
+	5,  // 14: api.graph.v1.TreeGraphService.GetPathTo:output_type -> api.graph.v1.TreeNodeResp
 	1,  // 15: api.graph.v1.TreeGraphService.GetConst:output_type -> api.graph.v1.ConstResp
 	11, // [11:16] is the sub-list for method output_type
 	6,  // [6:11] is the sub-list for method input_type

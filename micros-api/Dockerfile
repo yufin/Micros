@@ -7,15 +7,6 @@ RUN GOPROXY=https://goproxy.cn make build
 
 FROM debian:stable-slim
 
-#RUN echo "deb https://mirrors.aliyun.com/debian/ bullseye main non-free contrib" > /etc/apt/sources.list && \
-#    echo "deb-src https://mirrors.aliyun.com/debian/ bullseye main non-free contrib" >> /etc/apt/sources.list && \
-#    echo "deb https://mirrors.aliyun.com/debian-security/ bullseye-security main" >> /etc/apt/sources.list && \
-#    echo "deb-src https://mirrors.aliyun.com/debian-security/ bullseye-security main" >> /etc/apt/sources.list && \
-#    echo "deb https://mirrors.aliyun.com/debian/ bullseye-updates main non-free contrib" >> /etc/apt/sources.list && \
-#    echo "deb-src https://mirrors.aliyun.com/debian/ bullseye-updates main non-free contrib" >> /etc/apt/sources.list && \
-#    echo "deb https://mirrors.aliyun.com/debian/ bullseye-backports main non-free contrib" >> /etc/apt/sources.list && \
-#    echo "deb-src https://mirrors.aliyun.com/debian/ bullseye-backports main non-free contrib" >> /etc/apt/sources.list \
-
 RUN apt-get update && apt-get install -y --no-install-recommends \
 		ca-certificates  \
         netbase \
@@ -31,9 +22,10 @@ EXPOSE 8000
 VOLUME /data/conf
 
 CMD ["./server", "-conf", "/data/conf"]
-#docker image build -t blmicros-api:1.2 .
+
+#docker image build -t blmicros-api:1.5 .
 
 #docker run --name blmicros-api -p 8009:8000 -p 9000:9000 -v /Users/yufei/DockerVolume/blmicros/conf:/data/conf blmicros-api
 # prod:
-# docker run --name micros-api -p 8009:8000 -v /www/wwwroot/BrillinkDataAdmin/brillinkMicros/micros-api/configs:/data/conf micros-api:2.0
+# docker run --name micros-api -p 8009:8000 -v /www/wwwroot/BrillinkDataAdmin/brillinkMicros/micros-api/configs:/data/conf blmicros-api:1.5
 #

@@ -100,6 +100,28 @@
         ]
       }
     },
+    "/micros/graph/v1/net/const": {
+      "get": {
+        "operationId": "NetGraphService_GetConst",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1NetConstResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "NetGraphService"
+        ]
+      }
+    },
     "/micros/graph/v1/net/expand": {
       "get": {
         "operationId": "NetGraphService_GetNetExpand",
@@ -137,6 +159,74 @@
             "required": false,
             "type": "integer",
             "format": "int64"
+          },
+          {
+            "name": "relScope",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "tags": [
+          "NetGraphService"
+        ]
+      }
+    },
+    "/micros/graph/v1/net/expands": {
+      "get": {
+        "operationId": "NetGraphService_GetNetExpands",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1NetResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "depth",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "relScope",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
           }
         ],
         "tags": [
@@ -257,6 +347,59 @@
           "NetGraphService"
         ]
       }
+    },
+    "/micros/graph/v1/net/pathBetween": {
+      "get": {
+        "operationId": "NetGraphService_GetPathBetween",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1NetResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "sourceId",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "targetId",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "maxDepth",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "relScope",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "tags": [
+          "NetGraphService"
+        ]
+      }
     }
   },
   "definitions": {
@@ -350,6 +493,17 @@
             "type": "object",
             "$ref": "#/definitions/v1Edge"
           }
+        }
+      }
+    },
+    "v1NetConstResp": {
+      "type": "object",
+      "properties": {
+        "availableRelScope": {
+          "type": "object"
+        },
+        "netDemoDefaultId": {
+          "type": "string"
         }
       }
     },

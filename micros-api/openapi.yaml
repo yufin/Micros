@@ -68,6 +68,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /micros/graph/v1/net/const:
+        get:
+            tags:
+                - NetGraphService
+            operationId: NetGraphService_GetConst
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NetConstResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /micros/graph/v1/net/expand:
         get:
             tags:
@@ -88,6 +106,53 @@ paths:
                   schema:
                     type: integer
                     format: uint32
+                - name: relScope
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NetResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/graph/v1/net/expands:
+        get:
+            tags:
+                - NetGraphService
+            operationId: NetGraphService_GetNetExpands
+            parameters:
+                - name: ids
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+                - name: depth
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: limit
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: relScope
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
             responses:
                 "200":
                     description: OK
@@ -186,6 +251,44 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /micros/graph/v1/net/pathBetween:
+        get:
+            tags:
+                - NetGraphService
+            operationId: NetGraphService_GetPathBetween
+            parameters:
+                - name: sourceId
+                  in: query
+                  schema:
+                    type: string
+                - name: targetId
+                  in: query
+                  schema:
+                    type: string
+                - name: maxDepth
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+                - name: relScope
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NetResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
 components:
     schemas:
         AvailableRelTypeResp:
@@ -232,6 +335,13 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/Edge'
+        NetConstResp:
+            type: object
+            properties:
+                availableRelScope:
+                    type: object
+                netDemoDefaultId:
+                    type: string
         NetPaginationResp:
             type: object
             properties:

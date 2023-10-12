@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/pkg/errors"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/structpb"
 	"micros-api/internal/biz"
 	"micros-api/internal/biz/dto"
@@ -23,13 +25,78 @@ func NewNetGraphServiceServicer(gn *biz.GraphUsecase, logger log.Logger) *NetGra
 	}
 }
 
-func (s *NetGraphServiceServicer) GetNetExpand(ctx context.Context, req *pb.NetExpandReq) (*pb.NetResp, error) {
-	f := dto.PathFilter{
-		RelLabels:    nil,
-		NodeLabels:   nil,
-		MaxPathDepth: 0,
+func (s *NetGraphServiceServicer) GetConst(ctx context.Context, empty *emptypb.Empty) (*pb.NetConstResp, error) {
+	edge := dto.Edge{}
+	relDict := edge.RelTypeAliasDict()
+	availableRels := make(map[string]any)
+	for k, v := range relDict {
+		availableRels[v] = k
 	}
-	res, err := s.graph.GetPathExpand(ctx, req.Id, req.Depth, req.Limit, &f)
+	st, err := structpb.NewStruct(availableRels)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return &pb.NetConstResp{
+		AvailableRelScope: st,
+		NetDemoDefaultId:  "",
+	}, nil
+}
+
+func (s *NetGraphServiceServicer) GetPathBetween(ctx context.Context, req *pb.GetPathBetweenReq) (*pb.NetResp, error) {
+	//res, err := s.graph.GetPathTo(ctx, req.SourceId, req.TargetId, int(req.MaxDepth), req.RelScope)
+	res, err := s.graph.GetPathBetween(ctx, req.SourceId, req.TargetId, int(req.MaxDepth), req.RelScope)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	if len(*res) == 0 {
+		return &pb.NetResp{
+			Success: true,
+			Code:    0,
+			Msg:     "没有更多啦",
+			Data:    nil,
+		}, nil
+	}
+	net := dto.Net{}
+	net.Gen(res)
+	data := pb.Net{}
+	net.GenPb(&data)
+
+	return &pb.NetResp{
+		Success: true,
+		Code:    200,
+		Msg:     "success",
+		Data:    &data,
+	}, nil
+
+}
+
+func (s *NetGraphServiceServicer) GetNetExpands(ctx context.Context, req *pb.NetExpandsReq) (*pb.NetResp, error) {
+	finalNet := pb.Net{}
+	for _, id := range req.Ids {
+		res, err := s.graph.GetPathExpand(ctx, id, req.Depth, req.Limit, req.RelScope)
+		if err != nil {
+			return nil, err
+		}
+		if len(*res) > 0 {
+			net := dto.Net{}
+			net.Gen(res)
+			data := pb.Net{}
+			net.GenPb(&data)
+
+			finalNet.Nodes = append(finalNet.Nodes, data.Nodes...)
+			finalNet.Edges = append(finalNet.Edges, data.Edges...)
+		}
+	}
+	return &pb.NetResp{
+		Success: true,
+		Code:    200,
+		Msg:     "success",
+		Data:    &finalNet,
+	}, nil
+}
+
+func (s *NetGraphServiceServicer) GetNetExpand(ctx context.Context, req *pb.NetExpandReq) (*pb.NetResp, error) {
+	res, err := s.graph.GetPathExpand(ctx, req.Id, req.Depth, req.Limit, req.RelScope)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +104,7 @@ func (s *NetGraphServiceServicer) GetNetExpand(ctx context.Context, req *pb.NetE
 		return &pb.NetResp{
 			Success: true,
 			Code:    0,
-			Msg:     "empty result",
+			Msg:     "没有更多啦",
 			Data:    nil,
 		}, nil
 	}
@@ -120,7 +187,7 @@ func (s *NetGraphServiceServicer) GetParentsNet(ctx context.Context, req *pb.Get
 		return &pb.NetPaginationResp{
 			Success:  true,
 			Code:     0,
-			Msg:      "",
+			Msg:      "没有更多啦",
 			Total:    int32(count),
 			Current:  int32(req.PageNum),
 			PageSize: int32(req.PageSize),

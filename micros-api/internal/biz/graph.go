@@ -19,10 +19,11 @@ type GraphRepo interface {
 	GetTitleAutoComplete(ctx context.Context, f dto.PathFilter, p dto.PaginationReq, kw string) (*[]dto.TitleAutoCompleteRes, error)
 	CountTitleAutoComplete(ctx context.Context, f dto.PathFilter, kw string, amount *int64) error
 
-	GetPathBetween(ctx context.Context, sourceId string, targetId string, f dto.PathFilter) (*[]neo4j.Path, error)
+	GetPathTo(ctx context.Context, sourceId string, targetId string, maxDepth int, relScope []string) (*[]neo4j.Path, error)
+	GetPathBetween(ctx context.Context, sourceId string, targetId string, maxDepth int, relScope []string) (*[]neo4j.Path, error)
 	GetPathBetweenByIds(ctx context.Context, sourceId string, targetIds []string, f *dto.PathFilter) (*[]neo4j.Path, error)
 
-	GetPathExpand(ctx context.Context, sourceId string, depth uint32, limit uint32, f *dto.PathFilter) (*[]neo4j.Path, error)
+	GetPathExpand(ctx context.Context, sourceId string, depth uint32, limit uint32, relScope []string) (*[]neo4j.Path, error)
 	GetPathToChildren(ctx context.Context, sourceId string, p dto.PaginationReq, scopeRelType []string) (*[]neo4j.Path, int64, error)
 	GetPathToParent(ctx context.Context, targetId string, p dto.PaginationReq, scopeRelType []string) (*[]neo4j.Path, int64, error)
 }
@@ -71,9 +72,14 @@ func (uc *GraphUsecase) CountTitleAutoComplete(ctx context.Context, f dto.PathFi
 	return uc.repo.CountTitleAutoComplete(ctx, f, kw, amount)
 }
 
-func (uc *GraphUsecase) GetPathBetween(ctx context.Context, sourceId string, targetId string, f dto.PathFilter) (*[]neo4j.Path, error) {
-	uc.log.WithContext(ctx).Infof("biz.GraphUsecase.GetPathBetween")
-	return uc.repo.GetPathBetween(ctx, sourceId, targetId, f)
+func (uc *GraphUsecase) GetPathTo(ctx context.Context, sourceId string, targetId string, maxDepth int, relScope []string) (*[]neo4j.Path, error) {
+	uc.log.WithContext(ctx).Infof("biz.GraphUsecase.GetPathTo")
+	return uc.repo.GetPathTo(ctx, sourceId, targetId, maxDepth, relScope)
+}
+
+func (uc *GraphUsecase) GetPathBetween(ctx context.Context, sourceId string, targetId string, maxDepth int, relScope []string) (*[]neo4j.Path, error) {
+	uc.log.WithContext(ctx).Infof("biz.GraphUsecase.GetPathTo")
+	return uc.repo.GetPathTo(ctx, sourceId, targetId, maxDepth, relScope)
 }
 
 func (uc *GraphUsecase) GetPathBetweenByIds(ctx context.Context, sourceId string, targetIds []string, f *dto.PathFilter) (*[]neo4j.Path, error) {
@@ -81,9 +87,9 @@ func (uc *GraphUsecase) GetPathBetweenByIds(ctx context.Context, sourceId string
 	return uc.repo.GetPathBetweenByIds(ctx, sourceId, targetIds, f)
 }
 
-func (uc *GraphUsecase) GetPathExpand(ctx context.Context, sourceId string, depth uint32, limit uint32, f *dto.PathFilter) (*[]neo4j.Path, error) {
+func (uc *GraphUsecase) GetPathExpand(ctx context.Context, sourceId string, depth uint32, limit uint32, relScope []string) (*[]neo4j.Path, error) {
 	uc.log.WithContext(ctx).Infof("biz.GraphUsecase.GetPathExpand")
-	return uc.repo.GetPathExpand(ctx, sourceId, depth, limit, f)
+	return uc.repo.GetPathExpand(ctx, sourceId, depth, limit, relScope)
 }
 
 func (uc *GraphUsecase) GetPathToChildren(ctx context.Context, sourceId string, p dto.PaginationReq, scopeRelType []string) (*[]neo4j.Path, int64, error) {
