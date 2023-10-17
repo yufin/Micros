@@ -45,5 +45,5 @@ data:
   mongoDb:
     uri: mongodb://root:dev-password@192.168.44.169:27020
   service:
-    dwdata_uri: 192.168.44.169:50052
+    dwdata_uri: 192.168.44.150:50052
 #    uri: mongodb://root:dev-password@localhost:27020

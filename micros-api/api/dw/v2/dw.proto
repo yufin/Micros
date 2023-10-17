@@ -56,6 +56,71 @@ service DwService {
     };
   }
 
+  rpc GetEntShareholders(GetEntInfoReq) returns (ShareholdersResp) {
+    option (google.api.http) = {
+      get: "/micros/dw/v2/enterprise/shareholders"
+    };
+  }
+
+  rpc GetEntInvestment(GetEntInfoReq) returns (InvestmentResp) {
+    option (google.api.http) = {
+      get: "/micros/dw/v2/enterprise/investments"
+    };
+  }
+
+  rpc GetEntBranches(GetEntInfoReq) returns (BranchesResp) {
+    option (google.api.http) = {
+      get: "/micros/dw/v2/enterprise/branches"
+    };
+  }
+}
+
+message Shareholders {
+  string shareholder_name = 1;
+  string shareholder_type = 2;
+  string capital_amount = 3;
+  string real_amount = 4;
+  string capital_type = 5;
+  string percent = 6;
+}
+message ShareholdersResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  bool found = 4;
+  repeated Shareholders data = 5;
+}
+
+message Investment {
+  string enterprise_name = 1;
+  string operator = 2;
+  string shareholding_ratio = 3;
+  string invested_amount = 4;
+  string start_date = 5;
+  string status = 6;
+}
+message InvestmentResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  bool found = 4;
+  repeated Investment data = 5;
+}
+
+
+message Branches {
+  string enterprise_name = 1;
+  string operator = 2;
+  string area = 3;
+  string start_date = 4;
+  string status = 5;
+}
+message BranchesResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  bool found = 4;
+  repeated Branches data = 5;
 }
 
 message EquityTransparencyResp {

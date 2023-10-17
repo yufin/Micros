@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+package api.graph.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "microsgraph/api/graph/v1;v1";
+option java_multiple_files = true;
+option java_outer_classname = "GraphV1";
+option java_package = "api.graph.v1";
+
+
+service NetGraphService {
+
+  rpc GetNode(GetNodeReq) returns (NodeResp) {
+  }
+
+  rpc GetNodes() returns (NodesResp) {
+  }
+
+  rpc GetNodesByParams(GetNodesByParamsReq) returns (NodesResp) {
+  }
+
+}
+
+message GetNodeReq {
+  string id = 1;
+}
+
+message Node {
+  int64 vid = 1;
+  repeated string labels = 2;
+  google.protobuf.Struct properties = 3;
+}
+
+message Edge {
+  int64 sourceId = 1;
+  int64 targetId = 2;
+  string label = 3;
+  int64 rank = 4;
+  google.protobuf.Struct properties = 5;
+}
+
+message Net {
+  repeated Node nodes = 1;
+  repeated Edge edges = 2;
+}
+
+
+message NodeResp {
+  bool success = 1;
+  int32 code = 2;
+  string message = 3;
+  Node data = 4;
+}
+
+message EdgeResp {
+  bool success = 1;
+  int32 code = 2;
+  string message = 3;
+  Edge data = 4;
+}
+
+message NetResp {
+  bool success = 1;
+  int32 code = 2;
+  string message = 3;
+  Net data = 4;
+}
+
+message NodesResp {
+  bool success = 1;
+  int32 code = 2;
+  string message = 3;
+  int64 total = 4;
+  int64 offset = 5;
+  repeated Node data = 6;
+}
+
+message EdgesResp {
+  bool success = 1;
+  int32 code = 2;
+  string message = 3;
+  int64 total = 4;
+  int64 offset = 5;
+  repeated Edge data = 6;
+}

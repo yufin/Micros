@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
+	pb "micros-api/api/dwdata/v2"
 	"micros-api/internal/biz/dto"
 )
 
@@ -14,6 +15,10 @@ type DwEnterpriseRepo interface {
 	GetEntIndustry(ctx context.Context, uscId string) (*[]string, error)
 	GetEntProduct(ctx context.Context, uscId string) (*[]string, error)
 	GetEquityTransparency(ctx context.Context, uscId string) (*dto.EnterpriseEquityTransparency, error)
+
+	GetShareholders(ctx context.Context, uscId string) (*pb.ShareholdersResp, error)
+	GetInvestments(ctx context.Context, uscId string) (*pb.InvestmentResp, error)
+	GetBranches(ctx context.Context, uscId string) (*pb.BranchesResp, error)
 }
 
 type DwEnterpriseUsecase struct {
@@ -23,6 +28,21 @@ type DwEnterpriseUsecase struct {
 
 func NewDwEnterpriseUsecase(repo DwEnterpriseRepo, logger log.Logger) *DwEnterpriseUsecase {
 	return &DwEnterpriseUsecase{repo: repo, log: log.NewHelper(logger)}
+}
+
+func (uc *DwEnterpriseUsecase) GetShareholders(ctx context.Context, uscId string) (*pb.ShareholdersResp, error) {
+	uc.log.WithContext(ctx).Infof("biz.RcDependencyDataUsecase.GetShareholders %s", uscId)
+	return uc.repo.GetShareholders(ctx, uscId)
+}
+
+func (uc *DwEnterpriseUsecase) GetInvestments(ctx context.Context, uscId string) (*pb.InvestmentResp, error) {
+	uc.log.WithContext(ctx).Infof("biz.RcDependencyDataUsecase.GetInvestments %s", uscId)
+	return uc.repo.GetInvestments(ctx, uscId)
+}
+
+func (uc *DwEnterpriseUsecase) GetBranches(ctx context.Context, uscId string) (*pb.BranchesResp, error) {
+	uc.log.WithContext(ctx).Infof("biz.RcDependencyDataUsecase.GetBranches %s", uscId)
+	return uc.repo.GetBranches(ctx, uscId)
 }
 
 func (uc *DwEnterpriseUsecase) GetEntIdent(ctx context.Context, name string) (string, error) {

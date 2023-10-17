@@ -124,7 +124,6 @@ func (s *DwdataServiceServicer) GetEnterpriseRankingList(ctx context.Context, re
 			Data: nil,
 		}, nil
 	}
-
 	stArray := make([]*pb.EnterpriseRankingList, 0)
 	for _, v := range *res {
 		stArray = append(
@@ -141,12 +140,12 @@ func (s *DwdataServiceServicer) GetEnterpriseRankingList(ctx context.Context, re
 				ListUrlOrigin:         v.ListUrlOrigin,
 			},
 		)
-
 	}
 	return &pb.EntRankingListResp{
 		Data: stArray,
 	}, nil
 }
+
 func (s *DwdataServiceServicer) GetEnterpriseIndustry(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntStrArrayResp, error) {
 	res, err := s.dwEnterprise.GetEntIndustry(ctx, req.UscId)
 	if err != nil {
@@ -161,6 +160,7 @@ func (s *DwdataServiceServicer) GetEnterpriseIndustry(ctx context.Context, req *
 		Data: *res,
 	}, nil
 }
+
 func (s *DwdataServiceServicer) GetEnterpriseProduct(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntStrArrayResp, error) {
 	res, err := s.dwEnterprise.GetEntProduct(ctx, req.UscId)
 	if err != nil {
@@ -182,7 +182,11 @@ func (s *DwdataServiceServicer) GetEntEquityTransparency(ctx context.Context, re
 		return nil, err
 	}
 	if res == nil {
-		return &pb.EquityTransparencyResp{}, nil
+		return &pb.EquityTransparencyResp{
+			Success: true,
+			Code:    9009,
+			Found:   false,
+		}, nil
 	}
 	stArr := make([]*structpb.Struct, 0)
 	for _, v := range res.Data {
@@ -194,8 +198,111 @@ func (s *DwdataServiceServicer) GetEntEquityTransparency(ctx context.Context, re
 	}
 
 	return &pb.EquityTransparencyResp{
+		Success:    true,
+		Code:       200,
+		Found:      true,
 		Conclusion: res.Conclusion,
 		Data:       stArr,
 		UscId:      res.UscId,
+	}, nil
+}
+
+func (s *DwdataServiceServicer) GetEntShareholders(ctx context.Context, req *pb.GetEntInfoReq) (*pb.ShareholdersResp, error) {
+	res, err := s.dwEnterprise.GetShareholders(ctx, req.UscId)
+	if err != nil {
+		return nil, err
+	}
+	if res == nil || len(*res) == 0 {
+		return &pb.ShareholdersResp{
+			Success: true,
+			Code:    9009,
+			Msg:     "not found",
+			Found:   false,
+			Data:    nil,
+		}, nil
+	}
+	data := make([]*pb.Shareholders, 0)
+	for _, v := range *res {
+		data = append(data, &pb.Shareholders{
+			ShareholderName: v.ShareholderName,
+			ShareholderType: v.ShareholderType,
+			CapitalAmount:   v.CapitalAmount,
+			CapitalType:     v.CapitalType,
+			Percent:         v.Percent,
+		})
+	}
+	return &pb.ShareholdersResp{
+		Success: true,
+		Code:    200,
+		Msg:     "",
+		Found:   true,
+		Data:    data,
+	}, nil
+}
+
+func (s *DwdataServiceServicer) GetEntInvestment(ctx context.Context, req *pb.GetEntInfoReq) (*pb.InvestmentResp, error) {
+	res, err := s.dwEnterprise.GetInvestments(ctx, req.UscId)
+	if err != nil {
+		return nil, err
+	}
+	if res == nil || len(*res) == 0 {
+		return &pb.InvestmentResp{
+			Success: true,
+			Code:    9009,
+			Msg:     "not found",
+			Found:   false,
+			Data:    nil,
+		}, nil
+	}
+	data := make([]*pb.Investment, 0)
+	for _, v := range *res {
+		data = append(data, &pb.Investment{
+			EnterpriseName:    v.EnterpriseName,
+			Operator:          v.Operator,
+			ShareholdingRatio: v.ShareholdingRatio,
+			InvestedAmount:    v.InvestedAmount,
+			StartData:         v.StartDate,
+			Status:            v.Status,
+		})
+	}
+	return &pb.InvestmentResp{
+		Success: true,
+		Code:    200,
+		Msg:     "",
+		Found:   true,
+		Data:    data,
+	}, nil
+}
+
+func (s *DwdataServiceServicer) GetEntBranches(ctx context.Context, req *pb.GetEntInfoReq) (*pb.BranchesResp, error) {
+	res, err := s.dwEnterprise.GetBranches(ctx, req.UscId)
+	if err != nil {
+		return nil, err
+	}
+	if res == nil || len(*res) == 0 {
+		return &pb.BranchesResp{
+			Success: true,
+			Code:    9009,
+			Msg:     "not found",
+			Found:   false,
+			Data:    nil,
+		}, nil
+	}
+	data := make([]*pb.Branches, 0)
+	for _, v := range *res {
+		data = append(data, &pb.Branches{
+			EnterpriseName: v.EnterpriseName,
+			Operator:       v.Operator,
+			Area:           v.Area,
+			StartDate:      v.StartDate.Format("2006-01-02"),
+			Status:         v.Status,
+		})
+	}
+	return &pb.BranchesResp{
+		Success: true,
+		Code:    200,
+		Msg:     "",
+		Found:   true,
+		Data:    data,
 	}, nil
 }

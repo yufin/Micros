@@ -149,3 +149,33 @@ func (repo *DwEnterpriseDataRepo) GetEquityTransparency(ctx context.Context, usc
 		Data:       resp.Data,
 	}, nil
 }
+
+func (repo *DwEnterpriseDataRepo) GetShareholders(ctx context.Context, uscId string) (*dwdataV2.ShareholdersResp, error) {
+	resp, err := repo.data.DwDataClient.GetEntShareholders(context.TODO(), &dwdataV2.GetEntInfoReq{
+		UscId: uscId,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (repo *DwEnterpriseDataRepo) GetInvestments(ctx context.Context, uscId string) (*dwdataV2.InvestmentResp, error) {
+	resp, err := repo.data.DwDataClient.GetEntInvestment(context.TODO(), &dwdataV2.GetEntInfoReq{
+		UscId: uscId,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (repo *DwEnterpriseDataRepo) GetBranches(ctx context.Context, uscId string) (*dwdataV2.BranchesResp, error) {
+	resp, err := repo.data.DwDataClient.GetEntBranches(context.TODO(), &dwdataV2.GetEntInfoReq{
+		UscId: uscId,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}

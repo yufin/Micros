@@ -19,6 +19,9 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
+const OperationDwServiceGetEntBranches = "/api.dw.v2.DwService/GetEntBranches"
+const OperationDwServiceGetEntInvestment = "/api.dw.v2.DwService/GetEntInvestment"
+const OperationDwServiceGetEntShareholders = "/api.dw.v2.DwService/GetEntShareholders"
 const OperationDwServiceGetEnterpriseCredential = "/api.dw.v2.DwService/GetEnterpriseCredential"
 const OperationDwServiceGetEnterpriseEquityTransparency = "/api.dw.v2.DwService/GetEnterpriseEquityTransparency"
 const OperationDwServiceGetEnterpriseIdent = "/api.dw.v2.DwService/GetEnterpriseIdent"
@@ -28,6 +31,9 @@ const OperationDwServiceGetEnterpriseProduct = "/api.dw.v2.DwService/GetEnterpri
 const OperationDwServiceGetEnterpriseRankingList = "/api.dw.v2.DwService/GetEnterpriseRankingList"
 
 type DwServiceHTTPServer interface {
+	GetEntBranches(context.Context, *GetEntInfoReq) (*BranchesResp, error)
+	GetEntInvestment(context.Context, *GetEntInfoReq) (*InvestmentResp, error)
+	GetEntShareholders(context.Context, *GetEntInfoReq) (*ShareholdersResp, error)
 	GetEnterpriseCredential(context.Context, *GetEntInfoReq) (*EntArrayResp, error)
 	GetEnterpriseEquityTransparency(context.Context, *GetEntInfoReq) (*EquityTransparencyResp, error)
 	GetEnterpriseIdent(context.Context, *GetEntIdentReq) (*EntIdentResp, error)
@@ -46,6 +52,9 @@ func RegisterDwServiceHTTPServer(s *http.Server, srv DwServiceHTTPServer) {
 	r.GET("/micros/dw/v2/enterprise/industry", _DwService_GetEnterpriseIndustry0_HTTP_Handler(srv))
 	r.GET("/micros/dw/v2/enterprise/product", _DwService_GetEnterpriseProduct0_HTTP_Handler(srv))
 	r.GET("/micros/dw/v2/enterprise/equity-transparency", _DwService_GetEnterpriseEquityTransparency0_HTTP_Handler(srv))
+	r.GET("/micros/dw/v2/enterprise/shareholders", _DwService_GetEntShareholders0_HTTP_Handler(srv))
+	r.GET("/micros/dw/v2/enterprise/investments", _DwService_GetEntInvestment0_HTTP_Handler(srv))
+	r.GET("/micros/dw/v2/enterprise/branches", _DwService_GetEntBranches0_HTTP_Handler(srv))
 }
 
 func _DwService_GetEnterpriseIdent0_HTTP_Handler(srv DwServiceHTTPServer) func(ctx http.Context) error {
@@ -181,7 +190,67 @@ func _DwService_GetEnterpriseEquityTransparency0_HTTP_Handler(srv DwServiceHTTPS
 	}
 }
 
+func _DwService_GetEntShareholders0_HTTP_Handler(srv DwServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetEntInfoReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationDwServiceGetEntShareholders)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetEntShareholders(ctx, req.(*GetEntInfoReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ShareholdersResp)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _DwService_GetEntInvestment0_HTTP_Handler(srv DwServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetEntInfoReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationDwServiceGetEntInvestment)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetEntInvestment(ctx, req.(*GetEntInfoReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*InvestmentResp)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _DwService_GetEntBranches0_HTTP_Handler(srv DwServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetEntInfoReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationDwServiceGetEntBranches)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetEntBranches(ctx, req.(*GetEntInfoReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*BranchesResp)
+		return ctx.Result(200, reply)
+	}
+}
+
 type DwServiceHTTPClient interface {
+	GetEntBranches(ctx context.Context, req *GetEntInfoReq, opts ...http.CallOption) (rsp *BranchesResp, err error)
+	GetEntInvestment(ctx context.Context, req *GetEntInfoReq, opts ...http.CallOption) (rsp *InvestmentResp, err error)
+	GetEntShareholders(ctx context.Context, req *GetEntInfoReq, opts ...http.CallOption) (rsp *ShareholdersResp, err error)
 	GetEnterpriseCredential(ctx context.Context, req *GetEntInfoReq, opts ...http.CallOption) (rsp *EntArrayResp, err error)
 	GetEnterpriseEquityTransparency(ctx context.Context, req *GetEntInfoReq, opts ...http.CallOption) (rsp *EquityTransparencyResp, err error)
 	GetEnterpriseIdent(ctx context.Context, req *GetEntIdentReq, opts ...http.CallOption) (rsp *EntIdentResp, err error)
@@ -197,6 +266,45 @@ type DwServiceHTTPClientImpl struct {
 
 func NewDwServiceHTTPClient(client *http.Client) DwServiceHTTPClient {
 	return &DwServiceHTTPClientImpl{client}
+}
+
+func (c *DwServiceHTTPClientImpl) GetEntBranches(ctx context.Context, in *GetEntInfoReq, opts ...http.CallOption) (*BranchesResp, error) {
+	var out BranchesResp
+	pattern := "/micros/dw/v2/enterprise/branches"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationDwServiceGetEntBranches))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *DwServiceHTTPClientImpl) GetEntInvestment(ctx context.Context, in *GetEntInfoReq, opts ...http.CallOption) (*InvestmentResp, error) {
+	var out InvestmentResp
+	pattern := "/micros/dw/v2/enterprise/investments"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationDwServiceGetEntInvestment))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *DwServiceHTTPClientImpl) GetEntShareholders(ctx context.Context, in *GetEntInfoReq, opts ...http.CallOption) (*ShareholdersResp, error) {
+	var out ShareholdersResp
+	pattern := "/micros/dw/v2/enterprise/shareholders"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationDwServiceGetEntShareholders))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
 }
 
 func (c *DwServiceHTTPClientImpl) GetEnterpriseCredential(ctx context.Context, in *GetEntInfoReq, opts ...http.CallOption) (*EntArrayResp, error) {

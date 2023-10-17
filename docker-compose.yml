@@ -23,3 +23,9 @@ services:
       - DWDATA_URI=api:50052
     volumes:
       - ./micros-dw/configs:/app/configs
+
+ # docker image build -t blmicros-dw:1.7 .
+  # docker run --name micros-dw -p 50052:50052 -v /www/wwwroot/BrillinkDataAdmin/brillinkMicros/micros-dw/configs:/data/conf blmicros-dw:1.7
+
+#  docker image build -t blmicros-api:1.7 .
+#  docker run --name blmicros-api -p 8009:8000 -v /www/wwwroot/BrillinkDataAdmin/brillinkMicros/micros-api/configs:/data/conf blmicros-api:1.7

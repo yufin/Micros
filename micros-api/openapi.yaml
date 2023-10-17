@@ -3,55 +3,16 @@
 
 openapi: 3.0.3
 info:
-    title: NetGraphService API
+    title: DwService API
     version: 0.0.1
 paths:
-    /micros/graph/v1/net/children:
+    /micros/dw/v2/enterprise/branches:
         get:
             tags:
-                - NetGraphService
-            operationId: NetGraphService_GetChildrenNet
+                - DwService
+            operationId: DwService_GetEntBranches
             parameters:
-                - name: pageNum
-                  in: query
-                  schema:
-                    type: integer
-                    format: uint32
-                - name: pageSize
-                  in: query
-                  schema:
-                    type: integer
-                    format: uint32
-                - name: id
-                  in: query
-                  schema:
-                    type: string
-                - name: scopeRelType
-                  in: query
-                  schema:
-                    type: array
-                    items:
-                        type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/NetPaginationResp'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-    /micros/graph/v1/net/children/availableRelType:
-        get:
-            tags:
-                - NetGraphService
-            operationId: NetGraphService_GetAvailableRelTypeToChildren
-            parameters:
-                - name: id
+                - name: uscId
                   in: query
                   schema:
                     type: string
@@ -61,118 +22,20 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/AvailableRelTypeResp'
+                                $ref: '#/components/schemas/BranchesResp'
                 default:
                     description: Default error response
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /micros/graph/v1/net/const:
+    /micros/dw/v2/enterprise/credential:
         get:
             tags:
-                - NetGraphService
-            operationId: NetGraphService_GetConst
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/NetConstResp'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-    /micros/graph/v1/net/expand:
-        get:
-            tags:
-                - NetGraphService
-            operationId: NetGraphService_GetNetExpand
+                - DwService
+            operationId: DwService_GetEnterpriseCredential
             parameters:
-                - name: id
-                  in: query
-                  schema:
-                    type: string
-                - name: depth
-                  in: query
-                  schema:
-                    type: integer
-                    format: uint32
-                - name: limit
-                  in: query
-                  schema:
-                    type: integer
-                    format: uint32
-                - name: relScope
-                  in: query
-                  schema:
-                    type: array
-                    items:
-                        type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/NetResp'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-    /micros/graph/v1/net/expands:
-        get:
-            tags:
-                - NetGraphService
-            operationId: NetGraphService_GetNetExpands
-            parameters:
-                - name: ids
-                  in: query
-                  schema:
-                    type: array
-                    items:
-                        type: string
-                - name: depth
-                  in: query
-                  schema:
-                    type: integer
-                    format: uint32
-                - name: limit
-                  in: query
-                  schema:
-                    type: integer
-                    format: uint32
-                - name: relScope
-                  in: query
-                  schema:
-                    type: array
-                    items:
-                        type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/NetResp'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-    /micros/graph/v1/net/node:
-        get:
-            tags:
-                - NetGraphService
-            operationId: NetGraphService_GetNode
-            parameters:
-                - name: id
+                - name: uscId
                   in: query
                   schema:
                     type: string
@@ -182,59 +45,20 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/NodeResp'
+                                $ref: '#/components/schemas/EntArrayResp'
                 default:
                     description: Default error response
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /micros/graph/v1/net/parents:
+    /micros/dw/v2/enterprise/equity-transparency:
         get:
             tags:
-                - NetGraphService
-            operationId: NetGraphService_GetParentsNet
+                - DwService
+            operationId: DwService_GetEnterpriseEquityTransparency
             parameters:
-                - name: pageNum
-                  in: query
-                  schema:
-                    type: integer
-                    format: uint32
-                - name: pageSize
-                  in: query
-                  schema:
-                    type: integer
-                    format: uint32
-                - name: id
-                  in: query
-                  schema:
-                    type: string
-                - name: scopeRelType
-                  in: query
-                  schema:
-                    type: array
-                    items:
-                        type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/NetPaginationResp'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-    /micros/graph/v1/net/parents/availableRelType:
-        get:
-            tags:
-                - NetGraphService
-            operationId: NetGraphService_GetAvailableRelTypeToParents
-            parameters:
-                - name: id
+                - name: uscId
                   in: query
                   schema:
                     type: string
@@ -244,45 +68,168 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/AvailableRelTypeResp'
+                                $ref: '#/components/schemas/EquityTransparencyResp'
                 default:
                     description: Default error response
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /micros/graph/v1/net/pathBetween:
+    /micros/dw/v2/enterprise/ident:
         get:
             tags:
-                - NetGraphService
-            operationId: NetGraphService_GetPathBetween
+                - DwService
+            operationId: DwService_GetEnterpriseIdent
             parameters:
-                - name: sourceId
+                - name: enterpriseName
                   in: query
                   schema:
                     type: string
-                - name: targetId
-                  in: query
-                  schema:
-                    type: string
-                - name: maxDepth
-                  in: query
-                  schema:
-                    type: integer
-                    format: int64
-                - name: relScope
-                  in: query
-                  schema:
-                    type: array
-                    items:
-                        type: string
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/NetResp'
+                                $ref: '#/components/schemas/EntIdentResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/dw/v2/enterprise/industry:
+        get:
+            tags:
+                - DwService
+            operationId: DwService_GetEnterpriseIndustry
+            parameters:
+                - name: uscId
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/EntStrArrayResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/dw/v2/enterprise/info:
+        get:
+            tags:
+                - DwService
+            operationId: DwService_GetEnterpriseInfo
+            parameters:
+                - name: uscId
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/EntStructResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/dw/v2/enterprise/investments:
+        get:
+            tags:
+                - DwService
+            operationId: DwService_GetEntInvestment
+            parameters:
+                - name: uscId
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InvestmentResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/dw/v2/enterprise/product:
+        get:
+            tags:
+                - DwService
+            operationId: DwService_GetEnterpriseProduct
+            parameters:
+                - name: uscId
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/EntStrArrayResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/dw/v2/enterprise/ranking-list:
+        get:
+            tags:
+                - DwService
+            operationId: DwService_GetEnterpriseRankingList
+            parameters:
+                - name: uscId
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/EntArrayResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/dw/v2/enterprise/shareholders:
+        get:
+            tags:
+                - DwService
+            operationId: DwService_GetEntShareholders
+            parameters:
+                - name: uscId
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ShareholdersResp'
                 default:
                     description: Default error response
                     content:
@@ -291,7 +238,76 @@ paths:
                                 $ref: '#/components/schemas/Status'
 components:
     schemas:
-        AvailableRelTypeResp:
+        Branches:
+            type: object
+            properties:
+                enterpriseName:
+                    type: string
+                operator:
+                    type: string
+                area:
+                    type: string
+                startDate:
+                    type: string
+                status:
+                    type: string
+        BranchesResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                code:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+                found:
+                    type: boolean
+                data:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Branches'
+        EntArrayResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                code:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+                data:
+                    type: array
+                    items:
+                        type: object
+        EntIdentResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                code:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+                uscId:
+                    type: string
+        EntStrArrayResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                code:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+                data:
+                    type: array
+                    items:
+                        type: string
+        EntStructResp:
             type: object
             properties:
                 success:
@@ -303,19 +319,31 @@ components:
                     type: string
                 data:
                     type: object
-        Edge:
+        EquityTransparency:
             type: object
             properties:
-                source:
+                conclusion:
                     type: string
-                target:
+                name:
                     type: string
-                id:
+                shareholder:
+                    type: array
+                    items:
+                        type: object
+                keyNo:
                     type: string
-                label:
+        EquityTransparencyResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                code:
+                    type: integer
+                    format: int32
+                msg:
                     type: string
                 data:
-                    type: object
+                    $ref: '#/components/schemas/EquityTransparency'
         GoogleProtobufAny:
             type: object
             properties:
@@ -324,25 +352,22 @@ components:
                     description: The type of the serialized message.
             additionalProperties: true
             description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
-        Net:
+        Investment:
             type: object
             properties:
-                nodes:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/Node'
-                edges:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/Edge'
-        NetConstResp:
-            type: object
-            properties:
-                availableRelScope:
-                    type: object
-                netDemoDefaultId:
+                enterpriseName:
                     type: string
-        NetPaginationResp:
+                operator:
+                    type: string
+                shareholdingRatio:
+                    type: string
+                investedAmount:
+                    type: string
+                startDate:
+                    type: string
+                status:
+                    type: string
+        InvestmentResp:
             type: object
             properties:
                 success:
@@ -352,43 +377,28 @@ components:
                     format: int32
                 msg:
                     type: string
-                total:
-                    type: integer
-                    format: int32
-                current:
-                    type: integer
-                    format: int32
-                pageSize:
-                    type: integer
-                    format: int32
-                data:
-                    $ref: '#/components/schemas/Net'
-        NetResp:
-            type: object
-            properties:
-                success:
+                found:
                     type: boolean
-                code:
-                    type: integer
-                    format: int32
-                msg:
-                    type: string
                 data:
-                    $ref: '#/components/schemas/Net'
-        Node:
-            type: object
-            properties:
-                id:
-                    type: string
-                title:
-                    type: string
-                labels:
                     type: array
                     items:
-                        type: string
-                data:
-                    type: object
-        NodeResp:
+                        $ref: '#/components/schemas/Investment'
+        Shareholders:
+            type: object
+            properties:
+                shareholderName:
+                    type: string
+                shareholderType:
+                    type: string
+                capitalAmount:
+                    type: string
+                realAmount:
+                    type: string
+                capitalType:
+                    type: string
+                percent:
+                    type: string
+        ShareholdersResp:
             type: object
             properties:
                 success:
@@ -398,8 +408,12 @@ components:
                     format: int32
                 msg:
                     type: string
+                found:
+                    type: boolean
                 data:
-                    $ref: '#/components/schemas/Node'
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Shareholders'
         Status:
             type: object
             properties:
@@ -417,4 +431,4 @@ components:
                     description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
             description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
 tags:
-    - name: NetGraphService
+    - name: DwService

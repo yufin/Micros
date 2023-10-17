@@ -1,0 +1,37 @@
+server:
+  http:
+    addr: 0.0.0.0:8000
+    timeout: 1s
+  grpc:
+    addr: 0.0.0.0:50052
+    timeout: 1s
+
+data:
+  database:
+    driver: mysql
+    source: root:password-dev@tcp(192.168.44.169:3306)/data_spider?charset=utf8mb4&parseTime=True&loc=Local&timeout=10000ms
+  redis:
+    addr: 127.0.0.1:6379
+    read_timeout: 0.2s
+    write_timeout: 0.2s
+  mongoDb:
+    uri: mongodb://root:dev-password@192.168.44.169:27020
+  nebula:
+    addr: 192.168.44.169
+    port: 9669
+    user: root
+    password: password
+    use_http2: true
+
+
+## Server Configs
+#  etcdctl put /dw-config/server/http/addr "0.0.0.0:8000"
+#  etcdctl put /dw-config/server/http/timeout "1s"
+#  etcdctl put /dw-config/server/grpc/addr "0.0.0.0:50052"
+#  etcdctl put /dw-config/server/grpc/timeout "1s"
+#  etcdctl put /dw-config/data/database/driver "mysql"
+#  etcdctl put /dw-config/data/database/source "root:password-dev@tcp(192.168.44.169:3306)/data_spider?charset=utf8mb4&parseTime=True&loc=Local&timeout=10000ms"
+#  etcdctl put /dw-config/data/redis/addr "127.0.0.1:6379"
+#  etcdctl put /dw-config/data/redis/read_timeout "0.2s"
+#  etcdctl put /dw-config/data/redis/write_timeout "0.2s"
+#  etcdctl put /dw-config/data/mongoDb/uri "mongodb://root:dev-password@192.168.44.169:27020"

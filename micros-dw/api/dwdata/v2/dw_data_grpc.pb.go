@@ -26,6 +26,9 @@ const (
 	DwdataService_GetEnterpriseIndustry_FullMethodName    = "/api.dwdata.v2.DwdataService/GetEnterpriseIndustry"
 	DwdataService_GetEnterpriseProduct_FullMethodName     = "/api.dwdata.v2.DwdataService/GetEnterpriseProduct"
 	DwdataService_GetEntEquityTransparency_FullMethodName = "/api.dwdata.v2.DwdataService/GetEntEquityTransparency"
+	DwdataService_GetEntShareholders_FullMethodName       = "/api.dwdata.v2.DwdataService/GetEntShareholders"
+	DwdataService_GetEntInvestment_FullMethodName         = "/api.dwdata.v2.DwdataService/GetEntInvestment"
+	DwdataService_GetEntBranches_FullMethodName           = "/api.dwdata.v2.DwdataService/GetEntBranches"
 )
 
 // DwdataServiceClient is the client API for DwdataService service.
@@ -39,6 +42,9 @@ type DwdataServiceClient interface {
 	GetEnterpriseIndustry(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*EntStrArrayResp, error)
 	GetEnterpriseProduct(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*EntStrArrayResp, error)
 	GetEntEquityTransparency(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*EquityTransparencyResp, error)
+	GetEntShareholders(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*ShareholdersResp, error)
+	GetEntInvestment(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*InvestmentResp, error)
+	GetEntBranches(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*BranchesResp, error)
 }
 
 type dwdataServiceClient struct {
@@ -112,6 +118,33 @@ func (c *dwdataServiceClient) GetEntEquityTransparency(ctx context.Context, in *
 	return out, nil
 }
 
+func (c *dwdataServiceClient) GetEntShareholders(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*ShareholdersResp, error) {
+	out := new(ShareholdersResp)
+	err := c.cc.Invoke(ctx, DwdataService_GetEntShareholders_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dwdataServiceClient) GetEntInvestment(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*InvestmentResp, error) {
+	out := new(InvestmentResp)
+	err := c.cc.Invoke(ctx, DwdataService_GetEntInvestment_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dwdataServiceClient) GetEntBranches(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*BranchesResp, error) {
+	out := new(BranchesResp)
+	err := c.cc.Invoke(ctx, DwdataService_GetEntBranches_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DwdataServiceServer is the server API for DwdataService service.
 // All implementations must embed UnimplementedDwdataServiceServer
 // for forward compatibility
@@ -123,6 +156,9 @@ type DwdataServiceServer interface {
 	GetEnterpriseIndustry(context.Context, *GetEntInfoReq) (*EntStrArrayResp, error)
 	GetEnterpriseProduct(context.Context, *GetEntInfoReq) (*EntStrArrayResp, error)
 	GetEntEquityTransparency(context.Context, *GetEntInfoReq) (*EquityTransparencyResp, error)
+	GetEntShareholders(context.Context, *GetEntInfoReq) (*ShareholdersResp, error)
+	GetEntInvestment(context.Context, *GetEntInfoReq) (*InvestmentResp, error)
+	GetEntBranches(context.Context, *GetEntInfoReq) (*BranchesResp, error)
 	mustEmbedUnimplementedDwdataServiceServer()
 }
 
@@ -150,6 +186,15 @@ func (UnimplementedDwdataServiceServer) GetEnterpriseProduct(context.Context, *G
 }
 func (UnimplementedDwdataServiceServer) GetEntEquityTransparency(context.Context, *GetEntInfoReq) (*EquityTransparencyResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetEntEquityTransparency not implemented")
+}
+func (UnimplementedDwdataServiceServer) GetEntShareholders(context.Context, *GetEntInfoReq) (*ShareholdersResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetEntShareholders not implemented")
+}
+func (UnimplementedDwdataServiceServer) GetEntInvestment(context.Context, *GetEntInfoReq) (*InvestmentResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetEntInvestment not implemented")
+}
+func (UnimplementedDwdataServiceServer) GetEntBranches(context.Context, *GetEntInfoReq) (*BranchesResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetEntBranches not implemented")
 }
 func (UnimplementedDwdataServiceServer) mustEmbedUnimplementedDwdataServiceServer() {}
 
@@ -290,6 +335,60 @@ func _DwdataService_GetEntEquityTransparency_Handler(srv interface{}, ctx contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DwdataService_GetEntShareholders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEntInfoReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DwdataServiceServer).GetEntShareholders(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DwdataService_GetEntShareholders_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DwdataServiceServer).GetEntShareholders(ctx, req.(*GetEntInfoReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DwdataService_GetEntInvestment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEntInfoReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DwdataServiceServer).GetEntInvestment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DwdataService_GetEntInvestment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DwdataServiceServer).GetEntInvestment(ctx, req.(*GetEntInfoReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DwdataService_GetEntBranches_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEntInfoReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DwdataServiceServer).GetEntBranches(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DwdataService_GetEntBranches_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DwdataServiceServer).GetEntBranches(ctx, req.(*GetEntInfoReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // DwdataService_ServiceDesc is the grpc.ServiceDesc for DwdataService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -324,6 +423,18 @@ var DwdataService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetEntEquityTransparency",
 			Handler:    _DwdataService_GetEntEquityTransparency_Handler,
+		},
+		{
+			MethodName: "GetEntShareholders",
+			Handler:    _DwdataService_GetEntShareholders_Handler,
+		},
+		{
+			MethodName: "GetEntInvestment",
+			Handler:    _DwdataService_GetEntInvestment_Handler,
+		},
+		{
+			MethodName: "GetEntBranches",
+			Handler:    _DwdataService_GetEntBranches_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

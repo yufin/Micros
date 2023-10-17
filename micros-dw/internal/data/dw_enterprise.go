@@ -7,6 +7,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"gorm.io/gorm"
 	"micros-dw/internal/biz"
 	"micros-dw/internal/biz/dto"
@@ -22,6 +23,7 @@ func NewDwEnterpriseRepo(data *Data, logger log.Logger) biz.DwEnterpriseRepo {
 		data: data,
 		log:  log.NewHelper(logger),
 	}
+
 }
 
 func (repo *DwEnterpriseDataRepo) GetEntIdent(ctx context.Context, name string) (*dto.EnterpriseWaitList, error) {
@@ -152,7 +154,7 @@ func (repo *DwEnterpriseDataRepo) GetEntProduct(ctx context.Context, uscId strin
 
 func (repo *DwEnterpriseDataRepo) GetEntEquityTransparency(ctx context.Context, uscId string) (*dto.EnterpriseEquityTransparency, error) {
 	data := bson.M{}
-	err := repo.data.Mongo.Client.Database("spider").Collection("qcc_equity_penetration").FindOne(
+	err := repo.data.Mongo.Client.Database("dw").Collection("penetration").FindOne(
 		context.TODO(),
 		bson.M{"usc_id": uscId},
 	).Decode(&data)
@@ -163,7 +165,7 @@ func (repo *DwEnterpriseDataRepo) GetEntEquityTransparency(ctx context.Context, 
 		return nil, err
 	}
 
-	detail := data["penitration"]
+	detail := data["penetration_tree"]
 
 	jsonBytes, err := bson.MarshalExtJSON(bson.M{"arr": detail.(bson.A)}, false, false)
 	if err != nil {
@@ -180,8 +182,85 @@ func (repo *DwEnterpriseDataRepo) GetEntEquityTransparency(ctx context.Context, 
 	}
 
 	return &dto.EnterpriseEquityTransparency{
-		Conclusion: data["conclusion"].(string),
+		Conclusion: data["penetration_conclusion"].(string),
 		Data:       detailArr,
 		UscId:      data["usc_id"].(string),
 	}, nil
+}
+
+func (repo *DwEnterpriseDataRepo) GetShareholders(ctx context.Context, uscId string) (*[]dto.EnterpriseShareholder, error) {
+	var res bson.M
+	if err := repo.data.Mongo.Client.Database("dw").
+		Collection("shareholders").
+		FindOne(context.TODO(), bson.M{"usc_id": uscId}).Decode(&res); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	// bson.M to json
+	var shareholder struct {
+		Shareholder []dto.EnterpriseShareholder `bson:"shareholders"`
+	}
+
+	b, err := bson.Marshal(res)
+	if err != nil {
+		return nil, err
+	}
+	err = bson.Unmarshal(b, &shareholder)
+	if err != nil {
+		return nil, err
+	}
+	return &shareholder.Shareholder, nil
+}
+
+func (repo *DwEnterpriseDataRepo) GetInvestments(ctx context.Context, uscId string) (*[]dto.EnterpriseInvestment, error) {
+	var res bson.M
+	if err := repo.data.Mongo.Client.Database("dw").
+		Collection("investment").
+		FindOne(context.TODO(), bson.M{"usc_id": uscId}).Decode(&res); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	var investments struct {
+		Investment []dto.EnterpriseInvestment `bson:"investment"`
+	}
+
+	b, err := bson.Marshal(res)
+	if err != nil {
+		return nil, err
+	}
+	err = bson.Unmarshal(b, &investments)
+	if err != nil {
+		return nil, err
+	}
+	return &investments.Investment, nil
+}
+
+func (repo *DwEnterpriseDataRepo) GetBranches(ctx context.Context, uscId string) (*[]dto.EnterpriseBranches, error) {
+	var res bson.M
+	if err := repo.data.Mongo.Client.Database("dw").
+		Collection("branchlist").
+		FindOne(context.TODO(), bson.M{"usc_id": uscId},
+			options.FindOne().SetProjection(bson.M{"branches": 1, "_id": 0})).Decode(&res); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	var branches struct {
+		Branches []dto.EnterpriseBranches `bson:"branches"`
+	}
+
+	b, err := bson.Marshal(res)
+	if err != nil {
+		return nil, err
+	}
+	err = bson.Unmarshal(b, &branches)
+	if err != nil {
+		return nil, err
+	}
+	return &branches.Branches, nil
 }

@@ -14,6 +14,10 @@ type DwEnterpriseRepo interface {
 	GetEntIndustry(ctx context.Context, uscId string) (*[]string, error)
 	GetEntProduct(ctx context.Context, uscId string) (*[]string, error)
 	GetEntEquityTransparency(ctx context.Context, uscId string) (*dto.EnterpriseEquityTransparency, error)
+
+	GetShareholders(ctx context.Context, uscId string) (*[]dto.EnterpriseShareholder, error)
+	GetInvestments(ctx context.Context, uscId string) (*[]dto.EnterpriseInvestment, error)
+	GetBranches(ctx context.Context, uscId string) (*[]dto.EnterpriseBranches, error)
 }
 
 type DwEnterpriseUsecase struct {
@@ -58,4 +62,19 @@ func (uc *DwEnterpriseUsecase) GetEntProduct(ctx context.Context, uscId string) 
 func (uc *DwEnterpriseUsecase) GetEntEquityTransparency(ctx context.Context, uscId string) (*dto.EnterpriseEquityTransparency, error) {
 	uc.log.WithContext(ctx).Infof("biz.DwEnterpriseUsecase.GetEntEquityTransparency %s", uscId)
 	return uc.repo.GetEntEquityTransparency(ctx, uscId)
+}
+
+func (uc *DwEnterpriseUsecase) GetShareholders(ctx context.Context, uscId string) (*[]dto.EnterpriseShareholder, error) {
+	uc.log.WithContext(ctx).Infof("biz.DwEnterpriseUsecase.GetShareholders %s", uscId)
+	return uc.repo.GetShareholders(ctx, uscId)
+}
+
+func (uc *DwEnterpriseUsecase) GetInvestments(ctx context.Context, uscId string) (*[]dto.EnterpriseInvestment, error) {
+	uc.log.WithContext(ctx).Infof("biz.DwEnterpriseUsecase.GetInvestments %s", uscId)
+	return uc.repo.GetInvestments(ctx, uscId)
+}
+
+func (uc *DwEnterpriseUsecase) GetBranches(ctx context.Context, uscId string) (*[]dto.EnterpriseBranches, error) {
+	uc.log.WithContext(ctx).Infof("biz.DwEnterpriseUsecase.GetBranches %s", uscId)
+	return uc.repo.GetBranches(ctx, uscId)
 }

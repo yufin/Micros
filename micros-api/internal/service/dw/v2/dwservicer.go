@@ -6,6 +6,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"google.golang.org/protobuf/types/known/structpb"
 	"micros-api/internal/biz"
+	"micros-api/internal/data"
 
 	pb "micros-api/api/dw/v2"
 )
@@ -14,6 +15,7 @@ type DwServiceServicer struct {
 	pb.UnimplementedDwServiceServer
 	log          *log.Helper
 	dwEnterprise *biz.DwEnterpriseUsecase
+	data         *data.Data
 }
 
 func NewDwServiceServicer(dwe *biz.DwEnterpriseUsecase, logger log.Logger) *DwServiceServicer {
@@ -222,5 +224,105 @@ func (s *DwServiceServicer) GetEnterpriseEquityTransparency(ctx context.Context,
 		Code:    200,
 		Msg:     "",
 		Data:    data,
+	}, nil
+}
+
+func (s *DwServiceServicer) GetEntBranches(ctx context.Context, req *pb.GetEntInfoReq) (*pb.BranchesResp, error) {
+	res, err := s.dwEnterprise.GetBranches(ctx, req.UscId)
+	if err != nil {
+		return nil, err
+	}
+	if res.Found == false {
+		return &pb.BranchesResp{
+			Success: true,
+			Found:   false,
+			Code:    0,
+			Msg:     "data not found",
+		}, nil
+	}
+	d := make([]*pb.Branches, 0)
+	for _, v := range res.Data {
+		d = append(d, &pb.Branches{
+			EnterpriseName: v.EnterpriseName,
+			Operator:       v.Operator,
+			Area:           v.Area,
+			Status:         v.Status,
+			StartDate:      v.StartDate,
+		})
+	}
+
+	return &pb.BranchesResp{
+		Success: true,
+		Code:    200,
+		Msg:     "",
+		Data:    d,
+	}, nil
+}
+
+func (s *DwServiceServicer) GetEntInvestment(ctx context.Context, req *pb.GetEntInfoReq) (*pb.InvestmentResp, error) {
+	res, err := s.dwEnterprise.GetInvestments(ctx, req.UscId)
+	if err != nil {
+		return nil, err
+	}
+	if res.Found == false {
+		return &pb.InvestmentResp{
+			Success: true,
+			Found:   false,
+			Code:    0,
+			Msg:     "data not found",
+		}, nil
+	}
+
+	d := make([]*pb.Investment, 0)
+	for _, v := range res.Data {
+		d = append(d, &pb.Investment{
+			EnterpriseName:    v.EnterpriseName,
+			Operator:          v.Operator,
+			ShareholdingRatio: v.ShareholdingRatio,
+			InvestedAmount:    v.InvestedAmount,
+			Status:            v.Status,
+			StartDate:         v.StartData,
+		})
+	}
+	return &pb.InvestmentResp{
+		Success: true,
+		Code:    0,
+		Msg:     "",
+		Found:   true,
+		Data:    d,
+	}, nil
+}
+
+func (s *DwServiceServicer) GetEntShareholders(ctx context.Context, req *pb.GetEntInfoReq) (*pb.ShareholdersResp, error) {
+	res, err := s.dwEnterprise.GetShareholders(ctx, req.UscId)
+	if err != nil {
+		return nil, err
+	}
+	if res.Found == false {
+		return &pb.ShareholdersResp{
+			Success: true,
+			Found:   false,
+			Code:    0,
+			Msg:     "data not found",
+		}, nil
+	}
+
+	d := make([]*pb.Shareholders, 0)
+	for _, v := range res.Data {
+		d = append(d, &pb.Shareholders{
+			ShareholderName: v.ShareholderName,
+			ShareholderType: v.ShareholderType,
+			CapitalType:     v.CapitalType,
+			RealAmount:      v.RealAmount,
+			CapitalAmount:   v.CapitalAmount,
+			Percent:         v.Percent,
+		})
+	}
+	return &pb.ShareholdersResp{
+		Success: true,
+		Code:    0,
+		Msg:     "",
+		Found:   true,
+		Data:    d,
 	}, nil
 }
