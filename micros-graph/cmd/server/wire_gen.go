@@ -40,10 +40,14 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 		return nil, nil, err
 	}
 	dataData := data.NewData(db, mongoDb, nebulaDb)
-	dwEnterpriseRepo := data.NewDwEnterpriseRepo(dataData, logger)
-	dwEnterpriseUsecase := biz.NewDwEnterpriseUsecase(dwEnterpriseRepo, logger)
-	dwdataServiceServicer := service.NewDwdataServiceServicer(dwEnterpriseUsecase, logger)
-	grpcServer := server.NewGRPCServer(confServer, dwdataServiceServicer, logger)
+	graphNetRepo := data.NewGraphNetRepo(dataData, logger)
+	graphNetUsecase := biz.NewGraphNetUsecase(graphNetRepo, logger)
+	graphNodeRepo := data.NewGraphNodeRepo(dataData, logger)
+	graphNodeUsecase := biz.NewGraphNodeUsecase(graphNodeRepo, logger)
+	graphEdgeRepo := data.NewGraphEdgeRepo(dataData, logger)
+	graphEdgeUsecase := biz.NewGraphEdgeUsecase(graphEdgeRepo, logger)
+	graphServiceService := service.NewGraphServiceService(graphNetUsecase, graphNodeUsecase, graphEdgeUsecase, logger)
+	grpcServer := server.NewGRPCServer(confServer, graphServiceService, logger)
 	app := newApp(logger, grpcServer)
 	return app, func() {
 		cleanup3()

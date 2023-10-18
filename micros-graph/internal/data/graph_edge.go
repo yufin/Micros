@@ -25,6 +25,6 @@ func (repo *GraphEdgeRepo) GetEdge(ctx context.Context, sourceId int64, targetId
 func (repo *GraphEdgeRepo) GetEdges(ctx context.Context, sourceId int64, targetId int64, relType string, p dto.PaginationReq) ([]*dto.Edge, int64, error) {
 	return nil, 0, nil
 }
-func (repo *GraphEdgeRepo) GetEdgesByParams(ctx context.Context, sourceId int64, targetId int64, relType string, rank int64, props map[string]interface{}, p dto.PaginationReq) ([]*dto.Node, int64, error) {
+func (repo *GraphEdgeRepo) GetEdgesByProps(ctx context.Context, sourceId int64, targetId int64, relType string, props map[string]interface{}, p dto.PaginationReq) ([]*dto.Node, int64, error) {
 	return nil, 0, nil
 }

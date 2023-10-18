@@ -5,13 +5,13 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/metadata"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
-	dwV2 "micros-graph/api/dwdata/v2"
+	graphV1 "micros-graph/api/graph/v1"
 	"micros-graph/internal/conf"
-	v2 "micros-graph/internal/service"
+	"micros-graph/internal/service"
 )
 
 // NewGRPCServer new a gRPC server.
-func NewGRPCServer(c *conf.Server, rss *v2.DwdataServiceServicer, logger log.Logger) *grpc.Server {
+func NewGRPCServer(c *conf.Server, gs *service.GraphServiceService, logger log.Logger) *grpc.Server {
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
 			recovery.Recovery(),
@@ -28,6 +28,6 @@ func NewGRPCServer(c *conf.Server, rss *v2.DwdataServiceServicer, logger log.Log
 		opts = append(opts, grpc.Timeout(c.Grpc.Timeout.AsDuration()))
 	}
 	srv := grpc.NewServer(opts...)
-	dwV2.RegisterDwdataServiceServer(srv, rss)
+	graphV1.RegisterGraphServiceServer(srv, gs)
 	return srv
 }

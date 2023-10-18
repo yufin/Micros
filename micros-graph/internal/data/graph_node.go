@@ -25,6 +25,6 @@ func (repo *GraphNodeRepo) GetNode(ctx context.Context, id int64) (*dto.Node, er
 func (repo *GraphNodeRepo) GetNodes(ctx context.Context, ids []int64) ([]*dto.Node, error) {
 	return nil, nil
 }
-func (repo *GraphNodeRepo) GetNodesByParams(ctx context.Context, labelScope []string, props map[string]interface{}, p dto.PaginationReq) ([]*dto.Node, int64, error) {
+func (repo *GraphNodeRepo) GetNodesByProps(ctx context.Context, labelScope []string, props map[string]interface{}, p dto.PaginationReq) ([]*dto.Node, int64, error) {
 	return nil, 0, nil
 }

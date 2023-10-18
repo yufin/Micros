@@ -2,31 +2,89 @@ syntax = "proto3";
 
 package api.graph.v1;
 
-import "google/api/annotations.proto";
 import "google/protobuf/struct.proto";
-import "google/protobuf/empty.proto";
+//import "google/api/annotations.proto";
+//import "google/protobuf/empty.proto";
 
-option go_package = "microsgraph/api/graph/v1;v1";
+option go_package = "micros-graph/api/graph/v1;microsgraphv1";
 option java_multiple_files = true;
-option java_outer_classname = "GraphV1";
-option java_package = "api.graph.v1";
+option java_outer_classname = "MicrosGraphV1";
+option java_package = "api.microsgraph.v1";
 
 
-service NetGraphService {
+service GraphService {
+//  Edges
+  rpc GetEdge(GetEdgeReq) returns (EdgeResp) {
+  }
 
+  rpc GetEdges(GetEdgesReq) returns (EdgesResp) {
+  }
+
+  rpc GetEdgesByProps(GetEdgesByPropsReq) returns (EdgesResp) {
+  }
+
+// Nodes
   rpc GetNode(GetNodeReq) returns (NodeResp) {
   }
 
-  rpc GetNodes() returns (NodesResp) {
+  rpc GetNodes(GetNodesReq) returns (NodesResp) {
   }
 
-  rpc GetNodesByParams(GetNodesByParamsReq) returns (NodesResp) {
+  rpc GetNodesByProps(GetNodesByPropsReq) returns (NodesResp) {
+  }
+
+//  Net
+  rpc GetChildren(GetChildrenReq) returns (NetResp) {
   }
 
 }
 
+message PaginationReq {
+  int64 page_num = 1;
+  int64 page_size = 2;
+}
+
 message GetNodeReq {
-  string id = 1;
+  int64 id = 1;
+}
+
+message GetNodesReq {
+  repeated int64 ids = 1;
+}
+
+message GetNodesByPropsReq {
+  repeated string label_scope = 1;
+  google.protobuf.Struct props = 2;
+  PaginationReq pagination = 3;
+}
+
+message GetEdgeReq {
+  int64 source_id = 1;
+  int64 target_id = 2;
+  string rel_type = 3;
+  int64 rank = 4;
+}
+
+message GetEdgesReq {
+  int64 source_id = 1;
+  int64 target_id = 2;
+  string rel_type = 3;
+  PaginationReq pagination = 4;
+}
+
+message GetEdgesByPropsReq {
+  int64 source_id = 1;
+  int64 target_id = 2;
+  string rel_type = 3;
+  google.protobuf.Struct props = 4;
+  PaginationReq pagination = 5;
+}
+
+message GetChildrenReq {
+  int64 source_id = 1;
+  repeated string label_scope = 2;
+  repeated string rel_type_scope = 3;
+  PaginationReq pagination = 4;
 }
 
 message Node {
@@ -67,7 +125,9 @@ message NetResp {
   bool success = 1;
   int32 code = 2;
   string message = 3;
-  Net data = 4;
+  int64 total = 4;
+  int64 offset = 5;
+  Net data = 6;
 }
 
 message NodesResp {

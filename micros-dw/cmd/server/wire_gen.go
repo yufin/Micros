@@ -36,8 +36,8 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	dataData := data.NewData(db, mongoDb)
 	dwEnterpriseRepo := data.NewDwEnterpriseRepo(dataData, logger)
 	dwEnterpriseUsecase := biz.NewDwEnterpriseUsecase(dwEnterpriseRepo, logger)
-	dwServiceServicer := service.NewDwdataServiceServicer(dwEnterpriseUsecase, logger)
-	grpcServer := server.NewGRPCServer(confServer, dwServiceServicer, logger)
+	dwdataServiceServicer := service.NewDwdataServiceServicer(dwEnterpriseUsecase, logger)
+	grpcServer := server.NewGRPCServer(confServer, dwdataServiceServicer, logger)
 	app := newApp(logger, grpcServer)
 	return app, func() {
 		cleanup2()
