@@ -3,7 +3,7 @@ server:
     addr: 0.0.0.0:8000
     timeout: 1s
   grpc:
-    addr: 0.0.0.0:50052
+    addr: 0.0.0.0:50053
     timeout: 1s
 
 data:
@@ -16,12 +16,12 @@ data:
     write_timeout: 0.2s
   mongoDb:
     uri: mongodb://root:dev-password@192.168.44.169:27020
-  nebula:
+  nebulaDb:
     addr: 192.168.44.169
     port: 9669
     user: root
-    password: password
-    use_http2: true
+    password: nebula
+    use_http2: false
 
 
 ## Server Configs

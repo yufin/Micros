@@ -6,7 +6,7 @@ import "google/api/annotations.proto";
 import "google/protobuf/struct.proto";
 import "google/protobuf/empty.proto";
 
-option go_package = "brillinkmicros/api/graph/v1;v1";
+option go_package = "micros-api/api/graph/v1;v1";
 option java_multiple_files = true;
 option java_outer_classname = "GraphV1";
 option java_package = "api.graph.v1";

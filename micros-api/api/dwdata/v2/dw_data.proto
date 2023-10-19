@@ -5,7 +5,7 @@ package api.dwdata.v2;
 //import "google/api/annotations.proto";
 import "google/protobuf/struct.proto";
 //option go_package = "brillink-data-mid-end/pkg/proto/dw/v2;dwV2";
-option go_package = "micros-dw/api/dwdata/v2;dwdataV2";
+option go_package = "micros-api/api/dwdata/v2;dwdataV2";
 option java_multiple_files = true;
 option java_outer_classname = "DwdataV2";
 option java_package = "api.dwdata.v2";

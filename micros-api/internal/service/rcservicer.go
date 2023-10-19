@@ -25,6 +25,7 @@ type RcServiceServicer struct {
 	rcOriginContent    *biz.RcOriginContentUsecase
 	rcDependencyData   *biz.RcDependencyDataUsecase
 	rcReportOss        *biz.RcReportOssUsecase
+	rcDecisionFactor   *biz.RcDecisionFactorUsecase
 	ossMetadata        *biz.OssMetadataUsecase
 }
 
@@ -34,6 +35,7 @@ func NewRcServiceServicer(
 	rdd *biz.RcDependencyDataUsecase,
 	omd *biz.OssMetadataUsecase,
 	rro *biz.RcReportOssUsecase,
+	rdf *biz.RcDecisionFactorUsecase,
 	logger log.Logger) *RcServiceServicer {
 	return &RcServiceServicer{
 		rcOriginContent:    roc,
@@ -41,6 +43,7 @@ func NewRcServiceServicer(
 		rcDependencyData:   rdd,
 		rcReportOss:        rro,
 		ossMetadata:        omd,
+		rcDecisionFactor:   rdf,
 		log:                log.NewHelper(logger),
 	}
 }
@@ -200,10 +203,9 @@ func (s *RcServiceServicer) InsertReportDependencyData(ctx context.Context, req 
 			LhCylwz: int(req.LhCylwz),
 			LhGdct:  int(req.LhGdct),
 			//LhQybq:       int(req.LhQybq),
-			LhYhsx:       int(req.LhYhsx),
-			LhSfsx:       int(req.LhSfsx),
-			AdditionData: req.AdditionData,
-			StatusCode:   0,
+			LhYhsx:     int(req.LhYhsx),
+			LhSfsx:     int(req.LhSfsx),
+			StatusCode: 0,
 		}
 		_, err = s.rcDependencyData.Insert(ctx, &insertReq)
 		if err != nil {
@@ -231,9 +233,8 @@ func (s *RcServiceServicer) InsertReportDependencyData(ctx context.Context, req 
 			LhCylwz:         int(req.LhCylwz),
 			LhGdct:          int(req.LhGdct),
 			//LhQybq:          int(req.LhQybq),
-			LhYhsx:       int(req.LhYhsx),
-			LhSfsx:       int(req.LhSfsx),
-			AdditionData: req.AdditionData,
+			LhYhsx: int(req.LhYhsx),
+			LhSfsx: int(req.LhSfsx),
 		}
 		_, err = s.rcDependencyData.Insert(ctx, &insertReq)
 		if err != nil {

@@ -5,7 +5,7 @@ package api.dw.v2;
 import "google/api/annotations.proto";
 import "google/protobuf/struct.proto";
 
-option go_package = "brillinkmicros/api/dw/v2;dwV2";
+option go_package = "micros-api/api/dw/v2;dwV2";
 option java_multiple_files = true;
 option java_outer_classname = "DwV2";
 option java_package = "api.dw.v2";
@@ -73,6 +73,11 @@ service DwService {
       get: "/micros/dw/v2/enterprise/branches"
     };
   }
+
+}
+
+message EnterpriseRelations {
+
 }
 
 message Shareholders {

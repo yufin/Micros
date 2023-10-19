@@ -251,3 +251,17 @@ func (repo *RcOriginContentRepo) GetInfosByKwd(ctx context.Context, page *dto.Pa
 		Data: &Infos,
 	}, nil
 }
+
+func (repo *RcOriginContentRepo) GetContentIdsByUscId(ctx context.Context, uscId string) ([]int64, error) {
+	var ids []int64
+	err := repo.data.Db.
+		Model(&dto.RcOriginContent{}).
+		Select("id").
+		Where("usc_id = ? ", uscId).
+		Pluck("id", &ids).
+		Error
+	if err != nil {
+		return nil, err
+	}
+	return ids, nil
+}

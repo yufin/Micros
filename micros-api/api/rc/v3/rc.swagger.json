@@ -1,0 +1,262 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "api/rc/v3/rc.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "RcService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/micros/rc/v3/report/decision-factor": {
+      "post": {
+        "operationId": "RcService_InsertReportDecisionFactor",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3SetDependencyDataResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v3InsertDependencyDataReq"
+            }
+          }
+        ],
+        "tags": [
+          "RcService"
+        ]
+      }
+    },
+    "/micros/rc/v3/report/list": {
+      "get": {
+        "operationId": "RcService_ListReport",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3ListReportResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "V2",
+              "V3"
+            ],
+            "default": "V2"
+          },
+          {
+            "name": "kwd_name",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "page_num",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "RcService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v3InsertDependencyDataReq": {
+      "type": "object",
+      "properties": {
+        "usc_id": {
+          "type": "string"
+        },
+        "lh_qylx": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "lh_cylwz": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "lh_gdct": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "lh_yhsx": {
+          "type": "integer",
+          "format": "int32",
+          "title": "int32 lh_qybq = 5;"
+        },
+        "lh_sfsx": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "v3ListReportResp": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "offset": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "report_infos": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v3ReportInfo"
+          }
+        }
+      }
+    },
+    "v3ReportInfo": {
+      "type": "object",
+      "properties": {
+        "content_id": {
+          "type": "string",
+          "format": "int64",
+          "title": "报告id"
+        },
+        "enterprise_name": {
+          "type": "string",
+          "title": "企业名称"
+        },
+        "usc_id": {
+          "type": "string",
+          "title": "企业统一信用社会代码"
+        },
+        "data_collect_month": {
+          "type": "string",
+          "title": "报文更新月份"
+        },
+        "available": {
+          "type": "boolean",
+          "title": "报告是否可用"
+        },
+        "content_updated_time": {
+          "type": "string",
+          "title": "报告生成时间 yyyy-MM-dd HH:mm:ss"
+        },
+        "lh_qylx": {
+          "type": "integer",
+          "format": "int32",
+          "title": "报告状态码"
+        },
+        "factor_id": {
+          "type": "string",
+          "format": "int64",
+          "title": "rc_dependency_data.id"
+        }
+      }
+    },
+    "v3ReportVersion": {
+      "type": "string",
+      "enum": [
+        "V2",
+        "V3"
+      ],
+      "default": "V2"
+    },
+    "v3SetDependencyDataResp": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "is_generated": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

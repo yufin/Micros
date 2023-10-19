@@ -1,67 +1,33 @@
 syntax = "proto3";
 
-package api.rc.v2;
+package api.rc.v3;
 
 import "google/api/annotations.proto";
 import "google/protobuf/struct.proto";
 
-option go_package = "micros-api/api/rc/v2;v2";
+option go_package = "micros-api/api/rc/v3;v3";
 option java_multiple_files = true;
-option java_outer_classname = "RcV2";
-option java_package = "api.rc.v2";
+option java_outer_classname = "RcV3";
+option java_package = "api.rc.v3";
 
 
 service RcService {
-
-  rpc ListReportInfos(ReportInfoKwdSearchReq) returns (ReportInfosResp) {
+  rpc InsertReportDecisionFactor(InsertDependencyDataReq) returns (SetDependencyDataResp) {
     option (google.api.http) = {
-      get: "/micros/rc/v2/report/infos"
-    };
-  }
-
-
-  rpc GetReportContent(ReportContentReq) returns (ReportContentResp) {
-    option (google.api.http) = {
-      get: "/micros/rc/v2/report/content"
-    };
-  }
-
-  rpc GetReportPdfByDepId(ReportDownloadReq) returns (OssFileDownloadResp) {
-    option (google.api.http) = {
-      get: "/micros/rc/v2/report/download"
-    };
-  }
-
-  rpc GetReportContentByDepIdNoDs(ReportContentByDepIdReq) returns (ReportContentResp) {
-    option (google.api.http) = {
-      get: "/micros/rc/v2/report/internal/for-convert"
-    };
-  }
-
-  rpc RefreshReportContent(RefreshReportContentReq) returns (RefreshReportContentResp) {
-    option (google.api.http) = {
-      put: "/micros/rc/v2/report/content/refresh"
+      post: "/micros/rc/v3/report/decision-factor"
       body: "*"
     };
   }
 
-  rpc InsertReportDependencyData(InsertDependencyDataReq) returns (SetDependencyDataResp) {
+  rpc ListReport(ListReportKwdSearchReq) returns (ListReportResp) {
     option (google.api.http) = {
-      post: "/micros/rc/v2/report/dependency-data"
-      body: "*"
-    };
-  }
-
-  rpc UpdateReportDependencyData(UpdateDependencyDataReq) returns (SetDependencyDataResp) {
-    option (google.api.http) = {
-      put: "/micros/rc/v2/report/dependency-data"
-      body: "*"
+      get: "/micros/rc/v3/report/list"
     };
   }
 
   rpc GetReportDependencyData(GetDependencyDataReq) returns (GetDependencyDataResp) {
     option (google.api.http) = {
-      get: "/micros/rc/v2/report/dependency-data"
+      get: "/micros/rc/v3/report/dependency-data"
     };
   }
 
@@ -70,13 +36,6 @@ service RcService {
 message GetDependencyDataReq {
   string content_id = 1;
 }
-
-message ReportInfoKwdSearchReq {
-  string kwd_name = 1;
-  uint32 page_size = 2;
-  uint32 page_num = 3;
-}
-
 
 message GetDependencyDataResp {
   int64 id = 1;
@@ -105,10 +64,9 @@ message InsertDependencyDataReq{
   int32 lh_qylx = 2;
   int32 lh_cylwz = 3;
   int32 lh_gdct = 4;
-//  	int32 lh_qybq = 5;
+  //	int32 lh_qybq = 5;
   int32 lh_yhsx = 5;
   int32 lh_sfsx = 6;
-  string addition_data = 7;
 }
 
 message UpdateDependencyDataReq{
@@ -122,13 +80,27 @@ message UpdateDependencyDataReq{
   string addition_data = 8;
 }
 
-message ReportInfosResp {
-  repeated ReportInfo report_infos = 1;
-  uint32 page_num = 2;
-  uint32 page_size = 3;
+message ListReportResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
   uint32 total = 4;
-  uint32 total_page = 5;
+  uint32 offset = 5;
+  repeated ReportInfo report_infos = 6;
 }
+
+enum ReportVersion {
+  V2 = 0;
+  V3 = 1;
+}
+
+message ListReportKwdSearchReq {
+  ReportVersion version = 1;
+  string kwd_name = 2;
+  uint32 page_size = 3;
+  uint32 page_num = 4;
+}
+
 
 message PaginationReq {
   uint32 page_size = 1;
@@ -141,7 +113,7 @@ message ReportInfo {
   // 企业名称
   string enterprise_name = 2;
   // 企业统一信用社会代码
-  string unified_credit_id = 3;
+  string usc_id = 3;
   // 报文更新月份
   string data_collect_month = 4;
   // 报告是否可用
@@ -150,11 +122,8 @@ message ReportInfo {
   string content_updated_time = 6;
   // 报告状态码
   int32 lh_qylx = 7;
-  // 英文报告id
-  repeated ReportI18nInfo i18n_infos = 8;
   // rc_dependency_data.id
-  int64 dep_id = 9;
-  string processed_id = 10;
+  int64 factor_id = 8;
 }
 
 message ReportI18nInfo {
@@ -164,7 +133,7 @@ message ReportI18nInfo {
 }
 
 message ReportContentReq {
-  string processed_id = 1;
+  int64 content_id = 1;
   string lang = 2;
 }
 

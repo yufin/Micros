@@ -14,4 +14,5 @@ var ProviderSet = wire.NewSet(
 	NewRcRdmResDetailUsecase,
 	NewMgoRcUsecase,
 	NewDwEnterpriseUsecase,
+	NewRcDecisionFactorUsecase,
 )

@@ -10,12 +10,14 @@ import (
 	gv1 "micros-api/api/graph/v1"
 	rcv1 "micros-api/api/rc/v1"
 	rcv2 "micros-api/api/rc/v2"
+	rcv3 "micros-api/api/rc/v3"
 	"micros-api/internal/conf"
 	"micros-api/internal/data"
 	"micros-api/internal/midware"
 	"micros-api/internal/service"
 	dwV2 "micros-api/internal/service/dw/v2"
 	v2 "micros-api/internal/service/rc/v2"
+	v3 "micros-api/internal/service/rc/v3"
 )
 
 // NewHTTPServer new an HTTP server.
@@ -24,6 +26,7 @@ func NewHTTPServer(c *conf.Server,
 	confData *conf.Data,
 	rss *service.RcServiceServicer,
 	rss2 *v2.RcServiceServicer,
+	rss3 *v3.RcServiceServicer,
 	rrs *service.RcRdmServiceServicer,
 	tgs *service.TreeGraphServiceServicer,
 	ngs *service.NetGraphServiceServicer,
@@ -51,6 +54,7 @@ func NewHTTPServer(c *conf.Server,
 	srv.HandlePrefix("/q/", openAPIHandler)
 	log.Infof("SwaggerUI DOC: %s/q/swagger-ui/", c.Http.Addr)
 
+	rcv3.RegisterRcServiceHTTPServer(srv, rss3)
 	rcv2.RegisterRcServiceHTTPServer(srv, rss2)
 	rcv1.RegisterRcServiceHTTPServer(srv, rss)
 	gv1.RegisterTreeGraphServiceHTTPServer(srv, tgs)

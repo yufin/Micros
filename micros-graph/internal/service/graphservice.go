@@ -44,5 +44,9 @@ func (s *GraphServiceService) GetNodesByProps(ctx context.Context, req *pb.GetNo
 	return &pb.NodesResp{}, nil
 }
 func (s *GraphServiceService) GetChildren(ctx context.Context, req *pb.GetChildrenReq) (*pb.NetResp, error) {
+	_, _, err := s.graphNet.GetChildren(ctx, req.SourceId, nil, nil, nil)
+	if err != nil {
+		return nil, err
+	}
 	return &pb.NetResp{}, nil
 }

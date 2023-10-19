@@ -16,6 +16,7 @@ import (
 	"micros-api/internal/service"
 	service2 "micros-api/internal/service/dw/v2"
 	"micros-api/internal/service/rc/v2"
+	"micros-api/internal/service/rc/v3"
 )
 
 import (
@@ -66,11 +67,14 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	ossMetadataUsecase := biz.NewOssMetadataUsecase(ossMetadataRepo, logger)
 	rcReportOssRepo := data.NewRcReportOssRepo(dataData, logger)
 	rcReportOssUsecase := biz.NewRcReportOssUsecase(rcReportOssRepo, logger)
-	rcServiceServicer := service.NewRcServiceServicer(rcProcessedContentUsecase, rcOriginContentUsecase, rcDependencyDataUsecase, ossMetadataUsecase, rcReportOssUsecase, logger)
+	rcDecisionFactorRepo := data.NewRcDecisionFactorRepo(dataData, logger)
+	rcDecisionFactorUsecase := biz.NewRcDecisionFactorUsecase(rcDecisionFactorRepo, logger)
+	rcServiceServicer := service.NewRcServiceServicer(rcProcessedContentUsecase, rcOriginContentUsecase, rcDependencyDataUsecase, ossMetadataUsecase, rcReportOssUsecase, rcDecisionFactorUsecase, logger)
 	grpcServer := server.NewGRPCServer(confServer, rcServiceServicer, logger)
 	mgoRcRepo := data.NewMgoRcRepo(dataData, logger)
 	mgoRcUsecase := biz.NewMgoRcUsecase(mgoRcRepo, logger)
 	v2RcServiceServicer := v2.NewRcServiceServicer(rcProcessedContentUsecase, rcOriginContentUsecase, rcDependencyDataUsecase, ossMetadataUsecase, rcReportOssUsecase, mgoRcUsecase, logger)
+	v3RcServiceServicer := v3.NewRcServiceServicer(rcProcessedContentUsecase, rcOriginContentUsecase, rcDependencyDataUsecase, ossMetadataUsecase, rcReportOssUsecase, rcDecisionFactorUsecase, mgoRcUsecase, logger)
 	rcRdmResultRepo := data.NewRcRdmResultRepo(dataData, logger)
 	rcRdmResultUsecase := biz.NewRcRdmResultUsecase(rcRdmResultRepo, logger)
 	rcRdmResDetailRepo := data.NewRcRdmResDetailRepo(dataData, logger)
@@ -83,7 +87,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	dwEnterpriseRepo := data.NewDwEnterpriseRepo(dataData, logger)
 	dwEnterpriseUsecase := biz.NewDwEnterpriseUsecase(dwEnterpriseRepo, logger)
 	dwServiceServicer := service2.NewDwServiceServicer(dwEnterpriseUsecase, logger)
-	httpServer := server.NewHTTPServer(confServer, dataData, confData, rcServiceServicer, v2RcServiceServicer, rcRdmServiceServicer, treeGraphServiceServicer, netGraphServiceServicer, dwServiceServicer, logger)
+	httpServer := server.NewHTTPServer(confServer, dataData, confData, rcServiceServicer, v2RcServiceServicer, v3RcServiceServicer, rcRdmServiceServicer, treeGraphServiceServicer, netGraphServiceServicer, dwServiceServicer, logger)
 	app := newApp(logger, grpcServer, httpServer)
 	return app, func() {
 		cleanup2()

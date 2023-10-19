@@ -5,6 +5,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"micros-api/internal/biz/dto"
+	"time"
 )
 
 type MgoRcRepo interface {
@@ -13,6 +14,7 @@ type MgoRcRepo interface {
 	GetProcessedContentInfoByObjId(ctx context.Context, objIdHex string) (bson.M, error)
 	GetContentInfos(ctx context.Context, page *dto.PaginationReq) (*dto.RcOriginContentInfosRespV3, error)
 	GetContentInfosByKwd(ctx context.Context, page *dto.PaginationReq, kwd string) (*dto.RcOriginContentInfosRespV3, error)
+	GetNewestDocInfoByContentId(ctx context.Context, contentId int64) (string, time.Time, error)
 }
 
 type MgoRcUsecase struct {
@@ -22,6 +24,11 @@ type MgoRcUsecase struct {
 
 func NewMgoRcUsecase(repo MgoRcRepo, logger log.Logger) *MgoRcUsecase {
 	return &MgoRcUsecase{repo: repo, log: log.NewHelper(logger)}
+}
+
+func (uc *MgoRcUsecase) GetNewestDocInfoByContentId(ctx context.Context, contentId int64) (string, time.Time, error) {
+	uc.log.WithContext(ctx).Infof("biz.MgoRcUsecase.GetDocInfoByContentId %d", contentId)
+	return uc.repo.GetNewestDocInfoByContentId(ctx, contentId)
 }
 
 func (uc *MgoRcUsecase) GetProcessedObjIdByContentId(ctx context.Context, contentId int64) (bson.M, error) {

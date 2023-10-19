@@ -39,3 +39,8 @@ type PaginationResp struct {
 	PageNum   int   `json:"page_num"`
 	PageSize  int   `json:"page_size"`
 }
+
+type PaginationInfo struct {
+	Total  int64 `json:"total"`
+	Offset int64 `json:"offset"`
+}

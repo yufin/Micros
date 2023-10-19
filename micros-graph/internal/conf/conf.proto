@@ -44,7 +44,7 @@ message Data {
     int64 port = 2;
     string user = 3;
     string password = 4;
-    string use_http2 = 5;
+    bool use_http2 = 5;
   }
   Database database = 1;
   Redis redis = 2;

@@ -14,6 +14,7 @@ import (
 	"micros-api/internal/biz/dto"
 	"micros-api/pkg"
 	"strconv"
+	"time"
 )
 
 type MgoRcRepo struct {
@@ -26,6 +27,25 @@ func NewMgoRcRepo(data *Data, logger log.Logger) biz.MgoRcRepo {
 		data: data,
 		log:  log.NewHelper(logger),
 	}
+}
+
+func (repo *MgoRcRepo) GetNewestDocInfoByContentId(ctx context.Context, contentId int64) (string, time.Time, error) {
+	data := bson.M{}
+	err := repo.data.MgoCli.Client.Database("rc").Collection("processed_content").
+		FindOne(
+			context.TODO(),
+			bson.M{"content_id": strconv.FormatInt(contentId, 10)},
+			options.FindOne().SetSort(bson.D{{"created_at", -1}}).SetProjection(bson.D{{"_id", 1}, {"created_at", 1}}),
+		).Decode(&data)
+	if err != nil {
+		if errors.Is(mongo.ErrNoDocuments, err) {
+			return "", time.Time{}, nil
+		}
+		return "", time.Time{}, errors.WithStack(err)
+	}
+	docId := data["_id"].(primitive.ObjectID)
+	createdAt := data["created_at"].(primitive.DateTime)
+	return docId.Hex(), createdAt.Time(), nil
 }
 
 func (repo *MgoRcRepo) GetProcessedObjIdByContentId(ctx context.Context, contentId int64) (bson.M, error) {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
 	"micros-api/internal/biz/dto"
+	"time"
 )
 
 type RcProcessedContentRepo interface {
@@ -11,6 +12,7 @@ type RcProcessedContentRepo interface {
 	GetByContentIdUpToDate(ctx context.Context, contentId int64) (*dto.RcProcessedContent, error)
 	RefreshReportContent(ctx context.Context, contentId int64) (bool, error)
 	GetContentUpToDateByDepId(ctx context.Context, depId int64, allowedUserId int64) (*dto.RcProcessedContent, error)
+	GetNewestRowInfoByContentId(ctx context.Context, contentId int64) (int64, time.Time, error)
 }
 
 type RcProcessedContentUsecase struct {
@@ -47,4 +49,10 @@ func (uc *RcProcessedContentUsecase) GetContentUpToDateByDepId(ctx context.Conte
 func (uc *RcProcessedContentUsecase) RefreshReportContent(ctx context.Context, contentId int64) (bool, error) {
 	uc.log.WithContext(ctx).Infof("biz.RefreshReportContent %v", contentId)
 	return uc.repo.RefreshReportContent(ctx, contentId)
+}
+
+// GetNewestRowInfoByContentId .
+func (uc *RcProcessedContentUsecase) GetNewestRowInfoByContentId(ctx context.Context, contentId int64) (int64, time.Time, error) {
+	uc.log.WithContext(ctx).Infof("biz.GetNewestProcessedIdByContentId %v", contentId)
+	return uc.repo.GetNewestRowInfoByContentId(ctx, contentId)
 }

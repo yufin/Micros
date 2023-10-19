@@ -5,7 +5,7 @@ package api.rc.v1;
 import "google/api/annotations.proto";
 import "google/protobuf/struct.proto";
 
-option go_package = "brillinkmicros/api/rc/v1;v1";
+option go_package = "micros-api/api/rc/v1;v1";
 option java_multiple_files = true;
 option java_outer_classname = "RcV1";
 option java_package = "api.rc.v1";
@@ -99,7 +99,6 @@ message InsertDependencyDataReq{
 //	int32 lh_qybq = 5;
 	int32 lh_yhsx = 5;
 	int32 lh_sfsx = 6;
-	string addition_data = 7;
 }
 
 message UpdateDependencyDataReq{

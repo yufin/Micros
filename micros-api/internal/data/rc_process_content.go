@@ -10,6 +10,7 @@ import (
 	"micros-api/internal/biz"
 	"micros-api/internal/biz/dto"
 	"micros-api/pkg"
+	"time"
 )
 
 // implement biz.RcProcessedContentRepo
@@ -124,4 +125,27 @@ func (repo *RcProcessedContentRepo) RefreshReportContent(ctx context.Context, co
 		return false, err
 	}
 	return true, nil
+}
+
+func (repo *RcProcessedContentRepo) GetNewestRowInfoByContentId(ctx context.Context, contentId int64) (int64, time.Time, error) {
+	var res struct {
+		Id        int64
+		CreatedAt time.Time
+	}
+
+	err := repo.data.Db.
+		Model(&dto.RcProcessedContent{}).
+		Select("id, created_at").
+		Where("content_id = ?", contentId).
+		Order("created_at desc").
+		First(&res).
+		Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return 0, time.Time{}, nil
+		}
+		return 0, time.Time{}, err
+	}
+	return res.Id, res.CreatedAt, nil
 }

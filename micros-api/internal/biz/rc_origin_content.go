@@ -12,6 +12,8 @@ type RcOriginContentRepo interface {
 	GetInfosByKwd(ctx context.Context, page *dto.PaginationReq, kwd string) (*dto.RcOriginContentInfosResp, error)
 	Get(ctx context.Context, id int64) (*dto.RcOriginContent, error)
 	CheckContentIdAllowed(ctx context.Context, contentId int64) (bool, error)
+
+	GetContentIdsByUscId(ctx context.Context, uscId string) ([]int64, error)
 }
 
 type RcOriginContentUsecase struct {
@@ -46,4 +48,9 @@ func (uc *RcOriginContentUsecase) Get(ctx context.Context, id int64) (*dto.RcOri
 func (uc *RcOriginContentUsecase) CheckContentIdAllowed(ctx context.Context, contentId int64) (bool, error) {
 	uc.log.WithContext(ctx).Infof("biz.RcOriginContentUsecase.CheckContentIdAllowed %d", contentId)
 	return uc.repo.CheckContentIdAllowed(ctx, contentId)
+}
+
+func (uc *RcOriginContentUsecase) GetContentIdsByUscId(ctx context.Context, uscId string) ([]int64, error) {
+	uc.log.WithContext(ctx).Infof("biz.RcOriginContentUsecase.GetContentIdsByUscId %s", uscId)
+	return uc.repo.GetContentIdsByUscId(ctx, uscId)
 }
