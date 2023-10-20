@@ -29,6 +29,23 @@ func NewMgoRcRepo(data *Data, logger log.Logger) biz.MgoRcRepo {
 	}
 }
 
+func (repo *MgoRcRepo) GetNewestDocByContentId(ctx context.Context, contentId int64) (bson.M, error) {
+	data := bson.M{}
+	err := repo.data.MgoCli.Client.Database("rc").Collection("processed_content").
+		FindOne(
+			context.TODO(),
+			bson.M{"content_id": strconv.FormatInt(contentId, 10)},
+			options.FindOne().SetSort(bson.D{{"created_at", -1}}),
+		).Decode(&data)
+	if err != nil {
+		if errors.Is(mongo.ErrNoDocuments, err) {
+			return nil, nil
+		}
+		return nil, errors.WithStack(err)
+	}
+	return data, nil
+}
+
 func (repo *MgoRcRepo) GetNewestDocInfoByContentId(ctx context.Context, contentId int64) (string, time.Time, error) {
 	data := bson.M{}
 	err := repo.data.MgoCli.Client.Database("rc").Collection("processed_content").

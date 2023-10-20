@@ -12,10 +12,23 @@ option java_package = "api.rc.v3";
 
 
 service RcService {
-  rpc InsertReportDecisionFactor(InsertDependencyDataReq) returns (SetDependencyDataResp) {
+  rpc InsertReportDecisionFactor(InsertReportDecisionFactorReq) returns (InsertReportDecisionFactorResp) {
     option (google.api.http) = {
       post: "/micros/rc/v3/report/decision-factor"
       body: "*"
+    };
+  }
+
+  rpc UpdateReportDecisionFactor(UpdateReportDecisionFactorReq) returns (InsertReportDecisionFactorResp) {
+    option (google.api.http) = {
+      put: "/micros/rc/v3/report/decision-factor"
+      body: "*"
+    };
+  }
+
+  rpc GetReportDecisionFactor(GetDecisionFactorReq) returns (GetDecisionFactorResp) {
+    option (google.api.http) = {
+      get: "/micros/rc/v3/report/decision-factor"
     };
   }
 
@@ -25,42 +38,58 @@ service RcService {
     };
   }
 
-  rpc GetReportDependencyData(GetDependencyDataReq) returns (GetDependencyDataResp) {
+
+  rpc GetReportContent(GetReportContentReq) returns (GetReportContentResp) {
     option (google.api.http) = {
-      get: "/micros/rc/v3/report/dependency-data"
+      get: "/micros/rc/v3/report/content"
     };
   }
 
+
 }
 
-message GetDependencyDataReq {
-  string content_id = 1;
+message GetDecisionFactorReq {
+  int64 content_id = 1;
 }
 
-message GetDependencyDataResp {
-  int64 id = 1;
-  int64 content_id = 2;
-  string usc_id = 3;
-  int32 lh_qylx = 4;
-  int32 lh_cylwz = 5;
-  int32 lh_gdct = 6;
-  int32 lh_qybq = 7;
-  int32 lh_yhsx = 8;
-  int32 lh_sfsx = 9;
-  string addition_data = 10;
-  string created_at = 11;
-  string updated_at = 12;
-}
-
-message SetDependencyDataResp {
+message GetDecisionFactorResp {
+  message DecisionFactorData {
+    string usc_id = 1;
+    int32 lh_qylx = 2;
+    int32 lh_cylwz = 3;
+    int32 lh_gdct = 4;
+    //	int32 lh_qybq = 5;
+    int32 lh_yhsx = 5;
+    int32 lh_sfsx = 6;
+    string created_at = 7;
+    int64 created_by = 8;
+    int64 claim_id = 9;
+  }
   bool success = 1;
-  bool is_generated = 2;
-  int32 code = 3;
-  string msg = 4;
+  int32 code = 2;
+  string msg = 3;
+  DecisionFactorData data = 4;
 }
 
-message InsertDependencyDataReq{
+
+message InsertReportDecisionFactorResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+}
+
+message InsertReportDecisionFactorReq{
   string usc_id = 1;
+  int32 lh_qylx = 2;
+  int32 lh_cylwz = 3;
+  int32 lh_gdct = 4;
+  //	int32 lh_qybq = 5;
+  int32 lh_yhsx = 5;
+  int32 lh_sfsx = 6;
+}
+
+message UpdateReportDecisionFactorReq{
+  int64 claim_id = 1;
   int32 lh_qylx = 2;
   int32 lh_cylwz = 3;
   int32 lh_gdct = 4;
@@ -81,12 +110,28 @@ message UpdateDependencyDataReq{
 }
 
 message ListReportResp {
+  message ReportInfo {
+    // 报告id
+    int64 content_id = 1;
+    // 企业名称
+    string enterprise_name = 2;
+    // 企业统一信用社会代码
+    string usc_id = 3;
+    // 报文更新月份
+    string data_collect_month = 4;
+    // 报告是否可用
+    bool available = 5;
+    // 报告生成时间 yyyy-MM-dd HH:mm:ss
+    string content_updated_time = 6;
+    // 报告状态码
+    // rc_dependency_data.id
+  }
   bool success = 1;
   int32 code = 2;
   string msg = 3;
   uint32 total = 4;
   uint32 offset = 5;
-  repeated ReportInfo report_infos = 6;
+  repeated ReportInfo data = 6;
 }
 
 enum ReportVersion {
@@ -96,79 +141,49 @@ enum ReportVersion {
 
 message ListReportKwdSearchReq {
   ReportVersion version = 1;
-  string kwd_name = 2;
+  string name_kwd = 2;
   uint32 page_size = 3;
   uint32 page_num = 4;
 }
 
-
-message PaginationReq {
-  uint32 page_size = 1;
-  uint32 page_num = 2;
-}
-
-message ReportInfo {
-  // 报告id
+message GetReportContentReq {
   int64 content_id = 1;
-  // 企业名称
-  string enterprise_name = 2;
-  // 企业统一信用社会代码
-  string usc_id = 3;
-  // 报文更新月份
-  string data_collect_month = 4;
-  // 报告是否可用
-  bool available = 5;
-  // 报告生成时间 yyyy-MM-dd HH:mm:ss
-  string content_updated_time = 6;
-  // 报告状态码
-  int32 lh_qylx = 7;
-  // rc_dependency_data.id
-  int64 factor_id = 8;
+  ReportVersion version = 2;
 }
 
-message ReportI18nInfo {
-  string lang = 1;
-  int64 content_id = 2;
-  bool available = 3;
-}
-
-message ReportContentReq {
-  int64 content_id = 1;
-  string lang = 2;
-}
-
-message ReportContentByDepIdReq {
-  int64 dep_id = 1;
-  string lang = 2;
-}
-
-message ReportDownloadReq {
-  int64 dep_id = 1;
-  string lang = 2;
-  string file_name = 3;
-}
-
-message ReportContentResp {
+message GetReportContentResp {
   // 报告内容
-  google.protobuf.Struct content = 1;
-  bool available = 2;
-  string msg = 3;
-}
-
-message RefreshReportContentReq {
-  int64 contentId = 1;
-}
-
-message RefreshReportContentResp {
   bool success = 1;
-  string msg_pub_time = 2;
+  int32 code = 2;
   string msg = 3;
+  google.protobuf.Struct data = 4;
 }
-
-message OssFileDownloadResp {
-  bool available = 1;
-  string msg = 2;
-  string url = 3;
-  string created_at = 4;
-}
+//message ReportContentByDepIdReq {
+//  int64 dep_id = 1;
+//  string lang = 2;
+//}
+//
+//message ReportDownloadReq {
+//  int64 dep_id = 1;
+//  string lang = 2;
+//  string file_name = 3;
+//}
+//
+//
+//message RefreshReportContentReq {
+//  int64 contentId = 1;
+//}
+//
+//message RefreshReportContentResp {
+//  bool success = 1;
+//  string msg_pub_time = 2;
+//  string msg = 3;
+//}
+//
+//message OssFileDownloadResp {
+//  bool available = 1;
+//  string msg = 2;
+//  string url = 3;
+//  string created_at = 4;
+//}
 

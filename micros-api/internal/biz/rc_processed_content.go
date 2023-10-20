@@ -13,6 +13,7 @@ type RcProcessedContentRepo interface {
 	RefreshReportContent(ctx context.Context, contentId int64) (bool, error)
 	GetContentUpToDateByDepId(ctx context.Context, depId int64, allowedUserId int64) (*dto.RcProcessedContent, error)
 	GetNewestRowInfoByContentId(ctx context.Context, contentId int64) (int64, time.Time, error)
+	GetNewestByContentId(ctx context.Context, contentId int64) (*dto.RcProcessedContent, error)
 }
 
 type RcProcessedContentUsecase struct {
@@ -55,4 +56,10 @@ func (uc *RcProcessedContentUsecase) RefreshReportContent(ctx context.Context, c
 func (uc *RcProcessedContentUsecase) GetNewestRowInfoByContentId(ctx context.Context, contentId int64) (int64, time.Time, error) {
 	uc.log.WithContext(ctx).Infof("biz.GetNewestProcessedIdByContentId %v", contentId)
 	return uc.repo.GetNewestRowInfoByContentId(ctx, contentId)
+}
+
+// GetNewestByContentId .
+func (uc *RcProcessedContentUsecase) GetNewestByContentId(ctx context.Context, contentId int64) (*dto.RcProcessedContent, error) {
+	uc.log.WithContext(ctx).Infof("biz.GetNewestByContentId %v", contentId)
+	return uc.repo.GetNewestByContentId(ctx, contentId)
 }

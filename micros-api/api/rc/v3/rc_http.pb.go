@@ -19,35 +19,82 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
+const OperationRcServiceGetReportContent = "/api.rc.v3.RcService/GetReportContent"
+const OperationRcServiceGetReportDecisionFactor = "/api.rc.v3.RcService/GetReportDecisionFactor"
 const OperationRcServiceInsertReportDecisionFactor = "/api.rc.v3.RcService/InsertReportDecisionFactor"
 const OperationRcServiceListReport = "/api.rc.v3.RcService/ListReport"
+const OperationRcServiceUpdateReportDecisionFactor = "/api.rc.v3.RcService/UpdateReportDecisionFactor"
 
 type RcServiceHTTPServer interface {
-	InsertReportDecisionFactor(context.Context, *InsertDependencyDataReq) (*SetDependencyDataResp, error)
+	GetReportContent(context.Context, *GetReportContentReq) (*GetReportContentResp, error)
+	GetReportDecisionFactor(context.Context, *GetDecisionFactorReq) (*GetDecisionFactorResp, error)
+	InsertReportDecisionFactor(context.Context, *InsertReportDecisionFactorReq) (*InsertReportDecisionFactorResp, error)
 	ListReport(context.Context, *ListReportKwdSearchReq) (*ListReportResp, error)
+	UpdateReportDecisionFactor(context.Context, *UpdateReportDecisionFactorReq) (*InsertReportDecisionFactorResp, error)
 }
 
 func RegisterRcServiceHTTPServer(s *http.Server, srv RcServiceHTTPServer) {
 	r := s.Route("/")
 	r.POST("/micros/rc/v3/report/decision-factor", _RcService_InsertReportDecisionFactor0_HTTP_Handler(srv))
+	r.PUT("/micros/rc/v3/report/decision-factor", _RcService_UpdateReportDecisionFactor0_HTTP_Handler(srv))
+	r.GET("/micros/rc/v3/report/decision-factor", _RcService_GetReportDecisionFactor0_HTTP_Handler(srv))
 	r.GET("/micros/rc/v3/report/list", _RcService_ListReport0_HTTP_Handler(srv))
+	r.GET("/micros/rc/v3/report/content", _RcService_GetReportContent0_HTTP_Handler(srv))
 }
 
 func _RcService_InsertReportDecisionFactor0_HTTP_Handler(srv RcServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in InsertDependencyDataReq
+		var in InsertReportDecisionFactorReq
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationRcServiceInsertReportDecisionFactor)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.InsertReportDecisionFactor(ctx, req.(*InsertDependencyDataReq))
+			return srv.InsertReportDecisionFactor(ctx, req.(*InsertReportDecisionFactorReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*SetDependencyDataResp)
+		reply := out.(*InsertReportDecisionFactorResp)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _RcService_UpdateReportDecisionFactor0_HTTP_Handler(srv RcServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in UpdateReportDecisionFactorReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationRcServiceUpdateReportDecisionFactor)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.UpdateReportDecisionFactor(ctx, req.(*UpdateReportDecisionFactorReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*InsertReportDecisionFactorResp)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _RcService_GetReportDecisionFactor0_HTTP_Handler(srv RcServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetDecisionFactorReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationRcServiceGetReportDecisionFactor)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetReportDecisionFactor(ctx, req.(*GetDecisionFactorReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetDecisionFactorResp)
 		return ctx.Result(200, reply)
 	}
 }
@@ -71,9 +118,31 @@ func _RcService_ListReport0_HTTP_Handler(srv RcServiceHTTPServer) func(ctx http.
 	}
 }
 
+func _RcService_GetReportContent0_HTTP_Handler(srv RcServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetReportContentReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationRcServiceGetReportContent)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetReportContent(ctx, req.(*GetReportContentReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetReportContentResp)
+		return ctx.Result(200, reply)
+	}
+}
+
 type RcServiceHTTPClient interface {
-	InsertReportDecisionFactor(ctx context.Context, req *InsertDependencyDataReq, opts ...http.CallOption) (rsp *SetDependencyDataResp, err error)
+	GetReportContent(ctx context.Context, req *GetReportContentReq, opts ...http.CallOption) (rsp *GetReportContentResp, err error)
+	GetReportDecisionFactor(ctx context.Context, req *GetDecisionFactorReq, opts ...http.CallOption) (rsp *GetDecisionFactorResp, err error)
+	InsertReportDecisionFactor(ctx context.Context, req *InsertReportDecisionFactorReq, opts ...http.CallOption) (rsp *InsertReportDecisionFactorResp, err error)
 	ListReport(ctx context.Context, req *ListReportKwdSearchReq, opts ...http.CallOption) (rsp *ListReportResp, err error)
+	UpdateReportDecisionFactor(ctx context.Context, req *UpdateReportDecisionFactorReq, opts ...http.CallOption) (rsp *InsertReportDecisionFactorResp, err error)
 }
 
 type RcServiceHTTPClientImpl struct {
@@ -84,8 +153,34 @@ func NewRcServiceHTTPClient(client *http.Client) RcServiceHTTPClient {
 	return &RcServiceHTTPClientImpl{client}
 }
 
-func (c *RcServiceHTTPClientImpl) InsertReportDecisionFactor(ctx context.Context, in *InsertDependencyDataReq, opts ...http.CallOption) (*SetDependencyDataResp, error) {
-	var out SetDependencyDataResp
+func (c *RcServiceHTTPClientImpl) GetReportContent(ctx context.Context, in *GetReportContentReq, opts ...http.CallOption) (*GetReportContentResp, error) {
+	var out GetReportContentResp
+	pattern := "/micros/rc/v3/report/content"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationRcServiceGetReportContent))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *RcServiceHTTPClientImpl) GetReportDecisionFactor(ctx context.Context, in *GetDecisionFactorReq, opts ...http.CallOption) (*GetDecisionFactorResp, error) {
+	var out GetDecisionFactorResp
+	pattern := "/micros/rc/v3/report/decision-factor"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationRcServiceGetReportDecisionFactor))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *RcServiceHTTPClientImpl) InsertReportDecisionFactor(ctx context.Context, in *InsertReportDecisionFactorReq, opts ...http.CallOption) (*InsertReportDecisionFactorResp, error) {
+	var out InsertReportDecisionFactorResp
 	pattern := "/micros/rc/v3/report/decision-factor"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationRcServiceInsertReportDecisionFactor))
@@ -104,6 +199,19 @@ func (c *RcServiceHTTPClientImpl) ListReport(ctx context.Context, in *ListReport
 	opts = append(opts, http.Operation(OperationRcServiceListReport))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *RcServiceHTTPClientImpl) UpdateReportDecisionFactor(ctx context.Context, in *UpdateReportDecisionFactorReq, opts ...http.CallOption) (*InsertReportDecisionFactorResp, error) {
+	var out InsertReportDecisionFactorResp
+	pattern := "/micros/rc/v3/report/decision-factor"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationRcServiceUpdateReportDecisionFactor))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

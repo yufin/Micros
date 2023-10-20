@@ -25,3 +25,17 @@ type ListReportInfo struct {
 	LhQylx           int
 	Total            int64
 }
+
+type RcDecisionFactorClaimed struct {
+	BaseModel
+	UscId     string
+	LhQylx    int
+	LhCylwz   int
+	LhGdct    int
+	LhQybq    int
+	LhYhsx    int
+	LhSfsx    int
+	UserId    int64
+	ClaimId   int64
+	ContentId int64
+}

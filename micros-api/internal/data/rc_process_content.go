@@ -149,3 +149,20 @@ func (repo *RcProcessedContentRepo) GetNewestRowInfoByContentId(ctx context.Cont
 	}
 	return res.Id, res.CreatedAt, nil
 }
+
+func (repo *RcProcessedContentRepo) GetNewestByContentId(ctx context.Context, contentId int64) (*dto.RcProcessedContent, error) {
+	var data dto.RcProcessedContent
+	err := repo.data.Db.
+		Model(&dto.RcProcessedContent{}).
+		Where("content_id = ?", contentId).
+		Order("created_at desc").
+		First(&data).
+		Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &data, nil
+}

@@ -20,15 +20,21 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	RcService_InsertReportDecisionFactor_FullMethodName = "/api.rc.v3.RcService/InsertReportDecisionFactor"
+	RcService_UpdateReportDecisionFactor_FullMethodName = "/api.rc.v3.RcService/UpdateReportDecisionFactor"
+	RcService_GetReportDecisionFactor_FullMethodName    = "/api.rc.v3.RcService/GetReportDecisionFactor"
 	RcService_ListReport_FullMethodName                 = "/api.rc.v3.RcService/ListReport"
+	RcService_GetReportContent_FullMethodName           = "/api.rc.v3.RcService/GetReportContent"
 )
 
 // RcServiceClient is the client API for RcService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RcServiceClient interface {
-	InsertReportDecisionFactor(ctx context.Context, in *InsertDependencyDataReq, opts ...grpc.CallOption) (*SetDependencyDataResp, error)
+	InsertReportDecisionFactor(ctx context.Context, in *InsertReportDecisionFactorReq, opts ...grpc.CallOption) (*InsertReportDecisionFactorResp, error)
+	UpdateReportDecisionFactor(ctx context.Context, in *UpdateReportDecisionFactorReq, opts ...grpc.CallOption) (*InsertReportDecisionFactorResp, error)
+	GetReportDecisionFactor(ctx context.Context, in *GetDecisionFactorReq, opts ...grpc.CallOption) (*GetDecisionFactorResp, error)
 	ListReport(ctx context.Context, in *ListReportKwdSearchReq, opts ...grpc.CallOption) (*ListReportResp, error)
+	GetReportContent(ctx context.Context, in *GetReportContentReq, opts ...grpc.CallOption) (*GetReportContentResp, error)
 }
 
 type rcServiceClient struct {
@@ -39,9 +45,27 @@ func NewRcServiceClient(cc grpc.ClientConnInterface) RcServiceClient {
 	return &rcServiceClient{cc}
 }
 
-func (c *rcServiceClient) InsertReportDecisionFactor(ctx context.Context, in *InsertDependencyDataReq, opts ...grpc.CallOption) (*SetDependencyDataResp, error) {
-	out := new(SetDependencyDataResp)
+func (c *rcServiceClient) InsertReportDecisionFactor(ctx context.Context, in *InsertReportDecisionFactorReq, opts ...grpc.CallOption) (*InsertReportDecisionFactorResp, error) {
+	out := new(InsertReportDecisionFactorResp)
 	err := c.cc.Invoke(ctx, RcService_InsertReportDecisionFactor_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *rcServiceClient) UpdateReportDecisionFactor(ctx context.Context, in *UpdateReportDecisionFactorReq, opts ...grpc.CallOption) (*InsertReportDecisionFactorResp, error) {
+	out := new(InsertReportDecisionFactorResp)
+	err := c.cc.Invoke(ctx, RcService_UpdateReportDecisionFactor_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *rcServiceClient) GetReportDecisionFactor(ctx context.Context, in *GetDecisionFactorReq, opts ...grpc.CallOption) (*GetDecisionFactorResp, error) {
+	out := new(GetDecisionFactorResp)
+	err := c.cc.Invoke(ctx, RcService_GetReportDecisionFactor_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -57,12 +81,24 @@ func (c *rcServiceClient) ListReport(ctx context.Context, in *ListReportKwdSearc
 	return out, nil
 }
 
+func (c *rcServiceClient) GetReportContent(ctx context.Context, in *GetReportContentReq, opts ...grpc.CallOption) (*GetReportContentResp, error) {
+	out := new(GetReportContentResp)
+	err := c.cc.Invoke(ctx, RcService_GetReportContent_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RcServiceServer is the server API for RcService service.
 // All implementations must embed UnimplementedRcServiceServer
 // for forward compatibility
 type RcServiceServer interface {
-	InsertReportDecisionFactor(context.Context, *InsertDependencyDataReq) (*SetDependencyDataResp, error)
+	InsertReportDecisionFactor(context.Context, *InsertReportDecisionFactorReq) (*InsertReportDecisionFactorResp, error)
+	UpdateReportDecisionFactor(context.Context, *UpdateReportDecisionFactorReq) (*InsertReportDecisionFactorResp, error)
+	GetReportDecisionFactor(context.Context, *GetDecisionFactorReq) (*GetDecisionFactorResp, error)
 	ListReport(context.Context, *ListReportKwdSearchReq) (*ListReportResp, error)
+	GetReportContent(context.Context, *GetReportContentReq) (*GetReportContentResp, error)
 	mustEmbedUnimplementedRcServiceServer()
 }
 
@@ -70,11 +106,20 @@ type RcServiceServer interface {
 type UnimplementedRcServiceServer struct {
 }
 
-func (UnimplementedRcServiceServer) InsertReportDecisionFactor(context.Context, *InsertDependencyDataReq) (*SetDependencyDataResp, error) {
+func (UnimplementedRcServiceServer) InsertReportDecisionFactor(context.Context, *InsertReportDecisionFactorReq) (*InsertReportDecisionFactorResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method InsertReportDecisionFactor not implemented")
+}
+func (UnimplementedRcServiceServer) UpdateReportDecisionFactor(context.Context, *UpdateReportDecisionFactorReq) (*InsertReportDecisionFactorResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateReportDecisionFactor not implemented")
+}
+func (UnimplementedRcServiceServer) GetReportDecisionFactor(context.Context, *GetDecisionFactorReq) (*GetDecisionFactorResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetReportDecisionFactor not implemented")
 }
 func (UnimplementedRcServiceServer) ListReport(context.Context, *ListReportKwdSearchReq) (*ListReportResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListReport not implemented")
+}
+func (UnimplementedRcServiceServer) GetReportContent(context.Context, *GetReportContentReq) (*GetReportContentResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetReportContent not implemented")
 }
 func (UnimplementedRcServiceServer) mustEmbedUnimplementedRcServiceServer() {}
 
@@ -90,7 +135,7 @@ func RegisterRcServiceServer(s grpc.ServiceRegistrar, srv RcServiceServer) {
 }
 
 func _RcService_InsertReportDecisionFactor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(InsertDependencyDataReq)
+	in := new(InsertReportDecisionFactorReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -102,7 +147,43 @@ func _RcService_InsertReportDecisionFactor_Handler(srv interface{}, ctx context.
 		FullMethod: RcService_InsertReportDecisionFactor_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RcServiceServer).InsertReportDecisionFactor(ctx, req.(*InsertDependencyDataReq))
+		return srv.(RcServiceServer).InsertReportDecisionFactor(ctx, req.(*InsertReportDecisionFactorReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RcService_UpdateReportDecisionFactor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateReportDecisionFactorReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RcServiceServer).UpdateReportDecisionFactor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RcService_UpdateReportDecisionFactor_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RcServiceServer).UpdateReportDecisionFactor(ctx, req.(*UpdateReportDecisionFactorReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RcService_GetReportDecisionFactor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDecisionFactorReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RcServiceServer).GetReportDecisionFactor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RcService_GetReportDecisionFactor_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RcServiceServer).GetReportDecisionFactor(ctx, req.(*GetDecisionFactorReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -125,6 +206,24 @@ func _RcService_ListReport_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RcService_GetReportContent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetReportContentReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RcServiceServer).GetReportContent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RcService_GetReportContent_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RcServiceServer).GetReportContent(ctx, req.(*GetReportContentReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // RcService_ServiceDesc is the grpc.ServiceDesc for RcService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -137,8 +236,20 @@ var RcService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _RcService_InsertReportDecisionFactor_Handler,
 		},
 		{
+			MethodName: "UpdateReportDecisionFactor",
+			Handler:    _RcService_UpdateReportDecisionFactor_Handler,
+		},
+		{
+			MethodName: "GetReportDecisionFactor",
+			Handler:    _RcService_GetReportDecisionFactor_Handler,
+		},
+		{
 			MethodName: "ListReport",
 			Handler:    _RcService_ListReport_Handler,
+		},
+		{
+			MethodName: "GetReportContent",
+			Handler:    _RcService_GetReportContent_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -16,14 +16,85 @@
     "application/json"
   ],
   "paths": {
+    "/micros/rc/v3/report/content": {
+      "get": {
+        "operationId": "RcService_GetReportContent",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetReportContentResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "content_id",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "V2",
+              "V3"
+            ],
+            "default": "V2"
+          }
+        ],
+        "tags": [
+          "RcService"
+        ]
+      }
+    },
     "/micros/rc/v3/report/decision-factor": {
+      "get": {
+        "operationId": "RcService_GetReportDecisionFactor",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetDecisionFactorResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "content_id",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "RcService"
+        ]
+      },
       "post": {
         "operationId": "RcService_InsertReportDecisionFactor",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v3SetDependencyDataResp"
+              "$ref": "#/definitions/v3InsertReportDecisionFactorResp"
             }
           },
           "default": {
@@ -39,7 +110,37 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/v3InsertDependencyDataReq"
+              "$ref": "#/definitions/v3InsertReportDecisionFactorReq"
+            }
+          }
+        ],
+        "tags": [
+          "RcService"
+        ]
+      },
+      "put": {
+        "operationId": "RcService_UpdateReportDecisionFactor",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3InsertReportDecisionFactorResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v3UpdateReportDecisionFactorReq"
             }
           }
         ],
@@ -78,7 +179,7 @@
             "default": "V2"
           },
           {
-            "name": "kwd_name",
+            "name": "name_kwd",
             "in": "query",
             "required": false,
             "type": "string"
@@ -105,6 +206,81 @@
     }
   },
   "definitions": {
+    "GetDecisionFactorRespDecisionFactorData": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "usc_id": {
+          "type": "string"
+        },
+        "lh_qylx": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "lh_cylwz": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "lh_gdct": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "lh_yhsx": {
+          "type": "integer",
+          "format": "int32",
+          "title": "int32 lh_qybq = 5;"
+        },
+        "lh_sfsx": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "created_by": {
+          "type": "string",
+          "format": "int64"
+        },
+        "claim_id": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
+    "ListReportRespReportInfo": {
+      "type": "object",
+      "properties": {
+        "content_id": {
+          "type": "string",
+          "format": "int64",
+          "title": "报告id"
+        },
+        "enterprise_name": {
+          "type": "string",
+          "title": "企业名称"
+        },
+        "usc_id": {
+          "type": "string",
+          "title": "企业统一信用社会代码"
+        },
+        "data_collect_month": {
+          "type": "string",
+          "title": "报文更新月份"
+        },
+        "available": {
+          "type": "boolean",
+          "title": "报告是否可用"
+        },
+        "content_updated_time": {
+          "type": "string",
+          "description": "报告状态码\n rc_dependency_data.id",
+          "title": "报告生成时间 yyyy-MM-dd HH:mm:ss"
+        }
+      }
+    },
     "protobufAny": {
       "type": "object",
       "properties": {
@@ -113,6 +289,14 @@
         }
       },
       "additionalProperties": {}
+    },
+    "protobufNullValue": {
+      "type": "string",
+      "enum": [
+        "NULL_VALUE"
+      ],
+      "default": "NULL_VALUE",
+      "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\n The JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
     },
     "rpcStatus": {
       "type": "object",
@@ -133,7 +317,44 @@
         }
       }
     },
-    "v3InsertDependencyDataReq": {
+    "v3GetDecisionFactorResp": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/GetDecisionFactorRespDecisionFactorData"
+        }
+      }
+    },
+    "v3GetReportContentResp": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "title": "报告内容"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object"
+        }
+      }
+    },
+    "v3InsertReportDecisionFactorReq": {
       "type": "object",
       "properties": {
         "usc_id": {
@@ -162,6 +383,21 @@
         }
       }
     },
+    "v3InsertReportDecisionFactorResp": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        }
+      }
+    },
     "v3ListReportResp": {
       "type": "object",
       "properties": {
@@ -183,52 +419,12 @@
           "type": "integer",
           "format": "int64"
         },
-        "report_infos": {
+        "data": {
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/v3ReportInfo"
+            "$ref": "#/definitions/ListReportRespReportInfo"
           }
-        }
-      }
-    },
-    "v3ReportInfo": {
-      "type": "object",
-      "properties": {
-        "content_id": {
-          "type": "string",
-          "format": "int64",
-          "title": "报告id"
-        },
-        "enterprise_name": {
-          "type": "string",
-          "title": "企业名称"
-        },
-        "usc_id": {
-          "type": "string",
-          "title": "企业统一信用社会代码"
-        },
-        "data_collect_month": {
-          "type": "string",
-          "title": "报文更新月份"
-        },
-        "available": {
-          "type": "boolean",
-          "title": "报告是否可用"
-        },
-        "content_updated_time": {
-          "type": "string",
-          "title": "报告生成时间 yyyy-MM-dd HH:mm:ss"
-        },
-        "lh_qylx": {
-          "type": "integer",
-          "format": "int32",
-          "title": "报告状态码"
-        },
-        "factor_id": {
-          "type": "string",
-          "format": "int64",
-          "title": "rc_dependency_data.id"
         }
       }
     },
@@ -240,21 +436,33 @@
       ],
       "default": "V2"
     },
-    "v3SetDependencyDataResp": {
+    "v3UpdateReportDecisionFactorReq": {
       "type": "object",
       "properties": {
-        "success": {
-          "type": "boolean"
+        "claim_id": {
+          "type": "string",
+          "format": "int64"
         },
-        "is_generated": {
-          "type": "boolean"
-        },
-        "code": {
+        "lh_qylx": {
           "type": "integer",
           "format": "int32"
         },
-        "msg": {
-          "type": "string"
+        "lh_cylwz": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "lh_gdct": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "lh_yhsx": {
+          "type": "integer",
+          "format": "int32",
+          "title": "int32 lh_qybq = 5;"
+        },
+        "lh_sfsx": {
+          "type": "integer",
+          "format": "int32"
         }
       }
     }

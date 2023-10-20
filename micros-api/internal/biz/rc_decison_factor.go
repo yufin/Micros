@@ -11,6 +11,9 @@ type RcDecisionFactorRepo interface {
 	Insert(ctx context.Context, data *dto.RcDecisionFactor) (int64, error)
 	InsertClaimNoDupe(ctx context.Context, data *dto.RcContentFactorClaim) (int64, error)
 	ListReportClaimed(ctx context.Context, page *dto.PaginationReq, kwd string) (*[]dto.ListReportInfo, dto.PaginationInfo, error)
+	GetWithDataScope(ctx context.Context, id int64) (*dto.RcDecisionFactor, error)
+	CheckContentIdAccessible(ctx context.Context, contentId int64) (bool, error)
+	GetByContentIdWithDataScope(ctx context.Context, contentId int64) (*dto.RcDecisionFactorClaimed, error)
 }
 
 type RcDecisionFactorUsecase struct {
@@ -20,6 +23,11 @@ type RcDecisionFactorUsecase struct {
 
 func NewRcDecisionFactorUsecase(repo RcDecisionFactorRepo, logger log.Logger) *RcDecisionFactorUsecase {
 	return &RcDecisionFactorUsecase{repo: repo, log: log.NewHelper(logger)}
+}
+
+func (uc *RcDecisionFactorUsecase) GetByContentIdWithDataScope(ctx context.Context, contentId int64) (*dto.RcDecisionFactorClaimed, error) {
+	uc.log.WithContext(ctx).Infof("biz.RcDecisionFactorUsecase.GetByContentIdWithDataScope %d", contentId)
+	return uc.repo.GetByContentIdWithDataScope(ctx, contentId)
 }
 
 func (uc *RcDecisionFactorUsecase) CountByUscIdAndUserId(ctx context.Context, uscId string) (int64, error) {
@@ -40,4 +48,14 @@ func (uc *RcDecisionFactorUsecase) InsertClaimNoDupe(ctx context.Context, data *
 func (uc *RcDecisionFactorUsecase) ListReportClaimed(ctx context.Context, page *dto.PaginationReq, kwd string) (*[]dto.ListReportInfo, dto.PaginationInfo, error) {
 	uc.log.WithContext(ctx).Infof("biz.RcDecisionFactorUsecase.ListReportClaimed %v", page)
 	return uc.repo.ListReportClaimed(ctx, page, kwd)
+}
+
+func (uc *RcDecisionFactorUsecase) GetWithDataScope(ctx context.Context, id int64) (*dto.RcDecisionFactor, error) {
+	uc.log.WithContext(ctx).Infof("biz.RcDecisionFactorUsecase.GetWithDataScope %v", id)
+	return uc.repo.GetWithDataScope(ctx, id)
+}
+
+func (uc *RcDecisionFactorUsecase) CheckContentIdAccessible(ctx context.Context, contentId int64) (bool, error) {
+	uc.log.WithContext(ctx).Infof("biz.RcDecisionFactorUsecase.CheckContentIdAccessible %v", contentId)
+	return uc.repo.CheckContentIdAccessible(ctx, contentId)
 }

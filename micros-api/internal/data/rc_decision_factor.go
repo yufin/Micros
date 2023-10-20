@@ -23,6 +23,93 @@ func NewRcDecisionFactorRepo(data *Data, logger log.Logger) biz.RcDecisionFactor
 	}
 }
 
+func (repo *RcDecisionFactorRepo) GetByContentIdWithDataScope(ctx context.Context, contentId int64) (*dto.RcDecisionFactorClaimed, error) {
+	dsi, err := pkg.ParseBlDataScope(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var tb dto.RcContentFactorClaim
+	var dataRpc dto.RcDecisionFactorClaimed
+	err = repo.data.Db.
+		Table(tb.TableName()).
+		Select("rc_decision_factor.*, rc_content_factor_claim.id as claim_id, rc_content_factor_claim.content_id as content_id").
+		Joins("left join rc_decision_factor on rc_content_factor_claim.factor_id = rc_decision_factor.id").
+		Where("rc_decision_factor.user_id = ? and content_id = ? ", dsi.UserId, contentId).
+		Where("rc_content_factor_claim.deleted_at is null and rc_decision_factor.deleted_at is null").
+		Order("created_at desc").
+		First(&dataRpc).
+		Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			err = repo.data.Db.
+				Table(tb.TableName()).
+				Select("rc_decision_factor.*, rc_content_factor_claim.id as claim_id, rc_content_factor_claim.content_id as content_id").
+				Joins("left join rc_decision_factor on rc_content_factor_claim.factor_id = rc_decision_factor.id").
+				Where("rc_decision_factor.user_id in (?) and content_id = ? ", dsi.AccessibleIds, contentId).
+				Where("rc_content_factor_claim.deleted_at is null and rc_decision_factor.deleted_at is null").
+				Order("created_at").
+				First(&dataRpc).
+				Error
+			if err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					return nil, nil
+				}
+				return nil, err
+			}
+			return &dataRpc, nil
+		}
+		return nil, err
+	}
+
+	return &dataRpc, nil
+}
+
+// GetWithDataScope 根据查询单条（需鉴权）
+func (repo *RcDecisionFactorRepo) GetWithDataScope(ctx context.Context, id int64) (*dto.RcDecisionFactor, error) {
+	dsi, err := pkg.ParseBlDataScope(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var dataRpc dto.RcDecisionFactor
+	err = repo.data.Db.
+		Model(&dto.RcDecisionFactor{}).
+		Where("id = ? and user_id in ?", id, dsi.AccessibleIds).
+		First(&dataRpc).
+		Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &dataRpc, nil
+}
+
+func (repo *RcDecisionFactorRepo) CheckContentIdAccessible(ctx context.Context, contentId int64) (bool, error) {
+	dsi, err := pkg.ParseBlDataScope(ctx)
+	if err != nil {
+		return false, err
+	}
+	var tb dto.RcContentFactorClaim
+	var count int64
+	err = repo.data.Db.
+		Table(tb.TableName()).
+		Select("*").
+		Joins("left join rc_decision_factor on rc_content_factor_claim.factor_id = rc_decision_factor.id").
+		Where("rc_decision_factor.user_id in (?) and content_id = ? ", dsi.AccessibleIds, contentId).
+		Where("rc_content_factor_claim.deleted_at is null and rc_decision_factor.deleted_at is null").
+		Count(&count).Error
+	if err != nil {
+		return false, err
+	}
+	if count > 0 {
+		return true, nil
+	}
+	return false, nil
+}
+
 func (repo *RcDecisionFactorRepo) CountByUscIdAndUserId(ctx context.Context, uscId string) (int64, error) {
 	dsi, err := pkg.ParseBlDataScope(ctx)
 	if err != nil {

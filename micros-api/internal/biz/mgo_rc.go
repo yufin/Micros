@@ -15,6 +15,7 @@ type MgoRcRepo interface {
 	GetContentInfos(ctx context.Context, page *dto.PaginationReq) (*dto.RcOriginContentInfosRespV3, error)
 	GetContentInfosByKwd(ctx context.Context, page *dto.PaginationReq, kwd string) (*dto.RcOriginContentInfosRespV3, error)
 	GetNewestDocInfoByContentId(ctx context.Context, contentId int64) (string, time.Time, error)
+	GetNewestDocByContentId(ctx context.Context, contentId int64) (bson.M, error)
 }
 
 type MgoRcUsecase struct {
@@ -54,4 +55,9 @@ func (uc *MgoRcUsecase) GetProcessedContentInfoByObjId(ctx context.Context, objI
 func (uc *MgoRcUsecase) GetContentInfosByKwd(ctx context.Context, page *dto.PaginationReq, kwd string) (*dto.RcOriginContentInfosRespV3, error) {
 	uc.log.WithContext(ctx).Infof("biz.MgoRcUsecase.SearchReportInfosByKwd %d", page.PageNum)
 	return uc.repo.GetContentInfosByKwd(ctx, page, kwd)
+}
+
+func (uc *MgoRcUsecase) GetNewestDocByContentId(ctx context.Context, contentId int64) (bson.M, error) {
+	uc.log.WithContext(ctx).Infof("biz.MgoRcUsecase.GetNewestDocByContentId %d", contentId)
+	return uc.repo.GetNewestDocByContentId(ctx, contentId)
 }
