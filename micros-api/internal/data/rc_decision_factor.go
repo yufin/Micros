@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"encoding/binary"
 	"fmt"
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
@@ -160,11 +161,38 @@ func (repo *RcDecisionFactorRepo) InsertClaimNoDupe(ctx context.Context, data *d
 			if err != nil {
 				return 0, err
 			}
+
+			msg := make([]byte, 8)
+			binary.BigEndian.PutUint64(msg, uint64(data.Id))
+			_, err = repo.data.Nw.Js.Publish("task.rc.report.claimed.newId", msg)
+			if err != nil {
+				return 0, err
+			}
+
 			return data.Id, nil
 		}
 		return 0, err
 	}
 	return record.Id, nil
+}
+
+func (repo *RcDecisionFactorRepo) InsertClaim(ctx context.Context, data *dto.RcContentFactorClaim) (int64, error) {
+	data.BaseModel.Gen()
+	err := repo.data.Db.
+		Model(&dto.RcContentFactorClaim{}).
+		Create(data).Error
+	if err != nil {
+		return 0, err
+	}
+
+	msg := make([]byte, 8)
+	binary.BigEndian.PutUint64(msg, uint64(data.Id))
+	_, err = repo.data.Nw.Js.Publish("task.rc.report.claimed.newId", msg)
+	if err != nil {
+		return 0, err
+	}
+
+	return data.Id, nil
 }
 
 func (repo *RcDecisionFactorRepo) ListReportClaimed(ctx context.Context, page *dto.PaginationReq, kwd string) (*[]dto.ListReportInfo, dto.PaginationInfo, error) {
@@ -195,8 +223,7 @@ func (repo *RcDecisionFactorRepo) ListReportClaimed(ctx context.Context, page *d
 					ROW_NUMBER() OVER (
 						PARTITION BY rc_origin_content.id
 						ORDER BY rc_decision_factor.created_at
-					) AS rn,
-					COUNT(*) OVER () AS total
+					) AS rn
 				FROM rc_decision_factor
 				JOIN rc_content_factor_claim
 				ON rc_decision_factor.id = rc_content_factor_claim.factor_id
@@ -206,7 +233,8 @@ func (repo *RcDecisionFactorRepo) ListReportClaimed(ctx context.Context, page *d
 				AND rc_origin_content.deleted_at IS NULL
 				WHERE rc_decision_factor.user_id in ? %s
 			)
-			SELECT *
+			SELECT *,
+			COUNT(*) OVER () AS total
 			FROM ordered_rows
 			WHERE rn = 1
 			order by created_at desc
@@ -225,4 +253,20 @@ func (repo *RcDecisionFactorRepo) ListReportClaimed(ctx context.Context, page *d
 		Total:  total,
 		Offset: int64(offset),
 	}, nil
+}
+
+func (repo *RcDecisionFactorRepo) GetClaimRecord(ctx context.Context, claimId int64) (*dto.RcContentFactorClaim, error) {
+	var dataRpc dto.RcContentFactorClaim
+	err := repo.data.Db.
+		Model(&dto.RcContentFactorClaim{}).
+		Where("id = ?", claimId).
+		First(&dataRpc).
+		Error
+	if err != nil {
+		//if errors.Is(err, gorm.ErrRecordNotFound) {
+		//	return nil, nil
+		//}
+		return nil, err
+	}
+	return &dataRpc, nil
 }

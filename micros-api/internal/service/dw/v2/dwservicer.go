@@ -7,6 +7,7 @@ import (
 	"google.golang.org/protobuf/types/known/structpb"
 	"micros-api/internal/biz"
 	"micros-api/internal/data"
+	"net/http"
 
 	pb "micros-api/api/dw/v2"
 )
@@ -23,6 +24,86 @@ func NewDwServiceServicer(dwe *biz.DwEnterpriseUsecase, logger log.Logger) *DwSe
 		dwEnterprise: dwe,
 		log:          log.NewHelper(logger),
 	}
+}
+
+func (s *DwServiceServicer) GetEntRelations(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EnterpriseRelations, error) {
+	info, err := s.dwEnterprise.GetEntInfo(ctx, req.UscId)
+	if err != nil {
+		return nil, err
+	}
+	if info == nil {
+		return &pb.EnterpriseRelations{
+			Success: false,
+			Code:    http.StatusNoContent,
+			Msg:     "object enterprise not found",
+			Data:    nil,
+		}, nil
+	}
+	var relData pb.EnterpriseRelations_RelationsData
+	relData.EnterpriseName = info.EnterpriseTitle
+
+	branch, err := s.dwEnterprise.GetBranches(ctx, req.UscId)
+	if err != nil {
+		return nil, err
+	}
+	branchData := make([]*pb.Branches, 0)
+	if branch.Found {
+		for _, v := range branch.Data {
+			branchData = append(branchData, &pb.Branches{
+				EnterpriseName: v.EnterpriseName,
+				Operator:       v.Operator,
+				Area:           v.Area,
+				Status:         v.Status,
+				StartDate:      v.StartDate,
+			})
+		}
+	}
+	relData.Branch = branchData
+
+	investment, err := s.dwEnterprise.GetInvestments(ctx, req.UscId)
+	if err != nil {
+		return nil, err
+	}
+	investmentData := make([]*pb.Investment, 0)
+	if investment.Found {
+		for _, v := range investment.Data {
+			investmentData = append(investmentData, &pb.Investment{
+				EnterpriseName:    v.EnterpriseName,
+				Operator:          v.Operator,
+				ShareholdingRatio: v.ShareholdingRatio,
+				InvestedAmount:    v.InvestedAmount,
+				Status:            v.Status,
+				StartDate:         v.StartData,
+			})
+		}
+	}
+	relData.Investment = investmentData
+
+	shareholder, err := s.dwEnterprise.GetShareholders(ctx, req.UscId)
+	if err != nil {
+		return nil, err
+	}
+	shareholderData := make([]*pb.Shareholders, 0)
+	if shareholder.Found {
+		for _, v := range shareholder.Data {
+			shareholderData = append(shareholderData, &pb.Shareholders{
+				ShareholderName: v.ShareholderName,
+				ShareholderType: v.ShareholderType,
+				CapitalType:     v.CapitalType,
+				RealAmount:      v.RealAmount,
+				CapitalAmount:   v.CapitalAmount,
+				Percent:         v.Percent,
+			})
+		}
+	}
+	relData.Shareholder = shareholderData
+
+	return &pb.EnterpriseRelations{
+		Success: true,
+		Code:    http.StatusOK,
+		Msg:     "",
+		Data:    &relData,
+	}, nil
 }
 
 func (s *DwServiceServicer) GetEnterpriseIdent(ctx context.Context, req *pb.GetEntIdentReq) (*pb.EntIdentResp, error) {

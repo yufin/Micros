@@ -1,28 +1,26 @@
-version: '3'
+version: '3.1'
 services:
   api:
     build:
       context: ./micros-api
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "8009:8000"
     depends_on:
-      - dw-data
+      - dw
     volumes:
-        - ./micros-api/configs:/app/configs
+        - ./micros-api/configs:/data/conf
 
-  dw-data:
+  dw:
     build:
-      context: ./micros-dwdata
+      context: ./micros-dw
       dockerfile: Dockerfile
     ports:
       - "50052:50052"
-    depends_on:
-      - api
     environment:
       - DWDATA_URI=api:50052
     volumes:
-      - ./micros-dw/configs:/app/configs
+      - ./micros-dw/configs:/data/conf
 
  # docker image build -t blmicros-dw:1.7 .
   # docker run --name micros-dw -p 50052:50052 -v /www/wwwroot/BrillinkDataAdmin/brillinkMicros/micros-dw/configs:/data/conf blmicros-dw:1.7

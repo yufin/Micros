@@ -1,0 +1,40 @@
+syntax = "proto3";
+package api.py.pipeline.v1;
+
+import "google/protobuf/struct.proto";
+
+option go_package = "micros-py/api/py/pipeline/v1;pipelineV1";
+option java_multiple_files = true;
+option java_outer_classname = "PipelineV1";
+option java_package = "api.pipeline.v1";
+
+
+service PipelineService {
+
+  rpc GetContentProcess (GetContentProcessReq) returns (GetContentProcessResp) {}
+
+}
+
+enum ContentVersion {
+  CONTENT_V1 = 0;
+  CONTENT_V2 = 1;
+}
+enum ReportVersion {
+  REPORT_V2 = 0;
+  REPORT_V3 = 1;
+  REPORT_LATEST = 2;
+}
+
+message GetContentProcessReq {
+  int64 content_id = 1;
+  ContentVersion content_version = 2;
+  ReportVersion report_version = 3;
+}
+
+message GetContentProcessResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  google.protobuf.Struct data = 4;
+//  string data = 4;
+}

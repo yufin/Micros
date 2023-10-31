@@ -50,6 +50,43 @@ func NewRcServiceServicer(
 	}
 }
 
+func (s *RcServiceServicer) GetAhpResult(ctx context.Context, req *pb.GetAhpResultReq) (*pb.GetAhpResultResp, error) {
+
+	res, err := s.mgoRc.GetRdmResultByClaimedId(ctx, req.ClaimId)
+	if err != nil {
+		return nil, err
+	}
+	if res == nil {
+		return &pb.GetAhpResultResp{
+			Success: false,
+			Code:    http.StatusNoContent,
+			Msg:     "data not found",
+			Data:    nil,
+		}, nil
+	}
+	data := res["data"].(bson.M)
+	// res to map
+	b, err := bson.MarshalExtJSON(data, false, false)
+	if err != nil {
+		return nil, err
+	}
+	var temp map[string]interface{}
+	if err := bson.UnmarshalExtJSON(b, false, &temp); err != nil {
+		return nil, err
+	}
+	st, err := structpb.NewStruct(temp)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.GetAhpResultResp{
+		Success: true,
+		Code:    http.StatusOK,
+		Msg:     "",
+		Data:    st,
+	}, nil
+}
+
 // GetReportDecisionFactor 查询企业风控参数
 func (s *RcServiceServicer) GetReportDecisionFactor(ctx context.Context, req *pb.GetDecisionFactorReq) (*pb.GetDecisionFactorResp, error) {
 	factor, err := s.rcDecisionFactor.GetByContentIdWithDataScope(ctx, req.ContentId)
@@ -139,7 +176,48 @@ func (s *RcServiceServicer) InsertReportDecisionFactor(ctx context.Context, req 
 func (s *RcServiceServicer) UpdateReportDecisionFactor(ctx context.Context, req *pb.UpdateReportDecisionFactorReq) (*pb.InsertReportDecisionFactorResp, error) {
 	// logic: insert to rdf, got newFactorId
 	// get contentId by claimId, insert new row to claim table with contentId and newFactorId
-	return nil, nil
+	claimed, err := s.rcDecisionFactor.GetClaimRecord(ctx, req.ClaimId)
+	if err != nil {
+		return nil, err
+	}
+	content, err := s.rcOriginContent.Get(ctx, claimed.ContentId)
+	if err != nil {
+		return nil, err
+	}
+	if content == nil {
+		return &pb.InsertReportDecisionFactorResp{
+			Success: false,
+			Code:    http.StatusNotFound,
+			Msg:     "content not found",
+		}, nil
+	}
+
+	insertReq := dto.RcDecisionFactor{
+		UscId:   content.UscId,
+		LhQylx:  int(req.LhQylx),
+		LhCylwz: int(req.LhCylwz),
+		LhGdct:  int(req.LhGdct),
+		LhYhsx:  int(req.LhYhsx),
+		LhSfsx:  int(req.LhSfsx),
+	}
+	newFactorId, err := s.rcDecisionFactor.Insert(ctx, &insertReq)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = s.rcDecisionFactor.InsertClaimNoDupe(ctx, &dto.RcContentFactorClaim{
+		ContentId: claimed.ContentId,
+		FactorId:  newFactorId,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.InsertReportDecisionFactorResp{
+		Success: true,
+		Code:    http.StatusAccepted,
+		Msg:     "",
+	}, nil
 }
 
 // ListReport 获取报告列表
@@ -280,16 +358,14 @@ func (s *RcServiceServicer) GetReportContent(ctx context.Context, req *pb.GetRep
 				Data:    nil,
 			}, nil
 		}
-		b, err := bson.MarshalExtJSON(data, true, false)
+		b, err := bson.MarshalExtJSON(data["content"], false, false)
 		if err != nil {
 			return nil, err
 		}
-		var temp map[string]interface{}
-		if err := json.Unmarshal(b, &temp); err != nil {
+		err = json.Unmarshal(b, &m)
+		if err != nil {
 			return nil, err
 		}
-		m = temp["content"].(map[string]interface{})
-
 	default:
 		return nil, errors.New(400, "invalid version", string(req.Version))
 	}

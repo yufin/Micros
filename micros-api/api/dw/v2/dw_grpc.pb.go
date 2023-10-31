@@ -29,6 +29,7 @@ const (
 	DwService_GetEntShareholders_FullMethodName              = "/api.dw.v2.DwService/GetEntShareholders"
 	DwService_GetEntInvestment_FullMethodName                = "/api.dw.v2.DwService/GetEntInvestment"
 	DwService_GetEntBranches_FullMethodName                  = "/api.dw.v2.DwService/GetEntBranches"
+	DwService_GetEntRelations_FullMethodName                 = "/api.dw.v2.DwService/GetEntRelations"
 )
 
 // DwServiceClient is the client API for DwService service.
@@ -45,6 +46,7 @@ type DwServiceClient interface {
 	GetEntShareholders(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*ShareholdersResp, error)
 	GetEntInvestment(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*InvestmentResp, error)
 	GetEntBranches(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*BranchesResp, error)
+	GetEntRelations(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*EnterpriseRelations, error)
 }
 
 type dwServiceClient struct {
@@ -145,6 +147,15 @@ func (c *dwServiceClient) GetEntBranches(ctx context.Context, in *GetEntInfoReq,
 	return out, nil
 }
 
+func (c *dwServiceClient) GetEntRelations(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*EnterpriseRelations, error) {
+	out := new(EnterpriseRelations)
+	err := c.cc.Invoke(ctx, DwService_GetEntRelations_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DwServiceServer is the server API for DwService service.
 // All implementations must embed UnimplementedDwServiceServer
 // for forward compatibility
@@ -159,6 +170,7 @@ type DwServiceServer interface {
 	GetEntShareholders(context.Context, *GetEntInfoReq) (*ShareholdersResp, error)
 	GetEntInvestment(context.Context, *GetEntInfoReq) (*InvestmentResp, error)
 	GetEntBranches(context.Context, *GetEntInfoReq) (*BranchesResp, error)
+	GetEntRelations(context.Context, *GetEntInfoReq) (*EnterpriseRelations, error)
 	mustEmbedUnimplementedDwServiceServer()
 }
 
@@ -195,6 +207,9 @@ func (UnimplementedDwServiceServer) GetEntInvestment(context.Context, *GetEntInf
 }
 func (UnimplementedDwServiceServer) GetEntBranches(context.Context, *GetEntInfoReq) (*BranchesResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetEntBranches not implemented")
+}
+func (UnimplementedDwServiceServer) GetEntRelations(context.Context, *GetEntInfoReq) (*EnterpriseRelations, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetEntRelations not implemented")
 }
 func (UnimplementedDwServiceServer) mustEmbedUnimplementedDwServiceServer() {}
 
@@ -389,6 +404,24 @@ func _DwService_GetEntBranches_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DwService_GetEntRelations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEntInfoReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DwServiceServer).GetEntRelations(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DwService_GetEntRelations_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DwServiceServer).GetEntRelations(ctx, req.(*GetEntInfoReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // DwService_ServiceDesc is the grpc.ServiceDesc for DwService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -435,6 +468,10 @@ var DwService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetEntBranches",
 			Handler:    _DwService_GetEntBranches_Handler,
+		},
+		{
+			MethodName: "GetEntRelations",
+			Handler:    _DwService_GetEntRelations_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

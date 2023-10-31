@@ -74,10 +74,25 @@ service DwService {
     };
   }
 
+  rpc GetEntRelations(GetEntInfoReq) returns (EnterpriseRelations) {
+    option (google.api.http) = {
+      get: "/micros/dw/v2/enterprise/relations"
+    };
+  }
+
 }
 
 message EnterpriseRelations {
-
+  message RelationsData {
+    string enterprise_name = 1;
+    repeated Shareholders shareholder = 2;
+    repeated Investment investment = 3;
+    repeated Branches branch = 4;
+  }
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  RelationsData data = 4;
 }
 
 message Shareholders {

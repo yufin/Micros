@@ -14,6 +14,8 @@ type RcDecisionFactorRepo interface {
 	GetWithDataScope(ctx context.Context, id int64) (*dto.RcDecisionFactor, error)
 	CheckContentIdAccessible(ctx context.Context, contentId int64) (bool, error)
 	GetByContentIdWithDataScope(ctx context.Context, contentId int64) (*dto.RcDecisionFactorClaimed, error)
+	GetClaimRecord(ctx context.Context, claimId int64) (*dto.RcContentFactorClaim, error)
+	InsertClaim(ctx context.Context, data *dto.RcContentFactorClaim) (int64, error)
 }
 
 type RcDecisionFactorUsecase struct {
@@ -23,6 +25,11 @@ type RcDecisionFactorUsecase struct {
 
 func NewRcDecisionFactorUsecase(repo RcDecisionFactorRepo, logger log.Logger) *RcDecisionFactorUsecase {
 	return &RcDecisionFactorUsecase{repo: repo, log: log.NewHelper(logger)}
+}
+
+func (uc *RcDecisionFactorUsecase) GetClaimRecord(ctx context.Context, claimId int64) (*dto.RcContentFactorClaim, error) {
+	uc.log.WithContext(ctx).Infof("biz.RcDecisionFactorUsecase.GetClaimRecord %d", claimId)
+	return uc.repo.GetClaimRecord(ctx, claimId)
 }
 
 func (uc *RcDecisionFactorUsecase) GetByContentIdWithDataScope(ctx context.Context, contentId int64) (*dto.RcDecisionFactorClaimed, error) {

@@ -19,6 +19,7 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
+const OperationRcServiceGetAhpResult = "/api.rc.v3.RcService/GetAhpResult"
 const OperationRcServiceGetReportContent = "/api.rc.v3.RcService/GetReportContent"
 const OperationRcServiceGetReportDecisionFactor = "/api.rc.v3.RcService/GetReportDecisionFactor"
 const OperationRcServiceInsertReportDecisionFactor = "/api.rc.v3.RcService/InsertReportDecisionFactor"
@@ -26,6 +27,7 @@ const OperationRcServiceListReport = "/api.rc.v3.RcService/ListReport"
 const OperationRcServiceUpdateReportDecisionFactor = "/api.rc.v3.RcService/UpdateReportDecisionFactor"
 
 type RcServiceHTTPServer interface {
+	GetAhpResult(context.Context, *GetAhpResultReq) (*GetAhpResultResp, error)
 	GetReportContent(context.Context, *GetReportContentReq) (*GetReportContentResp, error)
 	GetReportDecisionFactor(context.Context, *GetDecisionFactorReq) (*GetDecisionFactorResp, error)
 	InsertReportDecisionFactor(context.Context, *InsertReportDecisionFactorReq) (*InsertReportDecisionFactorResp, error)
@@ -40,6 +42,7 @@ func RegisterRcServiceHTTPServer(s *http.Server, srv RcServiceHTTPServer) {
 	r.GET("/micros/rc/v3/report/decision-factor", _RcService_GetReportDecisionFactor0_HTTP_Handler(srv))
 	r.GET("/micros/rc/v3/report/list", _RcService_ListReport0_HTTP_Handler(srv))
 	r.GET("/micros/rc/v3/report/content", _RcService_GetReportContent0_HTTP_Handler(srv))
+	r.GET("/micros/rc/v3/report/ahp", _RcService_GetAhpResult0_HTTP_Handler(srv))
 }
 
 func _RcService_InsertReportDecisionFactor0_HTTP_Handler(srv RcServiceHTTPServer) func(ctx http.Context) error {
@@ -137,7 +140,27 @@ func _RcService_GetReportContent0_HTTP_Handler(srv RcServiceHTTPServer) func(ctx
 	}
 }
 
+func _RcService_GetAhpResult0_HTTP_Handler(srv RcServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetAhpResultReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationRcServiceGetAhpResult)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetAhpResult(ctx, req.(*GetAhpResultReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetAhpResultResp)
+		return ctx.Result(200, reply)
+	}
+}
+
 type RcServiceHTTPClient interface {
+	GetAhpResult(ctx context.Context, req *GetAhpResultReq, opts ...http.CallOption) (rsp *GetAhpResultResp, err error)
 	GetReportContent(ctx context.Context, req *GetReportContentReq, opts ...http.CallOption) (rsp *GetReportContentResp, err error)
 	GetReportDecisionFactor(ctx context.Context, req *GetDecisionFactorReq, opts ...http.CallOption) (rsp *GetDecisionFactorResp, err error)
 	InsertReportDecisionFactor(ctx context.Context, req *InsertReportDecisionFactorReq, opts ...http.CallOption) (rsp *InsertReportDecisionFactorResp, err error)
@@ -151,6 +174,19 @@ type RcServiceHTTPClientImpl struct {
 
 func NewRcServiceHTTPClient(client *http.Client) RcServiceHTTPClient {
 	return &RcServiceHTTPClientImpl{client}
+}
+
+func (c *RcServiceHTTPClientImpl) GetAhpResult(ctx context.Context, in *GetAhpResultReq, opts ...http.CallOption) (*GetAhpResultResp, error) {
+	var out GetAhpResultResp
+	pattern := "/micros/rc/v3/report/ahp"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationRcServiceGetAhpResult))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
 }
 
 func (c *RcServiceHTTPClientImpl) GetReportContent(ctx context.Context, in *GetReportContentReq, opts ...http.CallOption) (*GetReportContentResp, error) {

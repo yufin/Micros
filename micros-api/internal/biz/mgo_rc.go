@@ -16,6 +16,7 @@ type MgoRcRepo interface {
 	GetContentInfosByKwd(ctx context.Context, page *dto.PaginationReq, kwd string) (*dto.RcOriginContentInfosRespV3, error)
 	GetNewestDocInfoByContentId(ctx context.Context, contentId int64) (string, time.Time, error)
 	GetNewestDocByContentId(ctx context.Context, contentId int64) (bson.M, error)
+	GetRdmResultByClaimedId(ctx context.Context, claimId int64) (bson.M, error)
 }
 
 type MgoRcUsecase struct {
@@ -25,6 +26,11 @@ type MgoRcUsecase struct {
 
 func NewMgoRcUsecase(repo MgoRcRepo, logger log.Logger) *MgoRcUsecase {
 	return &MgoRcUsecase{repo: repo, log: log.NewHelper(logger)}
+}
+
+func (uc *MgoRcUsecase) GetRdmResultByClaimedId(ctx context.Context, claimId int64) (bson.M, error) {
+	uc.log.WithContext(ctx).Infof("biz.MgoRcUsecase.GetRdmResultByClaimedId %d", claimId)
+	return uc.repo.GetRdmResultByClaimedId(ctx, claimId)
 }
 
 func (uc *MgoRcUsecase) GetNewestDocInfoByContentId(ctx context.Context, contentId int64) (string, time.Time, error) {

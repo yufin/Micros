@@ -286,6 +286,36 @@
         ]
       }
     },
+    "/micros/dw/v2/enterprise/relations": {
+      "get": {
+        "operationId": "DwService_GetEntRelations",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2EnterpriseRelations"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "usc_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    },
     "/micros/dw/v2/enterprise/shareholders": {
       "get": {
         "operationId": "DwService_GetEntShareholders",
@@ -318,6 +348,32 @@
     }
   },
   "definitions": {
+    "EnterpriseRelationsRelationsData": {
+      "type": "object",
+      "properties": {
+        "shareholder": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v2Shareholders"
+          }
+        },
+        "investment": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v2Investment"
+          }
+        },
+        "branch": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v2Branches"
+          }
+        }
+      }
+    },
     "protobufAny": {
       "type": "object",
       "properties": {
@@ -364,6 +420,9 @@
           "type": "string"
         },
         "area": {
+          "type": "string"
+        },
+        "start_date": {
           "type": "string"
         },
         "status": {
@@ -474,6 +533,24 @@
         }
       }
     },
+    "v2EnterpriseRelations": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/EnterpriseRelationsRelationsData"
+        }
+      }
+    },
     "v2EquityTransparency": {
       "type": "object",
       "properties": {
@@ -527,7 +604,7 @@
         "invested_amount": {
           "type": "string"
         },
-        "start_data": {
+        "start_date": {
           "type": "string"
         },
         "status": {

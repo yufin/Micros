@@ -45,7 +45,22 @@ service RcService {
     };
   }
 
+  rpc GetAhpResult(GetAhpResultReq) returns (GetAhpResultResp) {
+    option (google.api.http) = {
+      get: "/micros/rc/v3/report/ahp"
+    };
+  }
+}
 
+message GetAhpResultReq {
+  int64 claim_id = 1;
+}
+
+message GetAhpResultResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  google.protobuf.Struct data = 4;
 }
 
 message GetDecisionFactorReq {

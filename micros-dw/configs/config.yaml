@@ -17,7 +17,7 @@ data:
   mongoDb:
     uri: mongodb://root:dev-password@192.168.44.169:27020
 
-
+#
 ## Server Configs
 #  etcdctl put /dw-config/server/http/addr "0.0.0.0:8000"
 #  etcdctl put /dw-config/server/http/timeout "1s"

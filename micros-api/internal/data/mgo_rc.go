@@ -29,6 +29,22 @@ func NewMgoRcRepo(data *Data, logger log.Logger) biz.MgoRcRepo {
 	}
 }
 
+func (repo *MgoRcRepo) GetRdmResultByClaimedId(ctx context.Context, claimId int64) (bson.M, error) {
+	var data bson.M
+	err := repo.data.MgoCli.Client.Database("rc").Collection("rdm_result").
+		FindOne(
+			context.TODO(),
+			bson.M{"claim_id": claimId},
+		).Decode(&data)
+	if err != nil {
+		if errors.Is(mongo.ErrNoDocuments, err) {
+			return nil, nil
+		}
+		return nil, errors.WithStack(err)
+	}
+	return data, nil
+}
+
 func (repo *MgoRcRepo) GetNewestDocByContentId(ctx context.Context, contentId int64) (bson.M, error) {
 	data := bson.M{}
 	err := repo.data.MgoCli.Client.Database("rc").Collection("processed_content").

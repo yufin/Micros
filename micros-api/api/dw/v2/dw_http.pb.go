@@ -21,6 +21,7 @@ const _ = http.SupportPackageIsVersion1
 
 const OperationDwServiceGetEntBranches = "/api.dw.v2.DwService/GetEntBranches"
 const OperationDwServiceGetEntInvestment = "/api.dw.v2.DwService/GetEntInvestment"
+const OperationDwServiceGetEntRelations = "/api.dw.v2.DwService/GetEntRelations"
 const OperationDwServiceGetEntShareholders = "/api.dw.v2.DwService/GetEntShareholders"
 const OperationDwServiceGetEnterpriseCredential = "/api.dw.v2.DwService/GetEnterpriseCredential"
 const OperationDwServiceGetEnterpriseEquityTransparency = "/api.dw.v2.DwService/GetEnterpriseEquityTransparency"
@@ -33,6 +34,7 @@ const OperationDwServiceGetEnterpriseRankingList = "/api.dw.v2.DwService/GetEnte
 type DwServiceHTTPServer interface {
 	GetEntBranches(context.Context, *GetEntInfoReq) (*BranchesResp, error)
 	GetEntInvestment(context.Context, *GetEntInfoReq) (*InvestmentResp, error)
+	GetEntRelations(context.Context, *GetEntInfoReq) (*EnterpriseRelations, error)
 	GetEntShareholders(context.Context, *GetEntInfoReq) (*ShareholdersResp, error)
 	GetEnterpriseCredential(context.Context, *GetEntInfoReq) (*EntArrayResp, error)
 	GetEnterpriseEquityTransparency(context.Context, *GetEntInfoReq) (*EquityTransparencyResp, error)
@@ -55,6 +57,7 @@ func RegisterDwServiceHTTPServer(s *http.Server, srv DwServiceHTTPServer) {
 	r.GET("/micros/dw/v2/enterprise/shareholders", _DwService_GetEntShareholders0_HTTP_Handler(srv))
 	r.GET("/micros/dw/v2/enterprise/investments", _DwService_GetEntInvestment0_HTTP_Handler(srv))
 	r.GET("/micros/dw/v2/enterprise/branches", _DwService_GetEntBranches0_HTTP_Handler(srv))
+	r.GET("/micros/dw/v2/enterprise/relations", _DwService_GetEntRelations0_HTTP_Handler(srv))
 }
 
 func _DwService_GetEnterpriseIdent0_HTTP_Handler(srv DwServiceHTTPServer) func(ctx http.Context) error {
@@ -247,9 +250,29 @@ func _DwService_GetEntBranches0_HTTP_Handler(srv DwServiceHTTPServer) func(ctx h
 	}
 }
 
+func _DwService_GetEntRelations0_HTTP_Handler(srv DwServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetEntInfoReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationDwServiceGetEntRelations)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetEntRelations(ctx, req.(*GetEntInfoReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*EnterpriseRelations)
+		return ctx.Result(200, reply)
+	}
+}
+
 type DwServiceHTTPClient interface {
 	GetEntBranches(ctx context.Context, req *GetEntInfoReq, opts ...http.CallOption) (rsp *BranchesResp, err error)
 	GetEntInvestment(ctx context.Context, req *GetEntInfoReq, opts ...http.CallOption) (rsp *InvestmentResp, err error)
+	GetEntRelations(ctx context.Context, req *GetEntInfoReq, opts ...http.CallOption) (rsp *EnterpriseRelations, err error)
 	GetEntShareholders(ctx context.Context, req *GetEntInfoReq, opts ...http.CallOption) (rsp *ShareholdersResp, err error)
 	GetEnterpriseCredential(ctx context.Context, req *GetEntInfoReq, opts ...http.CallOption) (rsp *EntArrayResp, err error)
 	GetEnterpriseEquityTransparency(ctx context.Context, req *GetEntInfoReq, opts ...http.CallOption) (rsp *EquityTransparencyResp, err error)
@@ -286,6 +309,19 @@ func (c *DwServiceHTTPClientImpl) GetEntInvestment(ctx context.Context, in *GetE
 	pattern := "/micros/dw/v2/enterprise/investments"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationDwServiceGetEntInvestment))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *DwServiceHTTPClientImpl) GetEntRelations(ctx context.Context, in *GetEntInfoReq, opts ...http.CallOption) (*EnterpriseRelations, error) {
+	var out EnterpriseRelations
+	pattern := "/micros/dw/v2/enterprise/relations"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationDwServiceGetEntRelations))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

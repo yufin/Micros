@@ -24,6 +24,7 @@ const (
 	RcService_GetReportDecisionFactor_FullMethodName    = "/api.rc.v3.RcService/GetReportDecisionFactor"
 	RcService_ListReport_FullMethodName                 = "/api.rc.v3.RcService/ListReport"
 	RcService_GetReportContent_FullMethodName           = "/api.rc.v3.RcService/GetReportContent"
+	RcService_GetAhpResult_FullMethodName               = "/api.rc.v3.RcService/GetAhpResult"
 )
 
 // RcServiceClient is the client API for RcService service.
@@ -35,6 +36,7 @@ type RcServiceClient interface {
 	GetReportDecisionFactor(ctx context.Context, in *GetDecisionFactorReq, opts ...grpc.CallOption) (*GetDecisionFactorResp, error)
 	ListReport(ctx context.Context, in *ListReportKwdSearchReq, opts ...grpc.CallOption) (*ListReportResp, error)
 	GetReportContent(ctx context.Context, in *GetReportContentReq, opts ...grpc.CallOption) (*GetReportContentResp, error)
+	GetAhpResult(ctx context.Context, in *GetAhpResultReq, opts ...grpc.CallOption) (*GetAhpResultResp, error)
 }
 
 type rcServiceClient struct {
@@ -90,6 +92,15 @@ func (c *rcServiceClient) GetReportContent(ctx context.Context, in *GetReportCon
 	return out, nil
 }
 
+func (c *rcServiceClient) GetAhpResult(ctx context.Context, in *GetAhpResultReq, opts ...grpc.CallOption) (*GetAhpResultResp, error) {
+	out := new(GetAhpResultResp)
+	err := c.cc.Invoke(ctx, RcService_GetAhpResult_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RcServiceServer is the server API for RcService service.
 // All implementations must embed UnimplementedRcServiceServer
 // for forward compatibility
@@ -99,6 +110,7 @@ type RcServiceServer interface {
 	GetReportDecisionFactor(context.Context, *GetDecisionFactorReq) (*GetDecisionFactorResp, error)
 	ListReport(context.Context, *ListReportKwdSearchReq) (*ListReportResp, error)
 	GetReportContent(context.Context, *GetReportContentReq) (*GetReportContentResp, error)
+	GetAhpResult(context.Context, *GetAhpResultReq) (*GetAhpResultResp, error)
 	mustEmbedUnimplementedRcServiceServer()
 }
 
@@ -120,6 +132,9 @@ func (UnimplementedRcServiceServer) ListReport(context.Context, *ListReportKwdSe
 }
 func (UnimplementedRcServiceServer) GetReportContent(context.Context, *GetReportContentReq) (*GetReportContentResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetReportContent not implemented")
+}
+func (UnimplementedRcServiceServer) GetAhpResult(context.Context, *GetAhpResultReq) (*GetAhpResultResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAhpResult not implemented")
 }
 func (UnimplementedRcServiceServer) mustEmbedUnimplementedRcServiceServer() {}
 
@@ -224,6 +239,24 @@ func _RcService_GetReportContent_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RcService_GetAhpResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAhpResultReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RcServiceServer).GetAhpResult(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RcService_GetAhpResult_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RcServiceServer).GetAhpResult(ctx, req.(*GetAhpResultReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // RcService_ServiceDesc is the grpc.ServiceDesc for RcService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -250,6 +283,10 @@ var RcService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetReportContent",
 			Handler:    _RcService_GetReportContent_Handler,
+		},
+		{
+			MethodName: "GetAhpResult",
+			Handler:    _RcService_GetAhpResult_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
