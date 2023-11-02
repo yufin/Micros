@@ -4,5 +4,7 @@ server:
     timeout: 10s
 
 data:
-  mongoDb:
+  mongodb:
     uri: mongodb://root:dev-password@192.168.44.169:27020
+  dwdata:
+    target: 192.168.44.150:50052

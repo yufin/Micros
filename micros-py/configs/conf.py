@@ -1,13 +1,20 @@
 from pydantic import BaseModel
+from pydantic.fields import Field
+import pathlib
+import yaml
 
 
 class GRPC(BaseModel):
     addr: str = '0.0.0.0:50051'
-    timeout: int = 10
+    timeout: str
 
 
 class Server(BaseModel):
-    GRPC: GRPC
+    grpc: GRPC = Field("grpc")
+
+
+class DwData(BaseModel):
+    target: str = "192.168.44.150:50052"
 
 
 class MongoDb(BaseModel):
@@ -15,15 +22,18 @@ class MongoDb(BaseModel):
 
 
 class Data(BaseModel):
-    MongoDb: MongoDb
+    mongodb: MongoDb = Field(alias="mongodb")
+    dwdata: DwData = Field(alias="dwdata")
 
 
 class Bootstrap(BaseModel):
-    Server: Server
-    Data: Data
+    server: Server = Field(alias="server")
+    data: Data = Field(alias="data")
 
 
 def new_config() -> Bootstrap:
-    return Bootstrap(Server=Server(GRPC=GRPC()), Data=Data(MongoDb=MongoDb()))
-
+    config_path = pathlib.Path(__file__).parent.joinpath("config.yml")
+    with open(str(config_path), "r") as f:
+        d = yaml.safe_load(f)
+    return Bootstrap(**d)
 

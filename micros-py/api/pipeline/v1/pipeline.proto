@@ -36,5 +36,4 @@ message GetContentProcessResp {
   int32 code = 2;
   string msg = 3;
   google.protobuf.Struct data = 4;
-//  string data = 4;
 }

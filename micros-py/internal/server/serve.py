@@ -1,17 +1,12 @@
-import grpc
 import logging
+import asyncio
+from internal.server import grpc_server
 
-_cleanup_coroutines = []
 
-
-async def serve(grpc_server: grpc.Server):
-    await grpc_server.start()
-    print("Server started")
-    # grpc_server.wait_for_termination()
-
-    async def server_graceful_shutdown():
-        logging.info("Starting graceful shutdown...")
-        await grpc_server.stop(5)
-
-    _cleanup_coroutines.append(server_graceful_shutdown())
-    await grpc_server.wait_for_termination()
+def run_server(s: grpc_server.GrpcServer):
+    loop = asyncio.get_event_loop()
+    try:
+        loop.run_until_complete(s.serve_async())
+    finally:
+        loop.run_until_complete(*s._cleanup_coroutines)
+        loop.close()
