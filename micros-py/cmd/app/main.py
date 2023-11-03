@@ -1,18 +1,21 @@
 import logging
+import pathlib
 from internal.server.grpc_server import GrpcServer
 from internal.server.serve import run_server
 from internal.service.pipeline_service import PipelineService
-from configs.conf import new_config
+from configs.conf import Bootstrap
 from internal.data.data import DataRepo
-from internal.data.mongo_db import MongoDb
+from internal.data.mongo_db import MotorClient
 from internal.data.dw_data_client import DwDataClient
 
 
 def main():
     logging.basicConfig(level=logging.INFO)
-    config = new_config()
 
-    mgo = MongoDb(
+    cfg_path = pathlib.Path(__file__).parents[2].joinpath("configs").joinpath("config.yml")
+    config = Bootstrap(config_path=str(cfg_path))
+
+    mgo = MotorClient(
         uri=config.data.mongodb.uri
     )
 

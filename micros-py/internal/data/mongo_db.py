@@ -1,35 +1,46 @@
 
 import pymongo
+import motor.motor_asyncio
+from typing import Optional
 
 
-class MongoDb:
+class MotorClient:
     def __init__(self, uri: str):
-        self.__client = pymongo.MongoClient(uri)
+        # self.__client = pymongo.MongoClient(uri)
+        self._async_client = motor.motor_asyncio.AsyncIOMotorClient(uri)
 
     @property
     def client(self):
-        return self.__client
+        return self._async_client
 
-    def __del__(self):
-        self.__client.close()
+    async def __aenter__(self):
+        return self
 
-    def get_content(self, content_id: int) -> dict:
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        self.client.close()
+
+    async def get_content(self, content_id: int) -> Optional[dict]:
         db = self.client["rc"]
-        doc = db["raw_content"].find_one(
+        return await db["raw_content"].find_one(
             {"content_id": content_id},
-            sort=[("created_at", pymongo.DESCENDING)]
+            sort=[("created_at", -1)]
         )
-        return doc
 
 
 if __name__ == '__main__':
-    mgo_client = MongoDb("mongodb://root:dev-password@192.168.44.169:27020")
+    mgo_client = MotorClient("mongodb://root:dev-password@192.168.44.169:27020")
     # db = mgo_client.client["rc"]
     # doc = db["origin_content"].find_one({"content_id": "471122972527045782"})
     # print(type(doc))
     # print(doc)
     # d = mgo_client.get_content(485507537341394070)
-    d = mgo_client.get_content(485511236482509974)
+
+    import asyncio
+    loop = mgo_client.client.get_io_loop()
+
+    d = loop.run_until_complete(mgo_client.get_content(485511236482509974))
+
+    # d = mgo_client.get_content(485511236482509974)
     print(d)
     # import pprint
     # pprint.pprint(d)

@@ -4,7 +4,6 @@ package api.dwdata.v2;
 
 //import "google/api/annotations.proto";
 import "google/protobuf/struct.proto";
-//option go_package = "brillink-data-mid-end/pkg/proto/dw/v2;dwV2";
 option go_package = "micros-dw/api/dwdata/v2;dwdataV2";
 option java_multiple_files = true;
 option java_outer_classname = "DwdataV2";
@@ -13,34 +12,34 @@ option java_package = "api.dwdata.v2";
 
 service DwdataService {
 
-  rpc GetEnterpriseIdent(GetEntIdentReq) returns (EntIdentResp) {
+  rpc GetEnterpriseIdent(GetEntIdentReq) returns (GetEntIdentResp) {
   }
 
-  rpc GetEnterpriseInfo(GetEntInfoReq) returns (EntInfoResp) {
+  rpc GetEnterpriseInfo(GetEntInfoReq) returns (GetEntInfoResp) {
   }
 
-  rpc GetEnterpriseCredential(GetEntInfoReq) returns (EntCredentialResp) {
+  rpc GetEnterpriseCredential(GetEntInfoReq) returns (GetEntCredentialResp) {
   }
 
-  rpc GetEnterpriseRankingList(GetEntInfoReq) returns (EntRankingListResp) {
+  rpc GetEnterpriseRankingList(GetEntInfoReq) returns (GetEntRankingListResp) {
   }
 
-  rpc GetEnterpriseIndustry(GetEntInfoReq) returns (EntStrArrayResp) {
+  rpc GetEnterpriseIndustry(GetEntInfoReq) returns (GetEntStrArrayResp) {
   }
 
-  rpc GetEnterpriseProduct(GetEntInfoReq) returns (EntStrArrayResp) {
+  rpc GetEnterpriseProduct(GetEntInfoReq) returns (GetEntStrArrayResp) {
   }
 
-  rpc GetEntEquityTransparency(GetEntInfoReq) returns (EquityTransparencyResp) {
+  rpc GetEntEquityTransparency(GetEntInfoReq) returns (GetEquityTransparencyResp) {
   }
 
-  rpc GetEntShareholders(GetEntInfoReq) returns (ShareholdersResp) {
+  rpc GetEntShareholders(GetEntInfoReq) returns (GetShareholdersResp) {
   }
 
-  rpc GetEntInvestment(GetEntInfoReq) returns (InvestmentResp) {
+  rpc GetEntInvestment(GetEntInfoReq) returns (GetInvestmentResp) {
   }
 
-  rpc GetEntBranches(GetEntInfoReq) returns (BranchesResp) {
+  rpc GetEntBranches(GetEntInfoReq) returns (GetBranchesResp) {
   }
 
 }
@@ -54,12 +53,11 @@ message Shareholders {
   string capital_type = 5;
   string percent = 6;
 }
-message ShareholdersResp {
+message GetShareholdersResp {
   bool success = 1;
   int32 code = 2;
   string msg = 3;
-  bool found = 4;
-  repeated Shareholders data = 5;
+  repeated Shareholders data = 4;
 }
 
 message Investment {
@@ -70,12 +68,11 @@ message Investment {
   string start_data = 5;
   string status = 6;
 }
-message InvestmentResp {
+message GetInvestmentResp {
   bool success = 1;
   int32 code = 2;
   string msg = 3;
-  bool found = 4;
-  repeated Investment data = 5;
+  repeated Investment data = 4;
 }
 
 
@@ -86,37 +83,50 @@ message Branches {
   string start_date = 4;
   string status = 5;
 }
-message BranchesResp {
+
+message GetBranchesResp {
   bool success = 1;
   int32 code = 2;
   string msg = 3;
-  bool found = 4;
-  repeated Branches data = 5;
+  repeated Branches data = 4;
 }
 
 
-message EquityTransparencyResp {
+message GetEquityTransparencyResp {
   bool success = 1;
   int32 code = 2;
   string msg = 3;
-  bool found = 4;
-
-  string conclusion = 5;
-  repeated google.protobuf.Struct data = 6;
-  string usc_id = 7;
+  string conclusion = 4;
+  repeated google.protobuf.Struct data = 5;
+  string usc_id = 6;
 }
 
 message GetEntIdentReq {
   string enterprise_name = 1;
 }
 
-message EntIdentResp {
-  bool exists = 1;
-  bool isLegal = 2;
-  string usc_id = 3;
+
+message EntIdent {
+  bool exists = 3;
+  bool isLegal = 4;
+  string usc_id = 5;
 }
 
-message EntInfoResp {
+message GetEntIdentResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  EntIdent data = 4;
+}
+
+message GetEntInfoResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  EntInfo data = 5;
+}
+
+message EntInfo {
   string usc_id = 1;
   string enterprise_title = 2;
   string enterprise_title_en = 3;
@@ -162,20 +172,29 @@ message EntCredential {
   string updated_at = 13;
 }
 
-message EntCredentialResp {
-  repeated EntCredential data = 1;
+message GetEntCredentialResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  repeated EntCredential data = 4;
 }
 
 message GetEntInfoReq {
   string usc_id = 1;
 }
 
-message EntStrArrayResp {
+message GetEntStrArrayResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
   repeated string data = 4;
 }
 
-message EntRankingListResp {
-  repeated EnterpriseRankingList data = 1;
+message GetEntRankingListResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  repeated EnterpriseRankingList data = 4;
 }
 
 message EnterpriseRankingList {
@@ -190,12 +209,6 @@ message EnterpriseRankingList {
   string list_url_origin = 9;
 }
 
-//message EntStructResp {
-//  bool success = 1;
-//  int32 code = 2;
-//  string msg = 3;
-//  google.protobuf.Struct data = 4;
-//}
 
 //    protoc --go_out=. --go_opt=paths=source_relative \
 //    --go-grpc_out=. --go-grpc_opt=paths=source_relative \

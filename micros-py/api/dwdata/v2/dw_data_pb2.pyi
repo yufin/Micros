@@ -22,19 +22,17 @@ class Shareholders(_message.Message):
     percent: str
     def __init__(self, shareholder_name: _Optional[str] = ..., shareholder_type: _Optional[str] = ..., capital_amount: _Optional[str] = ..., real_amount: _Optional[str] = ..., capital_type: _Optional[str] = ..., percent: _Optional[str] = ...) -> None: ...
 
-class ShareholdersResp(_message.Message):
-    __slots__ = ["success", "code", "msg", "found", "data"]
+class GetShareholdersResp(_message.Message):
+    __slots__ = ["success", "code", "msg", "data"]
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     CODE_FIELD_NUMBER: _ClassVar[int]
     MSG_FIELD_NUMBER: _ClassVar[int]
-    FOUND_FIELD_NUMBER: _ClassVar[int]
     DATA_FIELD_NUMBER: _ClassVar[int]
     success: bool
     code: int
     msg: str
-    found: bool
     data: _containers.RepeatedCompositeFieldContainer[Shareholders]
-    def __init__(self, success: bool = ..., code: _Optional[int] = ..., msg: _Optional[str] = ..., found: bool = ..., data: _Optional[_Iterable[_Union[Shareholders, _Mapping]]] = ...) -> None: ...
+    def __init__(self, success: bool = ..., code: _Optional[int] = ..., msg: _Optional[str] = ..., data: _Optional[_Iterable[_Union[Shareholders, _Mapping]]] = ...) -> None: ...
 
 class Investment(_message.Message):
     __slots__ = ["enterprise_name", "operator", "shareholding_ratio", "invested_amount", "start_data", "status"]
@@ -52,19 +50,17 @@ class Investment(_message.Message):
     status: str
     def __init__(self, enterprise_name: _Optional[str] = ..., operator: _Optional[str] = ..., shareholding_ratio: _Optional[str] = ..., invested_amount: _Optional[str] = ..., start_data: _Optional[str] = ..., status: _Optional[str] = ...) -> None: ...
 
-class InvestmentResp(_message.Message):
-    __slots__ = ["success", "code", "msg", "found", "data"]
+class GetInvestmentResp(_message.Message):
+    __slots__ = ["success", "code", "msg", "data"]
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     CODE_FIELD_NUMBER: _ClassVar[int]
     MSG_FIELD_NUMBER: _ClassVar[int]
-    FOUND_FIELD_NUMBER: _ClassVar[int]
     DATA_FIELD_NUMBER: _ClassVar[int]
     success: bool
     code: int
     msg: str
-    found: bool
     data: _containers.RepeatedCompositeFieldContainer[Investment]
-    def __init__(self, success: bool = ..., code: _Optional[int] = ..., msg: _Optional[str] = ..., found: bool = ..., data: _Optional[_Iterable[_Union[Investment, _Mapping]]] = ...) -> None: ...
+    def __init__(self, success: bool = ..., code: _Optional[int] = ..., msg: _Optional[str] = ..., data: _Optional[_Iterable[_Union[Investment, _Mapping]]] = ...) -> None: ...
 
 class Branches(_message.Message):
     __slots__ = ["enterprise_name", "operator", "area", "start_date", "status"]
@@ -80,37 +76,33 @@ class Branches(_message.Message):
     status: str
     def __init__(self, enterprise_name: _Optional[str] = ..., operator: _Optional[str] = ..., area: _Optional[str] = ..., start_date: _Optional[str] = ..., status: _Optional[str] = ...) -> None: ...
 
-class BranchesResp(_message.Message):
-    __slots__ = ["success", "code", "msg", "found", "data"]
+class GetBranchesResp(_message.Message):
+    __slots__ = ["success", "code", "msg", "data"]
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     CODE_FIELD_NUMBER: _ClassVar[int]
     MSG_FIELD_NUMBER: _ClassVar[int]
-    FOUND_FIELD_NUMBER: _ClassVar[int]
     DATA_FIELD_NUMBER: _ClassVar[int]
     success: bool
     code: int
     msg: str
-    found: bool
     data: _containers.RepeatedCompositeFieldContainer[Branches]
-    def __init__(self, success: bool = ..., code: _Optional[int] = ..., msg: _Optional[str] = ..., found: bool = ..., data: _Optional[_Iterable[_Union[Branches, _Mapping]]] = ...) -> None: ...
+    def __init__(self, success: bool = ..., code: _Optional[int] = ..., msg: _Optional[str] = ..., data: _Optional[_Iterable[_Union[Branches, _Mapping]]] = ...) -> None: ...
 
-class EquityTransparencyResp(_message.Message):
-    __slots__ = ["success", "code", "msg", "found", "conclusion", "data", "usc_id"]
+class GetEquityTransparencyResp(_message.Message):
+    __slots__ = ["success", "code", "msg", "conclusion", "data", "usc_id"]
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     CODE_FIELD_NUMBER: _ClassVar[int]
     MSG_FIELD_NUMBER: _ClassVar[int]
-    FOUND_FIELD_NUMBER: _ClassVar[int]
     CONCLUSION_FIELD_NUMBER: _ClassVar[int]
     DATA_FIELD_NUMBER: _ClassVar[int]
     USC_ID_FIELD_NUMBER: _ClassVar[int]
     success: bool
     code: int
     msg: str
-    found: bool
     conclusion: str
     data: _containers.RepeatedCompositeFieldContainer[_struct_pb2.Struct]
     usc_id: str
-    def __init__(self, success: bool = ..., code: _Optional[int] = ..., msg: _Optional[str] = ..., found: bool = ..., conclusion: _Optional[str] = ..., data: _Optional[_Iterable[_Union[_struct_pb2.Struct, _Mapping]]] = ..., usc_id: _Optional[str] = ...) -> None: ...
+    def __init__(self, success: bool = ..., code: _Optional[int] = ..., msg: _Optional[str] = ..., conclusion: _Optional[str] = ..., data: _Optional[_Iterable[_Union[_struct_pb2.Struct, _Mapping]]] = ..., usc_id: _Optional[str] = ...) -> None: ...
 
 class GetEntIdentReq(_message.Message):
     __slots__ = ["enterprise_name"]
@@ -118,7 +110,7 @@ class GetEntIdentReq(_message.Message):
     enterprise_name: str
     def __init__(self, enterprise_name: _Optional[str] = ...) -> None: ...
 
-class EntIdentResp(_message.Message):
+class EntIdent(_message.Message):
     __slots__ = ["exists", "isLegal", "usc_id"]
     EXISTS_FIELD_NUMBER: _ClassVar[int]
     ISLEGAL_FIELD_NUMBER: _ClassVar[int]
@@ -128,7 +120,31 @@ class EntIdentResp(_message.Message):
     usc_id: str
     def __init__(self, exists: bool = ..., isLegal: bool = ..., usc_id: _Optional[str] = ...) -> None: ...
 
-class EntInfoResp(_message.Message):
+class GetEntIdentResp(_message.Message):
+    __slots__ = ["success", "code", "msg", "data"]
+    SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    CODE_FIELD_NUMBER: _ClassVar[int]
+    MSG_FIELD_NUMBER: _ClassVar[int]
+    DATA_FIELD_NUMBER: _ClassVar[int]
+    success: bool
+    code: int
+    msg: str
+    data: EntIdent
+    def __init__(self, success: bool = ..., code: _Optional[int] = ..., msg: _Optional[str] = ..., data: _Optional[_Union[EntIdent, _Mapping]] = ...) -> None: ...
+
+class GetEntInfoResp(_message.Message):
+    __slots__ = ["success", "code", "msg", "data"]
+    SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    CODE_FIELD_NUMBER: _ClassVar[int]
+    MSG_FIELD_NUMBER: _ClassVar[int]
+    DATA_FIELD_NUMBER: _ClassVar[int]
+    success: bool
+    code: int
+    msg: str
+    data: EntInfo
+    def __init__(self, success: bool = ..., code: _Optional[int] = ..., msg: _Optional[str] = ..., data: _Optional[_Union[EntInfo, _Mapping]] = ...) -> None: ...
+
+class EntInfo(_message.Message):
     __slots__ = ["usc_id", "enterprise_title", "enterprise_title_en", "business_registration_number", "establish_date", "region", "approved_date", "registered_address", "registered_capital", "paid_in_capital", "enterprise_type", "stuff_size", "stuff_insured_number", "business_scope", "import_export_qualification_code", "legal_representative", "registration_authority", "registration_status", "taxpayer_qualification", "organization_code", "url_qcc", "url_homepage", "business_term_start", "business_term_end", "id", "created_at", "updated_at"]
     USC_ID_FIELD_NUMBER: _ClassVar[int]
     ENTERPRISE_TITLE_FIELD_NUMBER: _ClassVar[int]
@@ -216,11 +232,17 @@ class EntCredential(_message.Message):
     updated_at: str
     def __init__(self, id: _Optional[int] = ..., usc_id: _Optional[str] = ..., certification_title: _Optional[str] = ..., certification_code: _Optional[str] = ..., certification_level: _Optional[str] = ..., certification_type: _Optional[str] = ..., certification_source: _Optional[str] = ..., certification_date: _Optional[str] = ..., certification_term_start: _Optional[str] = ..., certification_term_end: _Optional[str] = ..., certification_authority: _Optional[str] = ..., created_at: _Optional[str] = ..., updated_at: _Optional[str] = ...) -> None: ...
 
-class EntCredentialResp(_message.Message):
-    __slots__ = ["data"]
+class GetEntCredentialResp(_message.Message):
+    __slots__ = ["success", "code", "msg", "data"]
+    SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    CODE_FIELD_NUMBER: _ClassVar[int]
+    MSG_FIELD_NUMBER: _ClassVar[int]
     DATA_FIELD_NUMBER: _ClassVar[int]
+    success: bool
+    code: int
+    msg: str
     data: _containers.RepeatedCompositeFieldContainer[EntCredential]
-    def __init__(self, data: _Optional[_Iterable[_Union[EntCredential, _Mapping]]] = ...) -> None: ...
+    def __init__(self, success: bool = ..., code: _Optional[int] = ..., msg: _Optional[str] = ..., data: _Optional[_Iterable[_Union[EntCredential, _Mapping]]] = ...) -> None: ...
 
 class GetEntInfoReq(_message.Message):
     __slots__ = ["usc_id"]
@@ -228,17 +250,29 @@ class GetEntInfoReq(_message.Message):
     usc_id: str
     def __init__(self, usc_id: _Optional[str] = ...) -> None: ...
 
-class EntStrArrayResp(_message.Message):
-    __slots__ = ["data"]
+class GetEntStrArrayResp(_message.Message):
+    __slots__ = ["success", "code", "msg", "data"]
+    SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    CODE_FIELD_NUMBER: _ClassVar[int]
+    MSG_FIELD_NUMBER: _ClassVar[int]
     DATA_FIELD_NUMBER: _ClassVar[int]
+    success: bool
+    code: int
+    msg: str
     data: _containers.RepeatedScalarFieldContainer[str]
-    def __init__(self, data: _Optional[_Iterable[str]] = ...) -> None: ...
+    def __init__(self, success: bool = ..., code: _Optional[int] = ..., msg: _Optional[str] = ..., data: _Optional[_Iterable[str]] = ...) -> None: ...
 
-class EntRankingListResp(_message.Message):
-    __slots__ = ["data"]
+class GetEntRankingListResp(_message.Message):
+    __slots__ = ["success", "code", "msg", "data"]
+    SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    CODE_FIELD_NUMBER: _ClassVar[int]
+    MSG_FIELD_NUMBER: _ClassVar[int]
     DATA_FIELD_NUMBER: _ClassVar[int]
+    success: bool
+    code: int
+    msg: str
     data: _containers.RepeatedCompositeFieldContainer[EnterpriseRankingList]
-    def __init__(self, data: _Optional[_Iterable[_Union[EnterpriseRankingList, _Mapping]]] = ...) -> None: ...
+    def __init__(self, success: bool = ..., code: _Optional[int] = ..., msg: _Optional[str] = ..., data: _Optional[_Iterable[_Union[EnterpriseRankingList, _Mapping]]] = ...) -> None: ...
 
 class EnterpriseRankingList(_message.Message):
     __slots__ = ["usc_id", "ranking_position", "list_title", "list_type", "list_source", "list_participants_total", "list_published_date", "list_url_qcc", "list_url_origin"]

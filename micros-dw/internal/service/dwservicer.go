@@ -7,6 +7,7 @@ import (
 	"google.golang.org/protobuf/types/known/structpb"
 	pb "micros-dw/api/dwdata/v2"
 	"micros-dw/internal/biz"
+	"net/http"
 )
 
 type DwdataServiceServicer struct {
@@ -22,40 +23,58 @@ func NewDwdataServiceServicer(dwe *biz.DwEnterpriseUsecase, logger log.Logger) *
 	}
 }
 
-func (s *DwdataServiceServicer) GetEnterpriseIdent(ctx context.Context, req *pb.GetEntIdentReq) (*pb.EntIdentResp, error) {
+func (s *DwdataServiceServicer) GetEnterpriseIdent(ctx context.Context, req *pb.GetEntIdentReq) (*pb.GetEntIdentResp, error) {
 	res, err := s.dwEnterprise.GetEntIdent(ctx, req.EnterpriseName)
 	if err != nil {
 		return nil, err
 	}
 	if res == nil {
-		return &pb.EntIdentResp{
-			Exists: false,
-			UscId:  "",
+		return &pb.GetEntIdentResp{
+			Success: false,
+			Code:    http.StatusNoContent,
+			Msg:     "not content",
+			Data: &pb.EntIdent{
+				Exists:  false,
+				IsLegal: false,
+				UscId:   "",
+			},
 		}, nil
 	}
 	if res.StatusCode == 9 {
-		return &pb.EntIdentResp{
-			Exists:  true,
-			IsLegal: false,
+		return &pb.GetEntIdentResp{
+			Success: false,
+			Code:    http.StatusNoContent,
+			Data: &pb.EntIdent{
+				Exists:  true,
+				IsLegal: false,
+				UscId:   "",
+			},
 		}, nil
 	}
 
-	return &pb.EntIdentResp{
-		UscId:   res.UscId,
-		Exists:  true,
-		IsLegal: true,
+	return &pb.GetEntIdentResp{
+		Success: true,
+		Data: &pb.EntIdent{
+			Exists:  true,
+			IsLegal: true,
+			UscId:   res.UscId,
+		},
 	}, nil
 }
 
-func (s *DwdataServiceServicer) GetEnterpriseInfo(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntInfoResp, error) {
+func (s *DwdataServiceServicer) GetEnterpriseInfo(ctx context.Context, req *pb.GetEntInfoReq) (*pb.GetEntInfoResp, error) {
 	res, err := s.dwEnterprise.GetEntInfo(ctx, req.UscId)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 	if res == nil {
-		return nil, errors.WithStack(errors.New("record not found"))
+		return &pb.GetEntInfoResp{
+			Success: false,
+			Code:    http.StatusNoContent,
+			Msg:     "not content",
+		}, nil
 	}
-	return &pb.EntInfoResp{
+	data := &pb.EntInfo{
 		UscId:                         res.UscId,
 		EnterpriseTitle:               res.EnterpriseTitle,
 		EnterpriseTitleEn:             res.EnterpriseTitleEn,
@@ -83,15 +102,26 @@ func (s *DwdataServiceServicer) GetEnterpriseInfo(ctx context.Context, req *pb.G
 		Id:                            res.InfoId,
 		CreatedAt:                     res.CreatedAt.Format("2006-01-02 15:04:05"),
 		UpdatedAt:                     res.UpdatedAt.Format("2006-01-02 15:04:05"),
+	}
+	return &pb.GetEntInfoResp{
+		Success: true,
+		Code:    0,
+		Msg:     "",
+		Data:    data,
 	}, nil
 }
-func (s *DwdataServiceServicer) GetEnterpriseCredential(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntCredentialResp, error) {
+
+func (s *DwdataServiceServicer) GetEnterpriseCredential(ctx context.Context, req *pb.GetEntInfoReq) (*pb.GetEntCredentialResp, error) {
 	res, err := s.dwEnterprise.GetEntCredential(ctx, req.UscId)
 	if err != nil {
 		return nil, err
 	}
 	if res == nil {
-		return nil, errors.WithStack(errors.New("record not found"))
+		return &pb.GetEntCredentialResp{
+			Success: false,
+			Code:    http.StatusNoContent,
+			Msg:     "not content",
+		}, nil
 	}
 	data := make([]*pb.EntCredential, 0)
 	for _, v := range *res {
@@ -111,17 +141,24 @@ func (s *DwdataServiceServicer) GetEnterpriseCredential(ctx context.Context, req
 			UpdatedAt:              v.UpdatedAt.Format("2006-01-02 15:04:05"),
 		})
 	}
-	return &pb.EntCredentialResp{Data: data}, nil
+	return &pb.GetEntCredentialResp{
+		Success: true,
+		Code:    http.StatusOK,
+		Msg:     "",
+		Data:    data,
+	}, nil
 }
 
-func (s *DwdataServiceServicer) GetEnterpriseRankingList(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntRankingListResp, error) {
+func (s *DwdataServiceServicer) GetEnterpriseRankingList(ctx context.Context, req *pb.GetEntInfoReq) (*pb.GetEntRankingListResp, error) {
 	res, err := s.dwEnterprise.GetEntRankingList(ctx, req.UscId)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 	if res == nil {
-		return &pb.EntRankingListResp{
-			Data: nil,
+		return &pb.GetEntRankingListResp{
+			Success: false,
+			Code:    http.StatusNoContent,
+			Msg:     "not content",
 		}, nil
 	}
 	stArray := make([]*pb.EnterpriseRankingList, 0)
@@ -141,51 +178,65 @@ func (s *DwdataServiceServicer) GetEnterpriseRankingList(ctx context.Context, re
 			},
 		)
 	}
-	return &pb.EntRankingListResp{
-		Data: stArray,
+	return &pb.GetEntRankingListResp{
+		Success: true,
+		Code:    http.StatusOK,
+		Msg:     "",
+		Data:    stArray,
 	}, nil
 }
 
-func (s *DwdataServiceServicer) GetEnterpriseIndustry(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntStrArrayResp, error) {
+func (s *DwdataServiceServicer) GetEnterpriseIndustry(ctx context.Context, req *pb.GetEntInfoReq) (*pb.GetEntStrArrayResp, error) {
 	res, err := s.dwEnterprise.GetEntIndustry(ctx, req.UscId)
 	if err != nil {
 		return nil, err
 	}
 	if res == nil {
-		return &pb.EntStrArrayResp{
-			Data: nil,
+		return &pb.GetEntStrArrayResp{
+			Success: false,
+			Code:    http.StatusNoContent,
+			Msg:     "not content",
 		}, nil
 	}
-	return &pb.EntStrArrayResp{
-		Data: *res,
+	return &pb.GetEntStrArrayResp{
+		Success: true,
+		Code:    http.StatusOK,
+		Msg:     "",
+		Data:    *res,
 	}, nil
 }
 
-func (s *DwdataServiceServicer) GetEnterpriseProduct(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntStrArrayResp, error) {
+func (s *DwdataServiceServicer) GetEnterpriseProduct(ctx context.Context, req *pb.GetEntInfoReq) (*pb.GetEntStrArrayResp, error) {
 	res, err := s.dwEnterprise.GetEntProduct(ctx, req.UscId)
 	if err != nil {
 		return nil, err
 	}
 	if res == nil {
-		return &pb.EntStrArrayResp{
-			Data: nil,
+		return &pb.GetEntStrArrayResp{
+			Success: false,
+			Code:    http.StatusNoContent,
+			Msg:     "not content",
+			Data:    nil,
 		}, nil
 	}
-	return &pb.EntStrArrayResp{
-		Data: *res,
+	return &pb.GetEntStrArrayResp{
+		Success: true,
+		Code:    http.StatusOK,
+		Msg:     "",
+		Data:    *res,
 	}, nil
 }
 
-func (s *DwdataServiceServicer) GetEntEquityTransparency(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EquityTransparencyResp, error) {
+func (s *DwdataServiceServicer) GetEntEquityTransparency(ctx context.Context, req *pb.GetEntInfoReq) (*pb.GetEquityTransparencyResp, error) {
 	res, err := s.dwEnterprise.GetEntEquityTransparency(ctx, req.UscId)
 	if err != nil {
 		return nil, err
 	}
 	if res == nil {
-		return &pb.EquityTransparencyResp{
-			Success: true,
-			Code:    9009,
-			Found:   false,
+		return &pb.GetEquityTransparencyResp{
+			Success: false,
+			Code:    http.StatusNoContent,
+			Msg:     "not content",
 		}, nil
 	}
 	stArr := make([]*structpb.Struct, 0)
@@ -197,27 +248,25 @@ func (s *DwdataServiceServicer) GetEntEquityTransparency(ctx context.Context, re
 		stArr = append(stArr, st)
 	}
 
-	return &pb.EquityTransparencyResp{
+	return &pb.GetEquityTransparencyResp{
 		Success:    true,
-		Code:       200,
-		Found:      true,
+		Code:       http.StatusOK,
 		Conclusion: res.Conclusion,
 		Data:       stArr,
 		UscId:      res.UscId,
 	}, nil
 }
 
-func (s *DwdataServiceServicer) GetEntShareholders(ctx context.Context, req *pb.GetEntInfoReq) (*pb.ShareholdersResp, error) {
+func (s *DwdataServiceServicer) GetEntShareholders(ctx context.Context, req *pb.GetEntInfoReq) (*pb.GetShareholdersResp, error) {
 	res, err := s.dwEnterprise.GetShareholders(ctx, req.UscId)
 	if err != nil {
 		return nil, err
 	}
 	if res == nil || len(*res) == 0 {
-		return &pb.ShareholdersResp{
-			Success: true,
-			Code:    9009,
-			Msg:     "not found",
-			Found:   false,
+		return &pb.GetShareholdersResp{
+			Success: false,
+			Code:    http.StatusNoContent,
+			Msg:     "no content",
 			Data:    nil,
 		}, nil
 	}
@@ -231,27 +280,24 @@ func (s *DwdataServiceServicer) GetEntShareholders(ctx context.Context, req *pb.
 			Percent:         v.Percent,
 		})
 	}
-	return &pb.ShareholdersResp{
+	return &pb.GetShareholdersResp{
 		Success: true,
-		Code:    200,
+		Code:    http.StatusOK,
 		Msg:     "",
-		Found:   true,
 		Data:    data,
 	}, nil
 }
 
-func (s *DwdataServiceServicer) GetEntInvestment(ctx context.Context, req *pb.GetEntInfoReq) (*pb.InvestmentResp, error) {
+func (s *DwdataServiceServicer) GetEntInvestment(ctx context.Context, req *pb.GetEntInfoReq) (*pb.GetInvestmentResp, error) {
 	res, err := s.dwEnterprise.GetInvestments(ctx, req.UscId)
 	if err != nil {
 		return nil, err
 	}
 	if res == nil || len(*res) == 0 {
-		return &pb.InvestmentResp{
-			Success: true,
-			Code:    9009,
-			Msg:     "not found",
-			Found:   false,
-			Data:    nil,
+		return &pb.GetInvestmentResp{
+			Success: false,
+			Code:    http.StatusNoContent,
+			Msg:     "not content",
 		}, nil
 	}
 	data := make([]*pb.Investment, 0)
@@ -265,27 +311,24 @@ func (s *DwdataServiceServicer) GetEntInvestment(ctx context.Context, req *pb.Ge
 			Status:            v.Status,
 		})
 	}
-	return &pb.InvestmentResp{
+	return &pb.GetInvestmentResp{
 		Success: true,
-		Code:    200,
+		Code:    http.StatusOK,
 		Msg:     "",
-		Found:   true,
 		Data:    data,
 	}, nil
 }
 
-func (s *DwdataServiceServicer) GetEntBranches(ctx context.Context, req *pb.GetEntInfoReq) (*pb.BranchesResp, error) {
+func (s *DwdataServiceServicer) GetEntBranches(ctx context.Context, req *pb.GetEntInfoReq) (*pb.GetBranchesResp, error) {
 	res, err := s.dwEnterprise.GetBranches(ctx, req.UscId)
 	if err != nil {
 		return nil, err
 	}
 	if res == nil || len(*res) == 0 {
-		return &pb.BranchesResp{
-			Success: true,
-			Code:    9009,
-			Msg:     "not found",
-			Found:   false,
-			Data:    nil,
+		return &pb.GetBranchesResp{
+			Success: false,
+			Code:    http.StatusNoContent,
+			Msg:     "not content",
 		}, nil
 	}
 	data := make([]*pb.Branches, 0)
@@ -298,11 +341,10 @@ func (s *DwdataServiceServicer) GetEntBranches(ctx context.Context, req *pb.GetE
 			Status:         v.Status,
 		})
 	}
-	return &pb.BranchesResp{
+	return &pb.GetBranchesResp{
 		Success: true,
-		Code:    200,
+		Code:    http.StatusOK,
 		Msg:     "",
-		Found:   true,
 		Data:    data,
 	}, nil
 }
