@@ -27,8 +27,7 @@ enum ReportVersion {
 
 message GetContentProcessReq {
   int64 content_id = 1;
-  ContentVersion content_version = 2;
-  ReportVersion report_version = 3;
+  ReportVersion report_version = 2;
 }
 
 message GetContentProcessResp {

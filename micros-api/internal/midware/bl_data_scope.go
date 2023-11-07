@@ -67,6 +67,11 @@ func getScopesByAuthData(dt *data.Data, authData []byte) (*pkg.DataScopeInfo, er
 	case 1:
 		// 全部数据权限
 		dsi.AccessType = 1
+		validUserIds, err := getAllUserIdsUnderWithSameTenant(dsi.UserId, dt.DbBl)
+		if err != nil {
+			return nil, err
+		}
+		dsi.AccessibleIds = validUserIds
 		return &dsi, nil
 	case 2:
 		// 指定部门数据权限
@@ -113,9 +118,9 @@ func getScopesByAuthData(dt *data.Data, authData []byte) (*pkg.DataScopeInfo, er
 		dsi.AccessType = 5
 		dsi.AccessibleIds = []int64{userId}
 		return &dsi, err
+	default:
+		return &dsi, nil
 	}
-
-	return &dsi, nil
 }
 
 func getUserIdsByDeptId(deptIds []int64, db *gorm.DB) ([]int64, error) {
@@ -136,6 +141,21 @@ func getUserIdsByDeptId(deptIds []int64, db *gorm.DB) ([]int64, error) {
 type UserPosts struct {
 	PostIds string
 	Id      int64
+}
+
+func getAllUserIdsUnderWithSameTenant(userId int64, db *gorm.DB) ([]int64, error) {
+	validUserIds := make([]int64, 0)
+	err := db.Raw(
+		`select id
+			from system_users
+			where tenant_id = (select tenant_id
+							   from system_users
+							   where id = ? and deleted is false)
+			and deleted is false;`, userId).Pluck("id", &validUserIds).Error
+	if err != nil {
+		return []int64{}, err
+	}
+	return validUserIds, nil
 }
 
 // getUserIdsByDeptIdUnderling 获取该部门下属的userIds

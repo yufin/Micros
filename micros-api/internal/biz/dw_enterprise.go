@@ -16,9 +16,9 @@ type DwEnterpriseRepo interface {
 	GetEntProduct(ctx context.Context, uscId string) (*[]string, error)
 	GetEquityTransparency(ctx context.Context, uscId string) (*dto.EnterpriseEquityTransparency, error)
 
-	GetShareholders(ctx context.Context, uscId string) (*pb.ShareholdersResp, error)
-	GetInvestments(ctx context.Context, uscId string) (*pb.InvestmentResp, error)
-	GetBranches(ctx context.Context, uscId string) (*pb.BranchesResp, error)
+	GetShareholders(ctx context.Context, uscId string) (*pb.GetShareholdersResp, error)
+	GetInvestments(ctx context.Context, uscId string) (*pb.GetInvestmentResp, error)
+	GetBranches(ctx context.Context, uscId string) (*pb.GetBranchesResp, error)
 }
 
 type DwEnterpriseUsecase struct {
@@ -30,17 +30,17 @@ func NewDwEnterpriseUsecase(repo DwEnterpriseRepo, logger log.Logger) *DwEnterpr
 	return &DwEnterpriseUsecase{repo: repo, log: log.NewHelper(logger)}
 }
 
-func (uc *DwEnterpriseUsecase) GetShareholders(ctx context.Context, uscId string) (*pb.ShareholdersResp, error) {
+func (uc *DwEnterpriseUsecase) GetShareholders(ctx context.Context, uscId string) (*pb.GetShareholdersResp, error) {
 	uc.log.WithContext(ctx).Infof("biz.RcDependencyDataUsecase.GetShareholders %s", uscId)
 	return uc.repo.GetShareholders(ctx, uscId)
 }
 
-func (uc *DwEnterpriseUsecase) GetInvestments(ctx context.Context, uscId string) (*pb.InvestmentResp, error) {
+func (uc *DwEnterpriseUsecase) GetInvestments(ctx context.Context, uscId string) (*pb.GetInvestmentResp, error) {
 	uc.log.WithContext(ctx).Infof("biz.RcDependencyDataUsecase.GetInvestments %s", uscId)
 	return uc.repo.GetInvestments(ctx, uscId)
 }
 
-func (uc *DwEnterpriseUsecase) GetBranches(ctx context.Context, uscId string) (*pb.BranchesResp, error) {
+func (uc *DwEnterpriseUsecase) GetBranches(ctx context.Context, uscId string) (*pb.GetBranchesResp, error) {
 	uc.log.WithContext(ctx).Infof("biz.RcDependencyDataUsecase.GetBranches %s", uscId)
 	return uc.repo.GetBranches(ctx, uscId)
 }

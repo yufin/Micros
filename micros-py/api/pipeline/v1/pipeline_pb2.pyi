@@ -23,14 +23,12 @@ REPORT_V3: ReportVersion
 REPORT_LATEST: ReportVersion
 
 class GetContentProcessReq(_message.Message):
-    __slots__ = ["content_id", "content_version", "report_version"]
+    __slots__ = ["content_id", "report_version"]
     CONTENT_ID_FIELD_NUMBER: _ClassVar[int]
-    CONTENT_VERSION_FIELD_NUMBER: _ClassVar[int]
     REPORT_VERSION_FIELD_NUMBER: _ClassVar[int]
     content_id: int
-    content_version: ContentVersion
     report_version: ReportVersion
-    def __init__(self, content_id: _Optional[int] = ..., content_version: _Optional[_Union[ContentVersion, str]] = ..., report_version: _Optional[_Union[ReportVersion, str]] = ...) -> None: ...
+    def __init__(self, content_id: _Optional[int] = ..., report_version: _Optional[_Union[ReportVersion, str]] = ...) -> None: ...
 
 class GetContentProcessResp(_message.Message):
     __slots__ = ["success", "code", "msg", "data"]

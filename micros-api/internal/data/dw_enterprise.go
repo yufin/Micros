@@ -25,7 +25,7 @@ func (repo *DwEnterpriseDataRepo) GetEntIdent(ctx context.Context, name string) 
 	if err != nil {
 		return "", err
 	}
-	return resp.UscId, nil
+	return resp.Data.UscId, nil
 }
 
 func (repo *DwEnterpriseDataRepo) GetEntInfo(ctx context.Context, uscId string) (*dto.EnterpriseInfo, error) {
@@ -33,34 +33,35 @@ func (repo *DwEnterpriseDataRepo) GetEntInfo(ctx context.Context, uscId string) 
 	if err != nil {
 		return nil, err
 	}
-	if resp == nil {
+	if resp.Success != true {
 		return nil, nil
 	}
+
 	return &dto.EnterpriseInfo{
-		UscId:                         resp.UscId,
-		EnterpriseTitle:               resp.EnterpriseTitle,
-		EnterpriseTitleEn:             resp.EnterpriseTitleEn,
-		BusinessRegistrationNumber:    resp.BusinessRegistrationNumber,
-		EstablishedDate:               resp.EstablishDate,
-		Region:                        resp.Region,
-		ApprovedDate:                  resp.ApprovedDate,
-		RegisteredAddress:             resp.RegisteredAddress,
-		RegisteredCapital:             resp.RegisteredCapital,
-		PaidInCapital:                 resp.PaidInCapital,
-		EnterpriseType:                resp.EnterpriseType,
-		StuffSize:                     resp.StuffSize,
-		StuffInsuredNumber:            int(resp.StuffInsuredNumber),
-		BusinessScope:                 resp.BusinessScope,
-		ImportExportQualificationCode: resp.ImportExportQualificationCode,
-		LegalRepresentative:           resp.LegalRepresentative,
-		RegistrationAuthority:         resp.RegistrationAuthority,
-		RegistrationStatus:            resp.RegistrationStatus,
-		TaxpayerQualification:         resp.TaxpayerQualification,
-		OrganizationCode:              resp.OrganizationCode,
-		UrlQcc:                        resp.UrlQcc,
-		UrlHomepage:                   resp.UrlHomepage,
-		BusinessTermStart:             resp.BusinessTermStart,
-		BusinessTermEnd:               resp.BusinessTermEnd,
+		UscId:                         resp.Data.UscId,
+		EnterpriseTitle:               resp.Data.EnterpriseTitle,
+		EnterpriseTitleEn:             resp.Data.EnterpriseTitleEn,
+		BusinessRegistrationNumber:    resp.Data.BusinessRegistrationNumber,
+		EstablishedDate:               resp.Data.EstablishDate,
+		Region:                        resp.Data.Region,
+		ApprovedDate:                  resp.Data.ApprovedDate,
+		RegisteredAddress:             resp.Data.RegisteredAddress,
+		RegisteredCapital:             resp.Data.RegisteredCapital,
+		PaidInCapital:                 resp.Data.PaidInCapital,
+		EnterpriseType:                resp.Data.EnterpriseType,
+		StuffSize:                     resp.Data.StuffSize,
+		StuffInsuredNumber:            int(resp.Data.StuffInsuredNumber),
+		BusinessScope:                 resp.Data.BusinessScope,
+		ImportExportQualificationCode: resp.Data.ImportExportQualificationCode,
+		LegalRepresentative:           resp.Data.LegalRepresentative,
+		RegistrationAuthority:         resp.Data.RegistrationAuthority,
+		RegistrationStatus:            resp.Data.RegistrationStatus,
+		TaxpayerQualification:         resp.Data.TaxpayerQualification,
+		OrganizationCode:              resp.Data.OrganizationCode,
+		UrlQcc:                        resp.Data.UrlQcc,
+		UrlHomepage:                   resp.Data.UrlHomepage,
+		BusinessTermStart:             resp.Data.BusinessTermStart,
+		BusinessTermEnd:               resp.Data.BusinessTermEnd,
 	}, nil
 }
 
@@ -134,9 +135,10 @@ func (repo *DwEnterpriseDataRepo) GetEquityTransparency(ctx context.Context, usc
 	if err != nil {
 		return nil, err
 	}
-	if resp.UscId == "" {
+	if resp.Success != true {
 		return nil, nil
 	}
+
 	info, err := repo.data.DwDataClient.GetEnterpriseInfo(context.TODO(), &dwdataV2.GetEntInfoReq{UscId: uscId})
 	if err != nil {
 		return nil, err
@@ -144,13 +146,13 @@ func (repo *DwEnterpriseDataRepo) GetEquityTransparency(ctx context.Context, usc
 
 	return &dto.EnterpriseEquityTransparency{
 		UscId:      resp.UscId,
-		Name:       info.EnterpriseTitle,
+		Name:       info.Data.EnterpriseTitle,
 		Conclusion: resp.Conclusion,
 		Data:       resp.Data,
 	}, nil
 }
 
-func (repo *DwEnterpriseDataRepo) GetShareholders(ctx context.Context, uscId string) (*dwdataV2.ShareholdersResp, error) {
+func (repo *DwEnterpriseDataRepo) GetShareholders(ctx context.Context, uscId string) (*dwdataV2.GetShareholdersResp, error) {
 	resp, err := repo.data.DwDataClient.GetEntShareholders(context.TODO(), &dwdataV2.GetEntInfoReq{
 		UscId: uscId,
 	})
@@ -160,7 +162,7 @@ func (repo *DwEnterpriseDataRepo) GetShareholders(ctx context.Context, uscId str
 	return resp, nil
 }
 
-func (repo *DwEnterpriseDataRepo) GetInvestments(ctx context.Context, uscId string) (*dwdataV2.InvestmentResp, error) {
+func (repo *DwEnterpriseDataRepo) GetInvestments(ctx context.Context, uscId string) (*dwdataV2.GetInvestmentResp, error) {
 	resp, err := repo.data.DwDataClient.GetEntInvestment(context.TODO(), &dwdataV2.GetEntInfoReq{
 		UscId: uscId,
 	})
@@ -170,7 +172,7 @@ func (repo *DwEnterpriseDataRepo) GetInvestments(ctx context.Context, uscId stri
 	return resp, nil
 }
 
-func (repo *DwEnterpriseDataRepo) GetBranches(ctx context.Context, uscId string) (*dwdataV2.BranchesResp, error) {
+func (repo *DwEnterpriseDataRepo) GetBranches(ctx context.Context, uscId string) (*dwdataV2.GetBranchesResp, error) {
 	resp, err := repo.data.DwDataClient.GetEntBranches(context.TODO(), &dwdataV2.GetEntInfoReq{
 		UscId: uscId,
 	})

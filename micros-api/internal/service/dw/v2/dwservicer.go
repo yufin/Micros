@@ -47,7 +47,7 @@ func (s *DwServiceServicer) GetEntRelations(ctx context.Context, req *pb.GetEntI
 		return nil, err
 	}
 	branchData := make([]*pb.Branches, 0)
-	if branch.Found {
+	if branch.Success {
 		for _, v := range branch.Data {
 			branchData = append(branchData, &pb.Branches{
 				EnterpriseName: v.EnterpriseName,
@@ -65,7 +65,7 @@ func (s *DwServiceServicer) GetEntRelations(ctx context.Context, req *pb.GetEntI
 		return nil, err
 	}
 	investmentData := make([]*pb.Investment, 0)
-	if investment.Found {
+	if investment.Success {
 		for _, v := range investment.Data {
 			investmentData = append(investmentData, &pb.Investment{
 				EnterpriseName:    v.EnterpriseName,
@@ -84,7 +84,7 @@ func (s *DwServiceServicer) GetEntRelations(ctx context.Context, req *pb.GetEntI
 		return nil, err
 	}
 	shareholderData := make([]*pb.Shareholders, 0)
-	if shareholder.Found {
+	if shareholder.Success {
 		for _, v := range shareholder.Data {
 			shareholderData = append(shareholderData, &pb.Shareholders{
 				ShareholderName: v.ShareholderName,
@@ -313,7 +313,7 @@ func (s *DwServiceServicer) GetEntBranches(ctx context.Context, req *pb.GetEntIn
 	if err != nil {
 		return nil, err
 	}
-	if res.Found == false {
+	if res.Success == false {
 		return &pb.BranchesResp{
 			Success: true,
 			Found:   false,
@@ -345,7 +345,7 @@ func (s *DwServiceServicer) GetEntInvestment(ctx context.Context, req *pb.GetEnt
 	if err != nil {
 		return nil, err
 	}
-	if res.Found == false {
+	if !res.Success {
 		return &pb.InvestmentResp{
 			Success: true,
 			Found:   false,
@@ -379,7 +379,7 @@ func (s *DwServiceServicer) GetEntShareholders(ctx context.Context, req *pb.GetE
 	if err != nil {
 		return nil, err
 	}
-	if res.Found == false {
+	if !res.Success {
 		return &pb.ShareholdersResp{
 			Success: true,
 			Found:   false,

@@ -2,6 +2,7 @@ from api.pipeline.v1 import pipeline_pb2_grpc, pipeline_pb2
 from internal.data.data import DataRepo
 from google.protobuf.struct_pb2 import Struct
 from internal.data.content_pipeline import ContentPipelineLatest
+import http
 
 
 class PipelineService(pipeline_pb2_grpc.PipelineServiceServicer):
@@ -17,7 +18,8 @@ class PipelineService(pipeline_pb2_grpc.PipelineServiceServicer):
 
         st = Struct()
         st.update(pipeline.content)
-        return pipeline_pb2.GetContentProcessResp(success=True, msg="1", data=st)
+        return pipeline_pb2.GetContentProcessResp(success=True, code=http.HTTPStatus.OK, msg="", data=st)
+
 
 
 

@@ -76,11 +76,11 @@ class DwDataClient:
                     stub.GetEnterpriseRankingList(dw_data_pb2.GetEntInfoReq(usc_id=usc_id)),
                 )
                 return usc_id, {
-                    "info": json_format.MessageToDict(info.data) if info.success else None,
-                    "industry": industry_resp.data if industry_resp.success else None,
-                    "product": product_resp.data if product_resp.success else None,
-                    "credential": [json_format.MessageToDict(cred) for cred in credential_resp.data[:20]] if credential_resp.success else None,
-                    "ranking_list": [json_format.MessageToDict(rank) for rank in ranking_list_resp.data[:20]] if ranking_list_resp.success else None,
+                    "companyInfo": json_format.MessageToDict(info.data) if info.success else None,
+                    "industryTag": [_i for _i in industry_resp.data] if industry_resp.success else None,
+                    "productTag": [_p for _p in product_resp.data] if product_resp.success else None,
+                    "authorizedTag": [json_format.MessageToDict(cred) for cred in credential_resp.data[:20]] if credential_resp.success else None,
+                    "rankingTag": [json_format.MessageToDict(rank) for rank in ranking_list_resp.data[:20]] if ranking_list_resp.success else None,
                 }
             else:
                 industry_resp, product_resp, credential_resp, ranking_list_resp = await asyncio.gather(
@@ -90,10 +90,10 @@ class DwDataClient:
                     stub.GetEnterpriseRankingList(dw_data_pb2.GetEntInfoReq(usc_id=usc_id)),
                 )
                 return usc_id, {
-                    "industry": [_i for _i in industry_resp.data] if industry_resp.success else None,
-                    "product": [_p for _p in product_resp.data] if product_resp.success else None,
-                    "credential": [json_format.MessageToDict(cred) for cred in credential_resp.data[:20]] if credential_resp.success else None,
-                    "ranking_list": [json_format.MessageToDict(rank) for rank in ranking_list_resp.data[:20]] if ranking_list_resp.success else None,
+                    "industryTag": [_i for _i in industry_resp.data] if industry_resp.success else None,
+                    "productTag": [_p for _p in product_resp.data] if product_resp.success else None,
+                    "authorizedTag": [json_format.MessageToDict(cred) for cred in credential_resp.data[:20]] if credential_resp.success else None,
+                    "rankingTag": [json_format.MessageToDict(rank) for rank in ranking_list_resp.data[:20]] if ranking_list_resp.success else None,
                 }
 
     async def get_tags_by_name(self, name: str, with_info: bool = False) -> (str, Optional[dict]):
