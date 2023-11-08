@@ -5,7 +5,7 @@ import yaml
 from typing import Any, Optional
 
 class GRPC(BaseModel):
-    addr: str = '0.0.0.0:50051'
+    addr: str
     timeout: str
 
 
@@ -14,11 +14,11 @@ class Server(BaseModel):
 
 
 class DwData(BaseModel):
-    target: str = "192.168.44.150:50052"
+    target: str
 
 
 class MongoDb(BaseModel):
-    uri: str = "mongodb://root:dev-password@192.168.44.169:27020"
+    uri: str
 
 
 class Data(BaseModel):
