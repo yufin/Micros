@@ -176,7 +176,10 @@ func getUserIdsByDeptIdUnderling(deptId int64, postIds []int64, db *gorm.DB) ([]
 	sort.Slice(postIds, func(i, j int) bool {
 		return postIds[i] < postIds[j]
 	})
-	userPosMin := postIds[0]
+	var userPosMin *int64
+	if len(postIds) != 0 {
+		*userPosMin = postIds[0]
+	}
 
 	validUserIds := make([]int64, 0)
 	// iter userPosts, get userId which has higher post in PostIds, append to validUserIds
@@ -194,7 +197,7 @@ func getUserIdsByDeptIdUnderling(deptId int64, postIds []int64, db *gorm.DB) ([]
 				})
 
 				maxPos := posts[0]
-				if userPosMin < maxPos {
+				if userPosMin != nil || *userPosMin < maxPos {
 					validUserIds = append(validUserIds, userPost.Id)
 				}
 			}
