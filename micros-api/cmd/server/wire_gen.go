@@ -47,13 +47,18 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	if err != nil {
 		return nil, nil, err
 	}
-	clientConn, cleanup, err := data.NewGrpcConn(confData)
+	dwdataServiceClient, cleanup, err := data.NewDwdataServiceClient(confData)
 	if err != nil {
 		return nil, nil, err
 	}
-	dwdataServiceClient := data.NewDwdataServiceClient(clientConn)
-	dataData, cleanup2, err := data.NewData(logger, dbs, natsWrap, neoCli, minioClient, mgoCli, dwdataServiceClient)
+	pipelineServiceClient, cleanup2, err := data.NewPipelineServiceClient(confData)
 	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	dataData, cleanup3, err := data.NewData(logger, dbs, natsWrap, neoCli, minioClient, mgoCli, dwdataServiceClient, pipelineServiceClient)
+	if err != nil {
+		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
@@ -74,7 +79,9 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	mgoRcRepo := data.NewMgoRcRepo(dataData, logger)
 	mgoRcUsecase := biz.NewMgoRcUsecase(mgoRcRepo, logger)
 	v2RcServiceServicer := v2.NewRcServiceServicer(rcProcessedContentUsecase, rcOriginContentUsecase, rcDependencyDataUsecase, ossMetadataUsecase, rcReportOssUsecase, mgoRcUsecase, logger)
-	v3RcServiceServicer := v3.NewRcServiceServicer(rcProcessedContentUsecase, rcOriginContentUsecase, rcDependencyDataUsecase, ossMetadataUsecase, rcReportOssUsecase, rcDecisionFactorUsecase, mgoRcUsecase, logger)
+	clientPipelineRepo := data.NewClientPipelineRepo(dataData, logger)
+	clientPipelineUsecase := biz.NewClientPipelineUsecase(clientPipelineRepo, logger)
+	v3RcServiceServicer := v3.NewRcServiceServicer(rcProcessedContentUsecase, rcOriginContentUsecase, rcDependencyDataUsecase, ossMetadataUsecase, rcReportOssUsecase, rcDecisionFactorUsecase, mgoRcUsecase, clientPipelineUsecase, logger)
 	rcRdmResultRepo := data.NewRcRdmResultRepo(dataData, logger)
 	rcRdmResultUsecase := biz.NewRcRdmResultUsecase(rcRdmResultRepo, logger)
 	rcRdmResDetailRepo := data.NewRcRdmResDetailRepo(dataData, logger)
@@ -90,6 +97,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	httpServer := server.NewHTTPServer(confServer, dataData, confData, rcServiceServicer, v2RcServiceServicer, v3RcServiceServicer, rcRdmServiceServicer, treeGraphServiceServicer, netGraphServiceServicer, dwServiceServicer, logger)
 	app := newApp(logger, grpcServer, httpServer)
 	return app, func() {
+		cleanup3()
 		cleanup2()
 		cleanup()
 	}, nil

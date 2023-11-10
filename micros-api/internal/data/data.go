@@ -15,6 +15,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	dwdataV2 "micros-api/api/dwdata/v2"
+	pipelineV1 "micros-api/api/pipeline/v1"
 	"micros-api/internal/conf"
 	"micros-api/pkg/miniocli"
 	"time"
@@ -34,9 +35,9 @@ var ProviderSet = wire.NewSet(
 	NewNeoCli,
 	NewMinioClient,
 	NewMgoCli,
-	NewGrpcConn,
 
 	NewDwdataServiceClient,
+	NewPipelineServiceClient,
 
 	NewRcProcessedContentRepo,
 	NewRcOriginContentRepo,
@@ -48,17 +49,19 @@ var ProviderSet = wire.NewSet(
 	NewRcRdmResDetailRepo,
 	NewMgoRcRepo,
 	NewDwEnterpriseRepo,
+	NewClientPipelineRepo,
 	NewRcDecisionFactorRepo,
 )
 
 type Data struct {
-	Db           *gorm.DB
-	DbBl         *gorm.DB
-	Nw           *NatsWrap
-	Neo          *NeoCli
-	MinioCli     *miniocli.MinioClient
-	MgoCli       *MgoCli
-	DwDataClient dwdataV2.DwdataServiceClient
+	Db             *gorm.DB
+	DbBl           *gorm.DB
+	Nw             *NatsWrap
+	Neo            *NeoCli
+	MinioCli       *miniocli.MinioClient
+	MgoCli         *MgoCli
+	DwDataClient   dwdataV2.DwdataServiceClient
+	PipelineClient pipelineV1.PipelineServiceClient
 }
 
 func newGormDB(dsn string) (*gorm.DB, error) {
@@ -165,7 +168,8 @@ func NewData(
 	neo *NeoCli,
 	miCli *miniocli.MinioClient,
 	mgoCli *MgoCli,
-	dwdata dwdataV2.DwdataServiceClient,
+	dwData dwdataV2.DwdataServiceClient,
+	pipeline pipelineV1.PipelineServiceClient,
 ) (*Data, func(), error) {
 	ndLog := log.NewHelper(logger)
 
@@ -194,12 +198,13 @@ func NewData(
 	}
 
 	return &Data{
-		Db:           dbs.Db,
-		DbBl:         dbs.DbBl,
-		Nw:           nw,
-		Neo:          neo,
-		MinioCli:     miCli,
-		MgoCli:       mgoCli,
-		DwDataClient: dwdata,
+		Db:             dbs.Db,
+		DbBl:           dbs.DbBl,
+		Nw:             nw,
+		Neo:            neo,
+		MinioCli:       miCli,
+		MgoCli:         mgoCli,
+		DwDataClient:   dwData,
+		PipelineClient: pipeline,
 	}, cleanup, nil
 }

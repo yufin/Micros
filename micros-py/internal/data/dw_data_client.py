@@ -104,16 +104,30 @@ class DwDataClient:
         else:
             return name, None
 
+    async def get_related(self, usc_id: str) -> (str, Optional[dict]):
+        async with self.channel as channel:
+            stub = dw_data_pb2_grpc.DwdataServiceStub(channel)
+            shareholders, branches, investment = await asyncio.gather(
+                stub.GetEntShareholders(dw_data_pb2.GetEntInfoReq(usc_id=usc_id)),
+                stub.GetEntBranches(dw_data_pb2.GetEntInfoReq(usc_id=usc_id)),
+                stub.GetEntInvestment(dw_data_pb2.GetEntInfoReq(usc_id=usc_id)),
+            )
+            return usc_id, {
+                'shareholder': [json_format.MessageToDict(shareholder) for shareholder in shareholders.data] if shareholders.success else None,
+                'branch': [json_format.MessageToDict(branch) for branch in branches.data] if branches.success else None,
+                'investment': [json_format.MessageToDict(invest) for invest in investment.data] if investment.success else None,
+            }
 
 
-
-
-
-# if __name__ == '__main__':
-#     import asyncio
-#     dw = DwDataClient(target="192.168.44.150:50052", options=None)
+if __name__ == '__main__':
+    import asyncio
+    dw = DwDataClient(target="192.168.44.150:50052", options=None)
 #
-#     # res1 = asyncio.run(dw.get_ent_investment(dw_data_pb2.GetEntInfoReq(usc_id="91440300071131008W")))
+    res1 = asyncio.run(dw.get_related(usc_id="91440300MA5FN5FY20"))
+    from pprint import pprint
+    pprint(res1[1])
+
+
 #     # res2 = asyncio.run(dw.get_ent_investment(dw_data_pb2.GetEntInfoReq(usc_id="91440300071131008W")))
 #     res3 = asyncio.run(dw.get_ent_equity_transparency(dw_data_pb2.GetEntInfoReq(usc_id="91310105134638405A")))
 #     print(res3)

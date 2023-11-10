@@ -1,39 +1,40 @@
-server:
-  http:
-    addr: 0.0.0.0:8000
-    timeout: 5s
-  grpc:
-    addr: 0.0.0.0:50051
-    timeout: 5s
-data:
-  database:
-    driver: mysql
-    source: blscf:Dzkw46MZDbB7axDC@tcp(10.0.232.121:3308)/bl_business?charset=utf8mb4&parseTime=True&loc=Local&timeout=10000ms
-  redis:
-    addr: 127.0.0.1:6379
-    read_timeout: 0.2s
-    write_timeout: 0.2s
-  nats:
-    uri: nats://brillinkdata:MFmi9jAB@10.0.232.121:4222
-    activate: true
-  blAuth:
-    client_id: default
-    client_secret: admin123
-    url: http://10.0.232.22:9080
-    path_check_token: /admin-api/system/oauth2/check-token
-    database:
-      driver: mysql
-      source: blscf:Dzkw46MZDbB7axDC@tcp(10.0.232.121:3308)/bl_basics?charset=utf8mb4&parseTime=True&loc=Local&timeout=10000ms
-  neo4j:
-    url: neo4j://10.0.232.121:7687
-    username: neo4j
-    password: bl@neo4j
-  minio:
-    endpoint: 10.0.232.121:9030
-    access_key: S3Hwi7zX363MubEDfgoY
-    secret_key: aerE2HRXCkUIj2mbzgEyHMrhiNu6wJGJXiEDoh9H
-    use_ssl: false
-  mongoDb:
-    uri: mongodb://root:brillink8818mgo@10.0.232.121:27017
-  service:
-    dwdata_uri: 10.0.232.22:50052
+#server:
+#  http:
+#    addr: 0.0.0.0:8000
+#    timeout: 5s
+#  grpc:
+#    addr: 0.0.0.0:50051
+#    timeout: 5s
+#data:
+#  database:
+#    driver: mysql
+#    source: blscf:Dzkw46MZDbB7axDC@tcp(10.0.232.121:3308)/bl_business?charset=utf8mb4&parseTime=True&loc=Local&timeout=10000ms
+#  redis:
+#    addr: 127.0.0.1:6379
+#    read_timeout: 0.2s
+#    write_timeout: 0.2s
+#  nats:
+#    uri: nats://brillinkdata:MFmi9jAB@10.0.232.121:4222
+#    activate: true
+#  blAuth:
+#    client_id: default
+#    client_secret: admin123
+#    url: http://10.0.232.22:9080
+#    path_check_token: /admin-api/system/oauth2/check-token
+#    database:
+#      driver: mysql
+#      source: blscf:Dzkw46MZDbB7axDC@tcp(10.0.232.121:3308)/bl_basics?charset=utf8mb4&parseTime=True&loc=Local&timeout=10000ms
+#  neo4j:
+#    url: neo4j://10.0.232.121:7687
+#    username: neo4j
+#    password: bl@neo4j
+#  minio:
+#    endpoint: 10.0.232.121:9030
+#    access_key: S3Hwi7zX363MubEDfgoY
+#    secret_key: aerE2HRXCkUIj2mbzgEyHMrhiNu6wJGJXiEDoh9H
+#    use_ssl: false
+#  mongoDb:
+#    uri: mongodb://root:brillink8818mgo@10.0.232.121:27017
+#  service:
+#    dwdata_uri: 10.0.232.22:50052
+#    pipeline_uri: 192.168.44.150:50053

@@ -1,8 +1,9 @@
 from api.pipeline.v1 import pipeline_pb2_grpc, pipeline_pb2
 from internal.data.data import DataRepo
 from google.protobuf.struct_pb2 import Struct
-from internal.data.content_pipeline import ContentPipelineLatest
+from internal.biz.content_pipeline import ContentPipelineLatest
 import http
+import logging
 
 
 class PipelineService(pipeline_pb2_grpc.PipelineServiceServicer):
@@ -11,11 +12,11 @@ class PipelineService(pipeline_pb2_grpc.PipelineServiceServicer):
 
     async def GetContentProcess(
             self, request: pipeline_pb2.GetContentProcessReq, context) -> pipeline_pb2.GetContentProcessResp:
+        logging.info("GetContentProcess req=" + str(request))
 
         doc = await self.repo.mongo_db.get_content(request.content_id)
         pipeline = ContentPipelineLatest(doc=doc, repo=self.repo)
         await pipeline.process()
-
         st = Struct()
         st.update(pipeline.content)
         return pipeline_pb2.GetContentProcessResp(success=True, code=http.HTTPStatus.OK, msg="", data=st)

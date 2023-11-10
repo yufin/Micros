@@ -4,6 +4,7 @@ import pathlib
 import yaml
 from typing import Any, Optional
 
+
 class GRPC(BaseModel):
     addr: str
     timeout: str
@@ -37,4 +38,3 @@ class Bootstrap(BaseModel):
             super().__init__(**d)
         else:
             super().__init__(**data)
-

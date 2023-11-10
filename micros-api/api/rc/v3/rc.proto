@@ -50,6 +50,8 @@ service RcService {
       get: "/micros/rc/v3/report/ahp"
     };
   }
+
+
 }
 
 message GetAhpResultReq {
@@ -152,6 +154,7 @@ message ListReportResp {
 enum ReportVersion {
   V2 = 0;
   V3 = 1;
+  Latest = 2;
 }
 
 message ListReportKwdSearchReq {

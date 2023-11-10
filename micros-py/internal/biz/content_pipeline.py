@@ -15,18 +15,20 @@ pd.set_option('display.max_rows', None)
 
 
 class ContentPipelineLatest:
+    # 用于报文v1版本
+
     def __init__(self, doc: dict, repo: DataRepo):
         # assert doc["version"] == "V2.0"
         self.doc = doc
         self.content: dict = self.doc["content"]['impExpEntReport']
         self.repo = repo
 
-        self.__buff_df = {}
+        self.__buff_df: dict[str, pd.DataFrame] = {}
 
-    def _get_buff_df(self, key: str):
+    def _get_buff_df(self, key: str) -> pd.DataFrame:
         if self.__buff_df.get(key) is None:
             self.__buff_df[key] = pd.DataFrame(self.content[key])
-        return self.__buff_df[key]
+        return self.__buff_df[key].copy()
 
     def _quick_parse(self, key: str, cond: tuple, to_float: bool = False) -> Union[str, float, None]:
         keys = key.split(".")
@@ -45,8 +47,8 @@ class ContentPipelineLatest:
             return _df_filtered[keys[1]]
 
     async def process(self):
-        pprint(self.content)
-        print("===================================== \n")
+        # pprint(self.content)
+        # print("===================================== \n")
 
         # 1.add calculate majorCommodityProportion for trades
         self._major_commodity_proportion("customerDetail_12")
@@ -67,36 +69,100 @@ class ContentPipelineLatest:
 
         # 3.add capitalPaidIn field to businessInfo
         try:
-            subj_d = tag_map[self.content["businessInfo"]["QYMC"]]
+            subj_d = tag_map.get(self.content["businessInfo"]["QYMC"])
             self.content["businessInfo"]["capitalPaidIn"] = None
             if subj_d is not None:
                 self.content["businessInfo"]["capitalPaidIn"] = subj_d["companyInfo"]["paidInCapital"]
+                self.content['subjectCompanyTags'] = {_k: _v for _k, _v in subj_d.items() if _k != "companyInfo"}
             else:
                 pass
         except KeyError:
             pass
+
+        if self.content.get('subjectCompanyTags') is None:
+            self.content['subjectCompanyTags'] = {}
+        self._subj_product_proportion()
+
         # 4.add fincal summary
         self._financial_summary()
 
         self._trading_summary()
 
-    def _purchase_detail_summary(self):
-        df = pd.DataFrame(self.content["customerDetail_12"])
-        # Assuming df is your DataFrame and that it's already been initialized
-        # df = pd.read_csv('your_data.csv')
+        self._revenue_detail_summary()
 
-        # Replace the '%' in the 'ratio_amount_tax' column and cast the column to float
-        df['ratio_amount_tax'] = df['ratio_amount_tax'].str.replace('%', '').astype(float)
+        await self._subject_company_related_info()
 
-        # Filter the DataFrame rows where 'content_id' equals to your_content_id and 'detail_type' equals to 3
+        self._risk_indexes()
 
-        # Sort the DataFrame by 'ratio_amount_tax' in a descending order and limit the DataFrame to your_limit rows
-        df_sorted = df.sort_values(by='ratio_amount_tax', ascending=False).head(5)
+    async def _subject_company_related_info(self):
+        try:
+            usc_id = self.content["businessInfo"]["TYSHXYDM"]
+            assert type(usc_id) is str
+        except Exception:
+            return
+        _, _related = await self.repo.dw_data.get_related(usc_id)
+        self.content["shareholderData"] = _related.get("shareholder")
+        self.content["branchesData"] = _related.get("branch")
+        self.content["investmentData"] = _related.get("investment")
 
-        # Calculate the sum of 'ratio_amount_tax'
-        top5_ratio_sum = df_sorted['ratio_amount_tax'].sum()
+    def _subj_product_proportion(self):
+        _df_selling_sta = self._get_buff_df("sellingSTA")
+        _df_selling_sta = _df_selling_sta[~_df_selling_sta['SSSPDL'].isin(['合计', '其他'])]
+        _df_selling_sta['category'] = _df_selling_sta['SSSPXL'].apply(lambda x: x.split('*')[1])
+        _df_selling_sta['JEZB'] = _df_selling_sta['JEZB'].apply(lambda x: self._to_numeric(x)).astype(float)
+        _df_selling_sta['proportion'] = _df_selling_sta.groupby('category')['JEZB'].transform('sum').astype(str) + '%'
 
-        print(top5_ratio_sum)
+        _df_selling_sta['ssspxl_last'] = _df_selling_sta['SSSPXL'].apply(lambda x: x.split('*')[-1])
+        _df_selling_sta['jezb_bracket'] = '(' + _df_selling_sta['JEZB'].astype(str) + '%' + ')'
+        _df_selling_sta = _df_selling_sta.sort_values(by='JEZB', ascending=False)
+        _df_selling_sta['category_detail'] = _df_selling_sta.groupby('category')['ssspxl_last'].transform(
+            lambda x: ','.join(x + _df_selling_sta.loc[x.index, 'jezb_bracket']))
+
+        result = _df_selling_sta[['category', 'proportion', 'category_detail']].drop_duplicates()
+
+        result['proportion_sort'] = result['proportion'].str.replace('%', '').astype(float)
+        result = result.sort_values(by='proportion_sort', ascending=False).drop('proportion_sort', axis=1)
+        result['proportion'] = result['proportion'].apply(lambda x: str(round(self._to_numeric(x), 2)) + '%')
+        self.content['subjectCompanyTags']['productProportion'] = result.to_dict("records")
+
+        # print(self.content['subjectCompanyTags'])
+
+    def _revenue_detail_summary(self):
+        # lrbDetail
+        lx_year = [
+            self._quick_parse("lrbDetail.SSNRQ", ('XM', '财务费用'), False),
+            self._quick_parse("lrbDetail.SNRQ", ('XM', '财务费用'), False),
+            self._quick_parse("lrbDetail.RQ", ('XM', '财务费用'), False),
+        ]
+        lx_value = [
+            self._quick_parse("lrbDetail.Y2015", ('XM', '财务费用'), False),
+            self._quick_parse("lrbDetail.Y2014", ('XM', '财务费用'), False),
+            self._quick_parse("lrbDetail.Y2013", ('XM', '财务费用'), False),
+        ]
+        self.content['interestObj'] = {
+            'year': lx_year,
+            'value': lx_value,
+        }
+
+        _df_lrb = self._get_buff_df("lrbDetail")
+        _df_lrb_interst = _df_lrb[_df_lrb["XM"] == "其中：利息费用"]
+        _df_lrb_fincost = _df_lrb[_df_lrb["XM"] == "财务费用"]
+
+        replace = False
+        if not _df_lrb_interst.empty and not _df_lrb_fincost.empty:
+            if _df_lrb_interst.iloc[0]['Y2015'] == '0':
+                _df_lrb.loc[_df_lrb["XM"] == "其中：利息费用", 'Y2015'] = _df_lrb_fincost.iloc[0]['Y2015']
+                replace = True
+            if _df_lrb_interst.iloc[0]['Y2014'] == '0':
+                _df_lrb.loc[_df_lrb["XM"] == "其中：利息费用", 'Y2014'] = _df_lrb_fincost.iloc[0]['Y2014']
+                replace = True
+            if _df_lrb_interst.iloc[0]['Y2013'] == '0':
+                _df_lrb.loc[_df_lrb["XM"] == "其中：利息费用", 'Y2014'] = _df_lrb_fincost.iloc[0]['Y2013']
+                replace = True
+
+        if replace:
+            self.content['lrbDetail'] = _df_lrb.to_dict(orient='records')
+        # print(_df_lrb.to_dict(orient='records'))
 
     def _trading_summary(self):
         def __sub_rule(value1: float, value2: float) -> bool:
@@ -165,7 +231,7 @@ class ContentPipelineLatest:
                 _s3 = f"减少{-value:.2f}%，大幅下降"
             return _s3
 
-        def _sub_summary_2():
+        def _sub_summary_2() -> str:
             info = self.content["ydcgqkInfo"]
             last_two_year_cg_time, last_year_cg_time, this_year_cg_time = "", "", ""
             last_two_year_cg_val, last_year_cg_val, this_year_cg_val = 0.0, 0.0, 0.0
@@ -200,7 +266,7 @@ class ContentPipelineLatest:
                 _s2 = f"{last_year_cg_time}年-{this_year_cg_time}年每月平均采购额分别是{last_year_cg_val}、{this_year_cg_val}；整体来看，{last_year_cg_time}年-{this_year_cg_time}年{cg_avg_desc2}。"
             return _s2
 
-        def _sub_summary_1():
+        def _sub_summary_1() -> str:
             info = self.content["ydxsqkInfo"]
             if 'TITLE_2' in info and info['TITLE_2'] == "年月-月均销售额":
                 last_two_year_xs_time = ""
@@ -559,8 +625,140 @@ class ContentPipelineLatest:
         tags = await asyncio.gather(*(self.repo.dw_data.get_tags_by_name(row, True) for row in s))
         return {name: tag for name, tag in tags}
 
+    def _risk_indexes(self):
+        def __lambda_reformat_index_value(template, value, value_type) -> str:
+            if value == "0" or value == "-":
+                return "无"
+            try:
+                new_value = float(value)
+            except ValueError:
+                return value
 
-if __name__ == '__main__':
-    td = {}
+            new_value = round(new_value * 100)
+            if value_type == "percent":
+                return template % new_value
+            elif value_type == "radio":
+                return template % __radio_summary(new_value)
+            else:
+                return template % value
 
-    print(td.get('a'))
+        def __radio_summary(value) -> str:
+            if value <= 10:
+                return "很低"
+            elif 10 < value <= 30:
+                return "较低"
+            elif 30 < value <= 50:
+                return "一般"
+            elif 50 < value <= 70:
+                return "较高"
+            else:
+                return "很高"
+
+        def __day_format(value) -> str:
+            try:
+                new_value = float(value)
+            except ValueError:
+                return value
+
+            return f"{int(round(new_value))}天"
+
+        def __lambda_summary(desc: str, val: str):
+            # desc = item.get("INDEX_DEC", "")
+            # val = item.get("INDEX_VALUE", "")
+            reset_val = ""
+
+            # 先定义一个名称映射字典
+            name_mapping = {
+                "历史变更-企业名称变更": "企业名称变更",
+                "历史变更-地址变更": "地址变更",
+                "变更的风险提示\n（减资）": "是否减资",
+            }
+
+            # 如果 desc 在映射字典中，将其映射为新名称
+            if desc in name_mapping:
+                desc = name_mapping[desc]
+
+            if desc == "企业名称变更":
+                reset_val = __lambda_reformat_index_value("变更企业名称%s次", val, "nopercent")
+            elif desc == "地址变更":
+                reset_val = __lambda_reformat_index_value("变更地址%s次", val, "nopercent")
+            elif desc == "是否减资":
+                try:
+                    v = int(val)
+                    if v > 0:
+                        reset_val = __lambda_reformat_index_value("增资注册资本%s万", val, "nopercent")
+                    elif v < 0:
+                        reset_val = __lambda_reformat_index_value("减资注册资本%s万", val, "nopercent")
+                except ValueError:
+                    reset_val = "无"
+            elif desc == "变更的风险提示\n（变更频繁）":
+                reset_val = __lambda_reformat_index_value("变更%s次", val, "nopercent")
+            elif desc == "金融欠款纠纷":
+                reset_val = __lambda_reformat_index_value("近5年内企业和法人作为被告%s次", val, "nopercent")
+            elif desc == "作为被告裁判文书涉案金额":
+                reset_val = __lambda_reformat_index_value(
+                    "%s（近5年企业民事裁判文书中作为被告涉案金额加总+近5年法人民事裁判文书中作为被告涉案金额加总）/（上年）营业收入",
+                    val, "nopercent")
+            elif desc == "作为原告裁判文书涉案金额":
+                reset_val = __lambda_reformat_index_value(
+                    "%s（近5年企业民事裁判文书中作为原告涉案金额加总+近5年法人民事裁判文书中作为原告涉案金额加总）/（上年）营业收入",
+                    val, "nopercent")
+            elif desc == "法人历史失信记录":
+                reset_val = __lambda_reformat_index_value("近5年法人失信%s次", val, "nopercent")
+            elif desc == "历史被执行人记录":
+                reset_val = __lambda_reformat_index_value("近5年企业被执行%s次", val, "nopercent")
+            elif desc == "工商处罚记录":
+                reset_val = __lambda_reformat_index_value("近5年企业工商处罚%s次", val, "nopercent")
+            elif desc == "收入成长率":
+                reset_val = __lambda_reformat_index_value("%.f%%", val, "percent")
+            elif desc == "毛利润成长率":
+                reset_val = __lambda_reformat_index_value("%.f%%", val, "percent")
+            elif desc == "供应商评价":
+                reset_val = __lambda_reformat_index_value("%.f%%", val, "percent")
+            elif desc == "供应商稳定性":
+                reset_val = __lambda_reformat_index_value("%s", val, "radio")
+            elif desc == "客户评价":
+                reset_val = __lambda_reformat_index_value("%.f%%", val, "percent")
+            elif desc == "客户稳定性":
+                reset_val = __lambda_reformat_index_value("%s", val, "radio")
+            elif desc == "主营业务专注度":
+                reset_val = __lambda_reformat_index_value("%.f%%", val, "percent")
+            elif desc == "净利与毛利波动差异":
+                reset_val = __lambda_reformat_index_value("%s%%", val, "nopercent")
+            elif desc == "现金比率":
+                reset_val = __lambda_reformat_index_value("%.f%%", val, "percent")
+            elif desc == "应收运营周转天数":
+                reset_val = __day_format(val)
+            elif desc == "应付运营周转天数":
+                reset_val = __day_format(val)
+            elif desc == "存货周转天数":
+                reset_val = __day_format(val)
+            return desc, reset_val
+
+        _df_risk_idx = self._get_buff_df('riskIndexes')
+        _df_risk_idx['INDEX_DEC'], _df_risk_idx['INDEX_VALUE'] = zip(
+            *_df_risk_idx.apply(lambda x: __lambda_summary(x['INDEX_DEC'], x['INDEX_VALUE']), axis=1))
+
+        self.content["riskIndexes"] = _df_risk_idx.to_dict("records")
+
+        count = _df_risk_idx['INDEX_FLAG'].value_counts()
+        total = count.sum()
+
+        # 使用 get 方法获取各个值的计数，如果计数为 None 则设置为 0
+        normal = count.get("正常", 0)
+        attention = count.get("关注", 0)
+        ordinary = count.get("普通", 0)
+        abnormal = count.get("异常", 0)
+
+        # 使用列表推导获取异常的 INDEX_DEC 值，如果没有异常则为空列表
+        abnormal_tags = [item['INDEX_DEC'] for item in _df_risk_idx.to_dict(orient="records") if
+                         item['INDEX_FLAG'] == "异常"]
+
+        self.content['riskIndexesSummary'] = {
+            "total": int(total),
+            "normal": int(normal),
+            "attention": int(attention),
+            "ordinary": int(ordinary),
+            "abnormal": int(abnormal),
+            "abnormalTags": abnormal_tags
+        }

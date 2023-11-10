@@ -64,6 +64,7 @@ message Data {
   }
   message Service {
     string dwdata_uri = 1;
+    string pipeline_uri = 2;
   }
   Database database = 1;
   Redis redis = 2;

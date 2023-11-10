@@ -7,6 +7,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"google.golang.org/protobuf/types/known/structpb"
+	pipelineV1 "micros-api/api/pipeline/v1"
 	"micros-api/internal/biz"
 	"micros-api/internal/biz/dto"
 	"net/http"
@@ -27,6 +28,7 @@ type RcServiceServicer struct {
 	rcDecisionFactor   *biz.RcDecisionFactorUsecase
 	ossMetadata        *biz.OssMetadataUsecase
 	mgoRc              *biz.MgoRcUsecase
+	pipelineClient     *biz.ClientPipelineUsecase
 }
 
 func NewRcServiceServicer(
@@ -37,6 +39,7 @@ func NewRcServiceServicer(
 	rro *biz.RcReportOssUsecase,
 	rdf *biz.RcDecisionFactorUsecase,
 	mgo *biz.MgoRcUsecase,
+	plc *biz.ClientPipelineUsecase,
 	logger log.Logger) *RcServiceServicer {
 	return &RcServiceServicer{
 		rcOriginContent:    roc,
@@ -46,6 +49,7 @@ func NewRcServiceServicer(
 		ossMetadata:        omd,
 		rcDecisionFactor:   rdf,
 		mgoRc:              mgo,
+		pipelineClient:     plc,
 		log:                log.NewHelper(logger),
 	}
 }
@@ -311,6 +315,46 @@ func (s *RcServiceServicer) ListReport(ctx context.Context, req *pb.ListReportKw
 
 // GetReportContent 获取企业报告内容
 func (s *RcServiceServicer) GetReportContent(ctx context.Context, req *pb.GetReportContentReq) (*pb.GetReportContentResp, error) {
+	// test dynamic client
+	if req.Version == pb.ReportVersion_Latest {
+		cli := s.pipelineClient.GetClient(ctx)
+		var ver pipelineV1.ReportVersion
+		switch req.Version {
+		case pb.ReportVersion_V2:
+			ver = pipelineV1.ReportVersion_V2
+		case pb.ReportVersion_V3:
+			ver = pipelineV1.ReportVersion_V3
+		case pb.ReportVersion_Latest:
+			ver = pipelineV1.ReportVersion_LATEST
+		default:
+			return nil, errors.New(400, "invalid version", string(req.Version))
+		}
+
+		resp, err := cli.GetContentProcess(context.TODO(), &pipelineV1.GetContentProcessReq{ContentId: req.ContentId, ReportVersion: ver})
+		if err != nil {
+			return nil, err
+		}
+		if !resp.Success {
+			return &pb.GetReportContentResp{
+				Success: false,
+				Code:    http.StatusFailedDependency,
+				Msg:     resp.Msg,
+				Data:    nil,
+			}, nil
+		} else {
+			st, err := structpb.NewStruct(resp.Data.AsMap())
+			if err != nil {
+				return nil, err
+			}
+			return &pb.GetReportContentResp{
+				Success: true,
+				Code:    http.StatusOK,
+				Msg:     "",
+				Data:    st,
+			}, nil
+		}
+	}
+
 	accessible, err := s.rcDecisionFactor.CheckContentIdAccessible(ctx, req.ContentId)
 	if err != nil {
 		return nil, err

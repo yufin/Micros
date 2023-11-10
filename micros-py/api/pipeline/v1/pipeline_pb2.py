@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0epipeline.proto\x12\x12\x61pi.py.pipeline.v1\x1a\x1cgoogle/protobuf/struct.proto\"e\n\x14GetContentProcessReq\x12\x12\n\ncontent_id\x18\x01 \x01(\x03\x12\x39\n\x0ereport_version\x18\x02 \x01(\x0e\x32!.api.py.pipeline.v1.ReportVersion\"j\n\x15GetContentProcessResp\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0c\n\x04\x63ode\x18\x02 \x01(\x05\x12\x0b\n\x03msg\x18\x03 \x01(\t\x12%\n\x04\x64\x61ta\x18\x04 \x01(\x0b\x32\x17.google.protobuf.Struct*0\n\x0e\x43ontentVersion\x12\x0e\n\nCONTENT_V1\x10\x00\x12\x0e\n\nCONTENT_V2\x10\x01*@\n\rReportVersion\x12\r\n\tREPORT_V2\x10\x00\x12\r\n\tREPORT_V3\x10\x01\x12\x11\n\rREPORT_LATEST\x10\x02\x32}\n\x0fPipelineService\x12j\n\x11GetContentProcess\x12(.api.py.pipeline.v1.GetContentProcessReq\x1a).api.py.pipeline.v1.GetContentProcessResp\"\x00\x42H\n\x0f\x61pi.pipeline.v1B\nPipelineV1P\x01Z\'micros-py/api/py/pipeline/v1;pipelineV1b\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0epipeline.proto\x12\x12\x61pi.py.pipeline.v1\x1a\x1cgoogle/protobuf/struct.proto\"e\n\x14GetContentProcessReq\x12\x12\n\ncontent_id\x18\x01 \x01(\x03\x12\x39\n\x0ereport_version\x18\x02 \x01(\x0e\x32!.api.py.pipeline.v1.ReportVersion\"j\n\x15GetContentProcessResp\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0c\n\x04\x63ode\x18\x02 \x01(\x05\x12\x0b\n\x03msg\x18\x03 \x01(\t\x12%\n\x04\x64\x61ta\x18\x04 \x01(\x0b\x32\x17.google.protobuf.Struct*0\n\x0e\x43ontentVersion\x12\x0e\n\nCONTENT_V1\x10\x00\x12\x0e\n\nCONTENT_V2\x10\x01*+\n\rReportVersion\x12\x06\n\x02V2\x10\x00\x12\x06\n\x02V3\x10\x01\x12\n\n\x06LATEST\x10\x02\x32}\n\x0fPipelineService\x12j\n\x11GetContentProcess\x12(.api.py.pipeline.v1.GetContentProcessReq\x1a).api.py.pipeline.v1.GetContentProcessResp\"\x00\x42H\n\x0f\x61pi.pipeline.v1B\nPipelineV1P\x01Z\'micros-py/api/py/pipeline/v1;pipelineV1b\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -25,11 +25,11 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_CONTENTVERSION']._serialized_start=279
   _globals['_CONTENTVERSION']._serialized_end=327
   _globals['_REPORTVERSION']._serialized_start=329
-  _globals['_REPORTVERSION']._serialized_end=393
+  _globals['_REPORTVERSION']._serialized_end=372
   _globals['_GETCONTENTPROCESSREQ']._serialized_start=68
   _globals['_GETCONTENTPROCESSREQ']._serialized_end=169
   _globals['_GETCONTENTPROCESSRESP']._serialized_start=171
   _globals['_GETCONTENTPROCESSRESP']._serialized_end=277
-  _globals['_PIPELINESERVICE']._serialized_start=395
-  _globals['_PIPELINESERVICE']._serialized_end=520
+  _globals['_PIPELINESERVICE']._serialized_start=374
+  _globals['_PIPELINESERVICE']._serialized_end=499
 # @@protoc_insertion_point(module_scope)

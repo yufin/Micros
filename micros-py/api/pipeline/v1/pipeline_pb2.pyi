@@ -13,14 +13,14 @@ class ContentVersion(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
 
 class ReportVersion(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = []
-    REPORT_V2: _ClassVar[ReportVersion]
-    REPORT_V3: _ClassVar[ReportVersion]
-    REPORT_LATEST: _ClassVar[ReportVersion]
+    V2: _ClassVar[ReportVersion]
+    V3: _ClassVar[ReportVersion]
+    LATEST: _ClassVar[ReportVersion]
 CONTENT_V1: ContentVersion
 CONTENT_V2: ContentVersion
-REPORT_V2: ReportVersion
-REPORT_V3: ReportVersion
-REPORT_LATEST: ReportVersion
+V2: ReportVersion
+V3: ReportVersion
+LATEST: ReportVersion
 
 class GetContentProcessReq(_message.Message):
     __slots__ = ["content_id", "report_version"]

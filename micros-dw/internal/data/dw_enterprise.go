@@ -244,14 +244,14 @@ func (repo *DwEnterpriseDataRepo) GetBranches(ctx context.Context, uscId string)
 	if err := repo.data.Mongo.Client.Database("dw").
 		Collection("branchlist").
 		FindOne(context.TODO(), bson.M{"usc_id": uscId},
-			options.FindOne().SetProjection(bson.M{"branches": 1, "_id": 0})).Decode(&res); err != nil {
+			options.FindOne().SetProjection(bson.M{"branch_list": 1, "_id": 0})).Decode(&res); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return nil, nil
 		}
 		return nil, err
 	}
 	var branches struct {
-		Branches []dto.EnterpriseBranches `bson:"branches"`
+		Branches []dto.EnterpriseBranches `bson:"branch_list"`
 	}
 
 	b, err := bson.Marshal(res)
