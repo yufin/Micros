@@ -15,7 +15,7 @@ class PipelineServiceStub(object):
             channel: A grpc.Channel.
         """
         self.GetContentProcess = channel.unary_unary(
-                '/api.py.pipeline.v1.PipelineService/GetContentProcess',
+                '/api.pipeline.v1.PipelineService/GetContentProcess',
                 request_serializer=pipeline__pb2.GetContentProcessReq.SerializeToString,
                 response_deserializer=pipeline__pb2.GetContentProcessResp.FromString,
                 )
@@ -40,7 +40,7 @@ def add_PipelineServiceServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'api.py.pipeline.v1.PipelineService', rpc_method_handlers)
+            'api.pipeline.v1.PipelineService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -59,7 +59,7 @@ class PipelineService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/api.py.pipeline.v1.PipelineService/GetContentProcess',
+        return grpc.experimental.unary_unary(request, target, '/api.pipeline.v1.PipelineService/GetContentProcess',
             pipeline__pb2.GetContentProcessReq.SerializeToString,
             pipeline__pb2.GetContentProcessResp.FromString,
             options, channel_credentials,

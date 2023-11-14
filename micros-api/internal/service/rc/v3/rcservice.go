@@ -70,7 +70,8 @@ func (s *RcServiceServicer) GetAhpResult(ctx context.Context, req *pb.GetAhpResu
 	}
 	data := res["data"].(bson.M)
 	// res to map
-	b, err := bson.MarshalExtJSON(data, false, false)
+	b, err := bson.MarshalExtJSON(
+		data, false, false)
 	if err != nil {
 		return nil, err
 	}

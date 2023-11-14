@@ -12,6 +12,7 @@ from typing import Union
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
+pd.set_option('display.width', 1000)
 
 
 class ContentPipelineLatest:
@@ -25,7 +26,9 @@ class ContentPipelineLatest:
 
         self.__buff_df: dict[str, pd.DataFrame] = {}
 
-    def _get_buff_df(self, key: str) -> pd.DataFrame:
+    def _get_buff_df(self, key: str, use_buf: bool = True) -> pd.DataFrame:
+        if not use_buf:
+            return pd.DataFrame(self.content[key])
         if self.__buff_df.get(key) is None:
             self.__buff_df[key] = pd.DataFrame(self.content[key])
         return self.__buff_df[key].copy()
@@ -46,9 +49,320 @@ class ContentPipelineLatest:
         else:
             return _df_filtered[keys[1]]
 
+    def _summary_supplier_invoice(self):
+        def __parse_established_date(d):
+            try:
+                dt = d.get("companyInfo", {}).get("establishDate", None)
+                return dt
+            except Exception:
+                return None
+
+        def __eval_decades(dt):
+            try:
+                return int(dt.year // 10 * 10)
+            except Exception:
+                return None
+
+        _summary = []
+        _df_sup12 = self._get_buff_df("supplierRanking_12", use_buf=False)
+        _df_sup12 = _df_sup12[~_df_sup12['SALES_NAME'].isin(['合计', '其他'])]
+        _df_sup12["RATIO_AMOUNT_TAX"] = _df_sup12["RATIO_AMOUNT_TAX"].apply(lambda x: self._to_numeric(x) / 100)
+        sup12_desc_tax_ratio = _df_sup12.sort_values(by="RATIO_AMOUNT_TAX", ascending=False)
+        top5_sum_ratio = sup12_desc_tax_ratio.head(5)["RATIO_AMOUNT_TAX"].sum()
+        top20_sum_ratio = sup12_desc_tax_ratio.head(20)["RATIO_AMOUNT_TAX"].sum()
+
+        if top5_sum_ratio < 0.3:
+            desc12_top5 = "很低"
+        elif 0.3 <= top5_sum_ratio < 0.5:
+            desc12_top5 = "较低"
+        elif 0.5 <= top5_sum_ratio < 0.7:
+            desc12_top5 = "比较平均"
+        elif 0.7 <= top5_sum_ratio < 0.9:
+            desc12_top5 = "较高"
+        else:
+            desc12_top5 = "很高"
+
+        _summary.append(
+            f"近12个月前五大供应商合计占比{round(top5_sum_ratio * 100, 2)}%，前20供应商合计占比{round(top20_sum_ratio * 100, 2)}%，供应商集中度{desc12_top5}。"
+        )
+
+        stability = self._quick_parse("riskIndexes.INDEX_VALUE", ('INDEX_DEC', '供应商稳定性'), True)
+        stability *= 100
+        if stability <= 10:
+            stab_desc = "很低，新供应商数量很多"
+        elif 10 < stability <= 30:
+            stab_desc = "较低，新供应商数量较多"
+        elif 30 < stability <= 50:
+            stab_desc = "一般，新老供应商约一半"
+        elif 50 < stability <= 70:
+            stab_desc = "较高，新供应商数量较少"
+        else:
+            stab_desc = "很高，新供应商数量很少"
+        _summary.append(
+            f"近12个月与前12个月重要供应商金额占比重合程度比值为{round(stability, 2)}%,供应商稳定性{stab_desc}"
+        )
+
+        _df_cust24 = self._get_buff_df("supplierRanking_24")
+        _df_cust24 = _df_cust24[~_df_cust24['SALES_NAME'].isin(['合计', '其他'])]
+        _df_cust24["RATIO_AMOUNT_TAX"] = _df_cust24["RATIO_AMOUNT_TAX"].apply(lambda x: self._to_numeric(x) / 100)
+        _df_cust24 = _df_cust24.sort_values(by="RATIO_AMOUNT_TAX", ascending=False)
+        _df_cust24['rank'] = _df_cust24['RATIO_AMOUNT_TAX'].rank(method='first', ascending=False)
+        if not _df_cust24.empty:
+            for i in range(0, min(len(_df_cust24) - 1, 5)):
+                s_cus12_top = sup12_desc_tax_ratio.iloc[i]
+                s_cus12_top_at24 = _df_cust24[_df_cust24["SALES_NAME"] == s_cus12_top["SALES_NAME"]].iloc[0]
+                annual_changed_ratio = (s_cus12_top["RATIO_AMOUNT_TAX"] - s_cus12_top_at24["RATIO_AMOUNT_TAX"]) / \
+                                       s_cus12_top_at24["RATIO_AMOUNT_TAX"] * 100
+                annual_changed_desc = ""
+                if annual_changed_ratio > 0:
+                    if 10 < annual_changed_ratio <= 30:
+                        annual_changed_desc = "近期采购量小幅度提高"
+                    elif 30 < annual_changed_ratio <= 100:
+                        annual_changed_desc = "近期采购量大幅度提高"
+                    elif 100 < annual_changed_ratio <= 170:
+                        annual_changed_desc = "近期采购量约提高了1倍"
+                    elif 170 < annual_changed_ratio:
+                        x = int((annual_changed_ratio - 100) / 70) + 1
+                        annual_changed_desc = f"近期采购量约提高了{x}倍"
+                elif annual_changed_ratio < 0:
+                    if -10 > annual_changed_ratio >= -40:
+                        annual_changed_desc = "近期采购量小幅度下降"
+                    elif -40 > annual_changed_ratio >= -60:
+                        annual_changed_desc = "近期采购量减少约一半"
+                    elif -60 > annual_changed_ratio >= -90:
+                        annual_changed_desc = "近期采购量约大幅减少"
+                    elif -90 > annual_changed_ratio >= -100:
+                        annual_changed_desc = "近期基本没有采购"
+                if annual_changed_desc == "":
+                    annual_changed_desc = "近期采购量基本稳定"
+
+                _summary.append(
+                    f'近12个月第{i + 1}大供应商为{s_cus12_top["SALES_NAME"]}，销售占比为'
+                    f'{round(s_cus12_top["RATIO_AMOUNT_TAX"], 2) * 100}%，近24个月此供应商采购占比为'
+                    f'{round(s_cus12_top_at24["RATIO_AMOUNT_TAX"] * 100, 2)}%，采购排名第'
+                    f'{int(s_cus12_top_at24["rank"])}，近12个月内采购占比相较于24个月内变化'
+                    f'{"+" if annual_changed_ratio > 0 else ""}{round(annual_changed_ratio, 2)}%。{annual_changed_desc}。'
+                )
+        _df_sup12 = _df_sup12.iloc[0:20]
+        _df_sup12['established_at'] = _df_sup12["QYBQ"].apply(lambda x: __parse_established_date(x))
+        _df_sup12['established_at'] = pd.to_datetime(_df_sup12['established_at'], errors="ignore")
+        estab_stat = _df_sup12["established_at"].apply(lambda x: __eval_decades(x)).value_counts().sort_values(
+            ascending=False)
+        prop_stat = estab_stat / estab_stat.sum()
+        if not estab_stat.empty:
+            for i in range(0, len(estab_stat)):
+                _summary.append(
+                    f"近12个月前20大供应商中，成立时间在{int(estab_stat.index[i])}年代的供应商数量为{estab_stat.iloc[i]}家，占比{round(prop_stat.iloc[i] * 100, 1)}%。"
+                )
+        now_year = time.localtime().tm_year
+        recent5_count = len(_df_sup12[_df_sup12["established_at"] > pd.to_datetime(f"{now_year - 5}-01")]),
+        try:
+            recent5_prop = recent5_count / estab_stat.values.sum()
+        except Exception:
+            recent5_prop = 0
+        _summary[-1] += f"{'大部分供应商成立时间较久，经营稳定。' if 0 <= recent5_prop < 0.4 else '大部分供应商是近5年成立，经营稳定性偏弱。'}"
+
+        self.content['purchaseDetailSummary'] = _summary
+
+    def _summary_customer_invoice(self):
+        def __parse_established_date(d):
+            try:
+                dt = d.get("companyInfo", {}).get("establishDate", None)
+                return dt
+            except Exception:
+                return None
+
+        def __eval_decades(dt):
+            try:
+                return int(dt.year // 10 * 10)
+            except Exception:
+                return None
+
+        _summary = []
+        _df_cust12 = self._get_buff_df("customerDetail_12")
+        _df_cust12 = _df_cust12[~_df_cust12['PURCHASER_NAME'].isin(['合计', '其他'])]
+        _df_cust12["RATIO_AMOUNT_TAX"] = _df_cust12["RATIO_AMOUNT_TAX"].apply(lambda x: self._to_numeric(x) / 100)
+        cus12_desc_tax_ratio = _df_cust12.sort_values(by="RATIO_AMOUNT_TAX", ascending=False)
+        top5_sum_ratio = cus12_desc_tax_ratio.head(5)["RATIO_AMOUNT_TAX"].sum()
+        top20_sum_ratio = cus12_desc_tax_ratio.head(20)["RATIO_AMOUNT_TAX"].sum()
+
+        if top5_sum_ratio < 0.3:
+            desc12_top5 = "很低"
+        elif 0.3 <= top5_sum_ratio < 0.5:
+            desc12_top5 = "较低"
+        elif 0.5 <= top5_sum_ratio < 0.7:
+            desc12_top5 = "比较平均"
+        elif 0.7 <= top5_sum_ratio < 0.9:
+            desc12_top5 = "较高"
+        else:
+            desc12_top5 = "很高"
+
+        _summary.append(
+            f"近12个月前五大客户合计占比{round(top5_sum_ratio * 100, 2)}%，前20下游客户合计占比{round(top20_sum_ratio * 100, 2)}%，客户集中度{desc12_top5}。"
+        )
+
+        stability = self._quick_parse("riskIndexes.INDEX_VALUE", ('INDEX_DEC', '客户稳定性'), True)
+        stability *= 100
+        if stability <= 10:
+            stab_desc = "很低，新客户数量很多"
+        elif 10 < stability <= 30:
+            stab_desc = "较低，新客户数量较多"
+        elif 30 < stability <= 50:
+            stab_desc = "一般，新老客户约一半"
+        elif 50 < stability <= 70:
+            stab_desc = "较高，新客户数量较少"
+        else:
+            stab_desc = "很高，新客户数量很少"
+        _summary.append(
+            f"近12个月与前12个月重要客户金额占比重合程度比值为{round(stability, 2)}%,客户稳定性{stab_desc}"
+        )
+
+        _df_cust24 = self._get_buff_df("customerDetail_24")
+        _df_cust24 = _df_cust24[~_df_cust24['PURCHASER_NAME'].isin(['合计', '其他'])]
+        _df_cust24["RATIO_AMOUNT_TAX"] = _df_cust24["RATIO_AMOUNT_TAX"].apply(lambda x: self._to_numeric(x) / 100)
+        _df_cust24 = _df_cust24.sort_values(by="RATIO_AMOUNT_TAX", ascending=False)
+        _df_cust24['rank'] = _df_cust24['RATIO_AMOUNT_TAX'].rank(method='first', ascending=False)
+        if not _df_cust24.empty:
+            for i in range(0, min(len(_df_cust24) - 1, 5)):
+                s_cus12_top = cus12_desc_tax_ratio.iloc[i]
+                s_cus12_top_at24 = _df_cust24[_df_cust24["PURCHASER_NAME"] == s_cus12_top["PURCHASER_NAME"]].iloc[0]
+                annual_changed_ratio = (s_cus12_top["RATIO_AMOUNT_TAX"] - s_cus12_top_at24["RATIO_AMOUNT_TAX"]) / \
+                                       s_cus12_top_at24["RATIO_AMOUNT_TAX"] * 100
+                annual_changed_desc = ""
+                if annual_changed_ratio > 0:
+                    if 10 < annual_changed_ratio <= 30:
+                        annual_changed_desc = "近期订单小幅度提高"
+                    elif 30 < annual_changed_ratio <= 100:
+                        annual_changed_desc = "近期订单大幅度提高"
+                    elif 100 < annual_changed_ratio <= 170:
+                        annual_changed_desc = "近期订单约提高了1倍"
+                    elif 170 < annual_changed_ratio:
+                        x = int((annual_changed_ratio - 100) / 70) + 1
+                        annual_changed_desc = f"近期订单约提高了{x}倍"
+                elif annual_changed_ratio < 0:
+                    if -10 > annual_changed_ratio >= -40:
+                        annual_changed_desc = "近期订单小幅度下降"
+                    elif -40 > annual_changed_ratio >= -60:
+                        annual_changed_desc = "近期订单减少约一半"
+                    elif -60 > annual_changed_ratio >= -90:
+                        annual_changed_desc = "近期订单约大幅减少"
+                    elif -90 > annual_changed_ratio >= -100:
+                        annual_changed_desc = "近期基本没有订单"
+                if annual_changed_desc == "":
+                    annual_changed_desc = "近期订单基本稳定"
+
+                _summary.append(
+                    f'近12个月第{i + 1}大客户为{s_cus12_top["PURCHASER_NAME"]}，销售占比为'
+                    f'{round(s_cus12_top["RATIO_AMOUNT_TAX"], 2) * 100}%，近24个月此客户销售占比为'
+                    f'{round(s_cus12_top_at24["RATIO_AMOUNT_TAX"] * 100, 2)}%，销售排名第'
+                    f'{int(s_cus12_top_at24["rank"])}，近12个月内销售占比相较于24个月内变化'
+                    f'{"+" if annual_changed_ratio > 0 else ""}{round(annual_changed_ratio, 2)}%。{annual_changed_desc}。'
+                )
+
+        _df_cust12 = _df_cust12.iloc[0:20]
+        _df_cust12['established_at'] = _df_cust12["QYBQ"].apply(lambda x: __parse_established_date(x))
+        _df_cust12['established_at'] = pd.to_datetime(_df_cust12['established_at'], errors="ignore")
+        estab_stat = _df_cust12["established_at"].apply(lambda x: __eval_decades(x)).value_counts().sort_values(
+            ascending=False)
+        prop_stat = estab_stat / estab_stat.sum()
+        if not estab_stat.empty:
+            for i in range(0, len(estab_stat)):
+                _summary.append(
+                    f"近12个月前20大客户中，成立时间在{int(estab_stat.index[i])}年代的客户数量为{estab_stat.iloc[i]}家，占比{round(prop_stat.iloc[i] * 100, 1)}%。"
+                )
+        now_year = time.localtime().tm_year
+        recent5_count = len(_df_cust12[_df_cust12["established_at"] > pd.to_datetime(f"{now_year - 5}-01")]),
+        try:
+            recent5_prop = recent5_count / estab_stat.values.sum()
+        except Exception:
+            recent5_prop = 0
+        _summary[
+            -1] += f"{'大部分下游客户成立时间较久，经营稳定。' if 0 <= recent5_prop < 0.4 else '大部分下游客户是近5年成立，经营稳定性偏弱。'}"
+
+        self.content['sellingDetailSummary'] = _summary
+
+    def _selling_sta(self):
+        # 4.5 主要销售商品分类
+        _df_selling_sta = self._get_buff_df('sellingSTA')
+        _selling_sta_total = self._quick_parse("sellingSTA.CGJE", ("SSSPDL", "合计"), True)
+
+        _df_cus_detail_24 = self._get_buff_df('customerDetail_24')
+        # 筛选'PURCHASER_NAME'长度小于等于4，或包含”税“这个字
+        filtered_rows = (_df_cus_detail_24['PURCHASER_NAME'].str.len() <= 4) | _df_cus_detail_24[
+            'PURCHASER_NAME'].str.contains("税")
+        # 最后两行”其他“”合计“去除
+        _person_or_tax_obj = _df_cus_detail_24.loc[filtered_rows, "SUM_AMOUNT_TAX"][:-2]
+        _person_or_tax_total = sum([float(i.replace(',', '')) for i in list(_person_or_tax_obj)])
+
+        # 把_cus_24_total重新赋值给合计
+        _cus_24_total = self._quick_parse("customerDetail_24.SUM_AMOUNT_TAX", ("PURCHASER_NAME", "合计"), True)
+        _df_selling_sta.loc[_df_selling_sta["SSSPDL"] == "合计", "CGJE"] = _cus_24_total
+        # 新“其他”金额 = 原有的“其他”金额 + “个人”或"税局"金额
+        _selling_others_total = self._quick_parse("sellingSTA.CGJE", ("SSSPDL", "其他"), True)
+        _df_selling_sta.loc[_df_selling_sta["SSSPDL"] == "其他", "CGJE"] = _selling_others_total + _person_or_tax_total
+
+        # 创建新行的数据
+        new_row_data = {
+            'SSSPDL': '出口',
+            'CGJE': _cus_24_total - _selling_sta_total - _person_or_tax_total,
+            'JEZB': '--',
+            'SSSPZL': '未开票',
+            'SSSPXL': '--'
+        }
+
+        # 创建包含新行数据的数据框
+        new_row_df = pd.DataFrame([new_row_data])
+
+        # 插入新行到指定位置
+        insert_index = len(_df_selling_sta) - 2
+        _df_selling_sta = pd.concat(
+            [_df_selling_sta.iloc[:insert_index], new_row_df, _df_selling_sta.iloc[insert_index:]], ignore_index=True)
+
+        # 重置索引
+        _df_selling_sta.reset_index(drop=True, inplace=True)
+
+        # 定义一个函数，将数字格式化为字符串并添加千位符
+        def __format_str(money) -> str:
+            if type(money) is str:
+                return money
+            else:
+                return "{:,.2f}".format(money)  # 格式化为带千位符的浮点数字符串
+
+        _df_selling_sta['CGJE'] = _df_selling_sta['CGJE'].apply(__format_str)
+
+        def __count_radio(money, total) -> str:
+            format_money = float(money.replace(",", ""))
+            format_total = float(str(total).replace(",", ""))
+            result = format_money / format_total * 100
+            if result == 100:
+                return "100%"
+            else:
+                return f"{result:.2f}%"
+
+        _df_selling_sta['JEZB'] = _df_selling_sta.apply(lambda x: __count_radio(x['CGJE'], _cus_24_total), axis=1)
+
+        self.content["sellingSTA"] = _df_selling_sta.to_dict(orient="records")
+
+        # 5.5 主要采购商品
+        _df_purchase_sta = self._get_buff_df('purchaseSTA')
+
+        _sup_24_total = self._quick_parse("supplierRanking_24.SUM_AMOUNT_TAX", ("SALES_NAME", "合计"), True)
+        _purchase_sta_total = self._quick_parse("purchaseSTA.CGJE", ("SSSPDL", "合计"), True)
+        # 把_sup_24_total重新赋值给合计
+        _df_purchase_sta.loc[_df_purchase_sta["SSSPDL"] == "合计", "CGJE"] = __format_str(_sup_24_total)
+        # 新“其他”金额 = 原有的“其他”金额 + （_sup_24_total — 原来地合计数字）
+        _sup_others_total = self._quick_parse("purchaseSTA.CGJE", ("SSSPDL", "其他"), True)
+        _df_purchase_sta.loc[_df_purchase_sta["SSSPDL"] == "其他", "CGJE"] = __format_str(_sup_others_total + (
+                _sup_24_total - _purchase_sta_total))
+
+        # 修改“其他”的金额占比
+        _df_purchase_sta['JEZB'] = _df_purchase_sta.apply(lambda x: __count_radio(x['CGJE'], _sup_24_total), axis=1)
+
+        self.content["purchaseSTA"] = _df_purchase_sta.to_dict(orient="records")
+
     async def process(self):
-        # pprint(self.content)
-        # print("===================================== \n")
+        pprint(self.content)
+        print("===================================== \n")
 
         # 1.add calculate majorCommodityProportion for trades
         self._major_commodity_proportion("customerDetail_12")
@@ -93,6 +407,12 @@ class ContentPipelineLatest:
         await self._subject_company_related_info()
 
         self._risk_indexes()
+
+        self._summary_customer_invoice()
+
+        self._summary_supplier_invoice()
+
+        self._selling_sta()
 
     async def _subject_company_related_info(self):
         try:
