@@ -1,10 +1,10 @@
 server:
   grpc:
-    addr: 0.0.0.0:50054
+    addr: 0.0.0.0:50053
     timeout: 10s
 
 data:
   mongodb:
     uri: mongodb://root:dev-password@192.168.44.169:27020
   dwdata:
-    target: 192.168.44.169:50052
+    target: 192.168.44.150:50052

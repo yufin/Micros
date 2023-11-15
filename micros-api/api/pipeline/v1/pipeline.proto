@@ -1,5 +1,5 @@
 syntax = "proto3";
-package api.py.pipeline.v1;
+package api.pipeline.v1;
 
 import "google/protobuf/struct.proto";
 

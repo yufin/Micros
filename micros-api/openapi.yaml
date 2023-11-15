@@ -46,6 +46,10 @@ paths:
                   schema:
                     type: integer
                     format: enum
+                - name: realtime
+                  in: query
+                  schema:
+                    type: boolean
             responses:
                 "200":
                     description: OK

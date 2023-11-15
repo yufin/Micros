@@ -1,0 +1,73 @@
+from dependency_injector import providers, containers
+from loguru import logger
+import pathlib
+from internal.server.grpc_server import GrpcServer
+from internal.service.pipeline_service import PipelineService
+from internal.conf.conf import Bootstrap
+from internal.data.data import DataRepo
+from internal.data.mongo_db import MotorClient
+from internal.data.dw_data_client import DwDataClient
+from internal.server.server import run_server
+import logging
+
+
+class Configs(containers.DeclarativeContainer):
+    config = providers.Singleton(
+        Bootstrap,
+        config_path=str(pathlib.Path(__file__).parents[2].joinpath("configs").joinpath("config.yml"))
+    )
+
+
+class Loggers(containers.DeclarativeContainer):
+    # logging.basicConfig(level=logging.INFO)
+    default_logger = logger
+
+
+class DataClients(containers.DeclarativeContainer):
+    motor_client = providers.Factory(
+        MotorClient,
+        uri=Configs.config().data.mongodb.uri,
+        logger=Loggers.default_logger
+    )
+
+    dw_data_client = providers.Factory(
+        DwDataClient,
+        logger=Loggers.default_logger,
+        target=Configs.config().data.dwdata.target,
+        options=None
+    )
+
+
+class Repos(containers.DeclarativeContainer):
+    data_repo = providers.Factory(
+        DataRepo,
+        mongo_db=DataClients.motor_client,
+        dw_data=DataClients.dw_data_client,
+        logger=Loggers.default_logger
+    )
+
+
+class Services(containers.DeclarativeContainer):
+    pipeline_service = providers.Factory(
+        PipelineService,
+        repo=Repos.data_repo,
+        logger=Loggers.default_logger
+    )
+
+
+class Servers(containers.DeclarativeContainer):
+    grpc_server = providers.Factory(
+        GrpcServer,
+        logger=Loggers.default_logger,
+        addr=Configs.config().server.grpc.addr,
+        pipeline_service=Services.pipeline_service,
+    )
+
+
+class Runners(containers.DeclarativeContainer):
+    server_runner = providers.Callable(
+        run_server,
+        logger=Loggers.default_logger,
+        server=Servers.grpc_server
+    )
+

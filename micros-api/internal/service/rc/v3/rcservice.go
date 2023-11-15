@@ -315,47 +315,7 @@ func (s *RcServiceServicer) ListReport(ctx context.Context, req *pb.ListReportKw
 }
 
 // GetReportContent 获取企业报告内容
-func (s *RcServiceServicer) GetReportContent(ctx context.Context, req *pb.GetReportContentReq) (*pb.GetReportContentResp, error) {
-	// test dynamic client
-	if req.Version == pb.ReportVersion_Latest {
-		cli := s.pipelineClient.GetClient(ctx)
-		var ver pipelineV1.ReportVersion
-		switch req.Version {
-		case pb.ReportVersion_V2:
-			ver = pipelineV1.ReportVersion_V2
-		case pb.ReportVersion_V3:
-			ver = pipelineV1.ReportVersion_V3
-		case pb.ReportVersion_Latest:
-			ver = pipelineV1.ReportVersion_LATEST
-		default:
-			return nil, errors.New(400, "invalid version", string(req.Version))
-		}
-
-		resp, err := cli.GetContentProcess(context.TODO(), &pipelineV1.GetContentProcessReq{ContentId: req.ContentId, ReportVersion: ver})
-		if err != nil {
-			return nil, err
-		}
-		if !resp.Success {
-			return &pb.GetReportContentResp{
-				Success: false,
-				Code:    http.StatusFailedDependency,
-				Msg:     resp.Msg,
-				Data:    nil,
-			}, nil
-		} else {
-			st, err := structpb.NewStruct(resp.Data.AsMap())
-			if err != nil {
-				return nil, err
-			}
-			return &pb.GetReportContentResp{
-				Success: true,
-				Code:    http.StatusOK,
-				Msg:     "",
-				Data:    st,
-			}, nil
-		}
-	}
-
+func (s *RcServiceServicer) GetReportContent(ctx context.Context, req *pb.GetReportContentReq) (*pb.GetReportContentResp, error) { // test dynamic client
 	accessible, err := s.rcDecisionFactor.CheckContentIdAccessible(ctx, req.ContentId)
 	if err != nil {
 		return nil, err
@@ -391,29 +351,47 @@ func (s *RcServiceServicer) GetReportContent(ctx context.Context, req *pb.GetRep
 			return nil, err
 		}
 	case pb.ReportVersion_V3:
-		data, err := s.mgoRc.GetNewestDocByContentId(ctx, req.ContentId)
-		if err != nil {
-			return nil, err
-		}
-		if data == nil {
-			return &pb.GetReportContentResp{
-				Success: false,
-				Code:    http.StatusNoContent,
-				Msg:     "record not found",
-				Data:    nil,
-			}, nil
-		}
-		b, err := bson.MarshalExtJSON(data["content"], false, false)
-		if err != nil {
-			return nil, err
-		}
-		err = json.Unmarshal(b, &m)
-		if err != nil {
-			return nil, err
+		if req.Realtime {
+			cli := s.pipelineClient.GetClient(ctx)
+			resp, err := cli.GetContentProcess(context.TODO(), &pipelineV1.GetContentProcessReq{ContentId: req.ContentId, ReportVersion: pipelineV1.ReportVersion_V3})
+			if err != nil {
+				return nil, err
+			}
+			if !resp.Success {
+				return &pb.GetReportContentResp{
+					Success: false,
+					Code:    http.StatusFailedDependency,
+					Msg:     resp.Msg,
+					Data:    nil,
+				}, nil
+			}
+			m = resp.Data.AsMap()
+		} else {
+			data, err := s.mgoRc.GetNewestDocByContentId(ctx, req.ContentId)
+			if err != nil {
+				return nil, err
+			}
+			if data == nil {
+				return &pb.GetReportContentResp{
+					Success: false,
+					Code:    http.StatusNoContent,
+					Msg:     "record not found",
+					Data:    nil,
+				}, nil
+			}
+			b, err := bson.MarshalExtJSON(data["content"], false, false)
+			if err != nil {
+				return nil, err
+			}
+			err = json.Unmarshal(b, &m)
+			if err != nil {
+				return nil, err
+			}
 		}
 	default:
 		return nil, errors.New(400, "invalid version", string(req.Version))
 	}
+
 	st, err := structpb.NewStruct(m)
 	if err != nil {
 		return nil, err

@@ -219,7 +219,7 @@ func (repo *RcDecisionFactorRepo) ListReportClaimed(ctx context.Context, page *d
 					rc_origin_content.year_month AS data_collect_month,
 					rc_decision_factor.id AS factor_id,
 					rc_decision_factor.lh_qylx AS lh_qylx,
-					rc_decision_factor.created_at AS created_at,
+					rc_origin_content.created_at AS created_at,
 					ROW_NUMBER() OVER (
 						PARTITION BY rc_origin_content.id
 						ORDER BY rc_decision_factor.created_at
@@ -237,7 +237,7 @@ func (repo *RcDecisionFactorRepo) ListReportClaimed(ctx context.Context, page *d
 			COUNT(*) OVER () AS total
 			FROM ordered_rows
 			WHERE rn = 1
-			order by created_at desc
+			order by data_collect_month desc, created_at desc
 			limit ? offset ?;`, kwdStmt), dsi.AccessibleIds, page.PageSize, offset).
 		Scan(&list).
 		Error

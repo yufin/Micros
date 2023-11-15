@@ -167,6 +167,7 @@ message ListReportKwdSearchReq {
 message GetReportContentReq {
   int64 content_id = 1;
   ReportVersion version = 2;
+  bool realtime = 3;
 }
 
 message GetReportContentResp {

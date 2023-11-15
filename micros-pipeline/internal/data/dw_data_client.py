@@ -3,80 +3,103 @@ import grpc
 from typing import Sequence, Optional, Tuple
 import asyncio
 from google.protobuf import json_format
+from logging import Logger
 
 
 class DwDataClient:
-    def __init__(self, target: str, options: Optional[Sequence[Tuple[str, any]]]):
+    def __init__(self,
+                 logger: Logger,
+                 target: str,
+                 options: Optional[Sequence[Tuple[str, any]]]
+                 ):
         self.target = target
         self.options = options
+        self.logger = logger
 
     @property
     def channel(self):
         return grpc.aio.insecure_channel(target=self.target, options=self.options)
 
     async def get_ent_branches(self, usc_id: str) -> dw_data_pb2.GetBranchesResp:
+        self.logger.info("get_ent_branches usc_id=" + usc_id)
         async with self.channel as channel:
             stub = dw_data_pb2_grpc.DwdataServiceStub(channel)
             return await stub.GetEntBranches(dw_data_pb2.GetEntInfoReq(usc_id=usc_id))
 
     async def get_ent_investment(self, usc_id: str) -> dw_data_pb2.GetInvestmentResp:
+        self.logger.info("get_ent_investment usc_id=" + usc_id)
         async with self.channel as channel:
             stub = dw_data_pb2_grpc.DwdataServiceStub(channel)
             return await stub.GetEntInvestment(dw_data_pb2.GetEntInfoReq(usc_id=usc_id))
 
     async def get_ent_shareholders(self, usc_id: str) -> dw_data_pb2.GetShareholdersResp:
+        self.logger.info("get_ent_shareholders usc_id=" + usc_id)
         async with self.channel as channel:
             stub = dw_data_pb2_grpc.DwdataServiceStub(channel)
             return await stub.GetEntShareholders(dw_data_pb2.GetEntInfoReq(usc_id=usc_id))
 
     async def get_ent_equity_transparency(self, usc_id: str) -> dw_data_pb2.GetEquityTransparencyResp:
+        self.logger.info("get_ent_equity_transparency usc_id=" + usc_id)
         async with self.channel as channel:
             stub = dw_data_pb2_grpc.DwdataServiceStub(channel)
             return await stub.GetEntEquityTransparency(dw_data_pb2.GetEntInfoReq(usc_id=usc_id))
 
     async def get_ent_product(self, usc_id: str) -> dw_data_pb2.GetEntStrArrayResp:
+        self.logger.info("get_ent_product usc_id=" + usc_id)
         async with self.channel as channel:
             stub = dw_data_pb2_grpc.DwdataServiceStub(channel)
             return await stub.GetEnterpriseProduct(dw_data_pb2.GetEntInfoReq(usc_id=usc_id))
 
     async def get_ent_industry(self, usc_id: str) -> dw_data_pb2.GetEntStrArrayResp:
+        self.logger.info("get_ent_industry usc_id=" + usc_id)
         async with self.channel as channel:
             stub = dw_data_pb2_grpc.DwdataServiceStub(channel)
             return await stub.GetEnterpriseIndustry(dw_data_pb2.GetEntInfoReq(usc_id=usc_id))
 
     async def get_ent_ranking_list(self, usc_id: str) -> dw_data_pb2.GetEntRankingListResp:
+        self.logger.info("get_ent_ranking_list usc_id=" + usc_id)
         async with self.channel as channel:
             stub = dw_data_pb2_grpc.DwdataServiceStub(channel)
             return await stub.GetEnterpriseRankingList(dw_data_pb2.GetEntInfoReq(usc_id=usc_id))
 
     async def get_ent_credential(self, usc_id: str) -> dw_data_pb2.GetEntCredentialResp:
+        self.logger.info("get_ent_credential usc_id=" + usc_id)
         async with self.channel as channel:
             stub = dw_data_pb2_grpc.DwdataServiceStub(channel)
             return await stub.GetEnterpriseCredential(dw_data_pb2.GetEntInfoReq(usc_id=usc_id))
 
     async def get_ent_info(self, usc_id: str) -> dw_data_pb2.GetEntInfoResp:
+        self.logger.info("get_ent_info usc_id=" + usc_id)
         async with self.channel as channel:
             stub = dw_data_pb2_grpc.DwdataServiceStub(channel)
             return await stub.GetEnterpriseInfo(dw_data_pb2.GetEntInfoReq(usc_id=usc_id))
 
     async def get_ent_ident(self, enterprise_name: str) -> dw_data_pb2.GetEntIdentResp:
+        self.logger.info("get_ent_ident enterprise_name=" + enterprise_name)
         async with self.channel as channel:
             stub = dw_data_pb2_grpc.DwdataServiceStub(channel)
             return await stub.GetEnterpriseIdent(dw_data_pb2.GetEntIdentReq(enterprise_name=enterprise_name))
 
     async def get_tags(self, usc_id: str, with_info: bool = False) -> (str, dict):
+        self.logger.info("get_tags usc_id=" + usc_id)
         async with self.channel as channel:
             stub = dw_data_pb2_grpc.DwdataServiceStub(channel)
             if with_info:
-                info, industry_resp, product_resp, credential_resp, ranking_list_resp = await asyncio.gather(
+                info, industry_resp, product_resp, credential_resp, ranking_list_resp, equity_resp = await asyncio.gather(
                     stub.GetEnterpriseInfo(dw_data_pb2.GetEntInfoReq(usc_id=usc_id)),
                     stub.GetEnterpriseIndustry(dw_data_pb2.GetEntInfoReq(usc_id=usc_id)),
                     stub.GetEnterpriseProduct(dw_data_pb2.GetEntInfoReq(usc_id=usc_id)),
                     stub.GetEnterpriseCredential(dw_data_pb2.GetEntInfoReq(usc_id=usc_id)),
                     stub.GetEnterpriseRankingList(dw_data_pb2.GetEntInfoReq(usc_id=usc_id)),
+                    stub.GetEntEquityTransparency(dw_data_pb2.GetEntInfoReq(usc_id=usc_id)),
                 )
+                company_info_d = json_format.MessageToDict(info.data) if info.success else {}
+                equity_conclusion = equity_resp.conclusion if equity_resp.success else None
+                if equity_conclusion:
+                    company_info_d.update({"equityConclusion": equity_conclusion})
+
                 return usc_id, {
-                    "companyInfo": json_format.MessageToDict(info.data) if info.success else None,
+                    "companyInfo": company_info_d if company_info_d else None,
                     "industryTag": [_i for _i in industry_resp.data] if industry_resp.success else None,
                     "productTag": [_p for _p in product_resp.data] if product_resp.success else None,
                     "authorizedTag": [json_format.MessageToDict(cred) for cred in credential_resp.data[:20]] if credential_resp.success else None,
@@ -97,6 +120,7 @@ class DwDataClient:
                 }
 
     async def get_tags_by_name(self, name: str, with_info: bool = False) -> (str, Optional[dict]):
+        self.logger.info("get_tags_by_name name=" + name)
         ident = await self.get_ent_ident(name)
         if ident.success:
             res = await self.get_tags(ident.data.usc_id, with_info)
@@ -105,17 +129,21 @@ class DwDataClient:
             return name, None
 
     async def get_related(self, usc_id: str) -> (str, Optional[dict]):
+        self.logger.info("get_related usc_id=" + usc_id)
         async with self.channel as channel:
             stub = dw_data_pb2_grpc.DwdataServiceStub(channel)
-            shareholders, branches, investment = await asyncio.gather(
+            shareholders, branches, investment, equity = await asyncio.gather(
                 stub.GetEntShareholders(dw_data_pb2.GetEntInfoReq(usc_id=usc_id)),
                 stub.GetEntBranches(dw_data_pb2.GetEntInfoReq(usc_id=usc_id)),
                 stub.GetEntInvestment(dw_data_pb2.GetEntInfoReq(usc_id=usc_id)),
+                stub.GetEntEquityTransparency(dw_data_pb2.GetEntInfoReq(usc_id=usc_id)),
             )
             return usc_id, {
                 'shareholder': [json_format.MessageToDict(shareholder) for shareholder in shareholders.data] if shareholders.success else None,
                 'branch': [json_format.MessageToDict(branch) for branch in branches.data] if branches.success else None,
                 'investment': [json_format.MessageToDict(invest) for invest in investment.data] if investment.success else None,
+                'equityTransparency': [json_format.MessageToDict(eq) for eq in equity.data] if equity.success else None,
+                'equityConclusion': equity.conclusion if equity.success else None
             }
 
 

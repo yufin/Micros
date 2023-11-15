@@ -1,29 +1,35 @@
 import asyncio
-from pprint import pprint
 from typing import Optional
 import math
-
+from logging import Logger
 import numpy as np
 import pandas as pd
 from pandas import Series
 import time
 from internal.data.data import DataRepo
 from typing import Union
+from pprint import pprint
+from loguru import logger
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 pd.set_option('display.width', 1000)
 
 
-class ContentPipelineLatest:
+class ContentPipelineV3:
     # 用于报文v1版本
 
-    def __init__(self, doc: dict, repo: DataRepo):
+    def __init__(
+            self,
+            logger: Logger,
+            doc: dict,
+            repo: DataRepo
+    ):
         # assert doc["version"] == "V2.0"
+        self.logger: Logger = logger
         self.doc = doc
         self.content: dict = self.doc["content"]['impExpEntReport']
         self.repo = repo
-
         self.__buff_df: dict[str, pd.DataFrame] = {}
 
     def _get_buff_df(self, key: str, use_buf: bool = True) -> pd.DataFrame:
@@ -87,6 +93,8 @@ class ContentPipelineLatest:
         )
 
         stability = self._quick_parse("riskIndexes.INDEX_VALUE", ('INDEX_DEC', '供应商稳定性'), True)
+        if stability is None:
+            stability = 0
         stability *= 100
         if stability <= 10:
             stab_desc = "很低，新供应商数量很多"
@@ -160,7 +168,8 @@ class ContentPipelineLatest:
             recent5_prop = recent5_count / estab_stat.values.sum()
         except Exception:
             recent5_prop = 0
-        _summary[-1] += f"{'大部分供应商成立时间较久，经营稳定。' if 0 <= recent5_prop < 0.4 else '大部分供应商是近5年成立，经营稳定性偏弱。'}"
+        _summary[
+            -1] += f"{'大部分供应商成立时间较久，经营稳定。' if 0 <= recent5_prop < 0.4 else '大部分供应商是近5年成立，经营稳定性偏弱。'}"
 
         self.content['purchaseDetailSummary'] = _summary
 
@@ -202,6 +211,8 @@ class ContentPipelineLatest:
         )
 
         stability = self._quick_parse("riskIndexes.INDEX_VALUE", ('INDEX_DEC', '客户稳定性'), True)
+        if stability is None:
+            stability = 0
         stability *= 100
         if stability <= 10:
             stab_desc = "很低，新客户数量很多"
@@ -273,7 +284,10 @@ class ContentPipelineLatest:
         now_year = time.localtime().tm_year
         recent5_count = len(_df_cust12[_df_cust12["established_at"] > pd.to_datetime(f"{now_year - 5}-01")]),
         try:
-            recent5_prop = recent5_count / estab_stat.values.sum()
+            if not estab_stat.empty:
+                recent5_prop = recent5_count / estab_stat.values.sum()
+            else:
+                recent5_prop = 0
         except Exception:
             recent5_prop = 0
         _summary[
@@ -283,7 +297,8 @@ class ContentPipelineLatest:
 
     def _selling_sta(self):
         # 4.5 主要销售商品分类
-        _df_selling_sta = self._get_buff_df('sellingSTA')
+        _df_selling_sta = self._get_buff_df('sellingSTA', True)
+
         _selling_sta_total = self._quick_parse("sellingSTA.CGJE", ("SSSPDL", "合计"), True)
 
         _df_cus_detail_24 = self._get_buff_df('customerDetail_24')
@@ -331,13 +346,16 @@ class ContentPipelineLatest:
         _df_selling_sta['CGJE'] = _df_selling_sta['CGJE'].apply(__format_str)
 
         def __count_radio(money, total) -> str:
-            format_money = float(money.replace(",", ""))
-            format_total = float(str(total).replace(",", ""))
-            result = format_money / format_total * 100
-            if result == 100:
-                return "100%"
-            else:
-                return f"{result:.2f}%"
+            try:
+                format_money = float(money.replace(",", ""))
+                format_total = float(str(total).replace(",", ""))
+                result = format_money / format_total * 100
+                if result == 100:
+                    return "100%"
+                else:
+                    return f"{result:.2f}%"
+            except Exception:
+                return "0%"
 
         _df_selling_sta['JEZB'] = _df_selling_sta.apply(lambda x: __count_radio(x['CGJE'], _cus_24_total), axis=1)
 
@@ -360,9 +378,9 @@ class ContentPipelineLatest:
 
         self.content["purchaseSTA"] = _df_purchase_sta.to_dict(orient="records")
 
+    @logger.catch
     async def process(self):
-        pprint(self.content)
-        print("===================================== \n")
+        self.content["impJsonDate"] = self.doc["attribute_month"] + "-01"
 
         # 1.add calculate majorCommodityProportion for trades
         self._major_commodity_proportion("customerDetail_12")
@@ -370,16 +388,19 @@ class ContentPipelineLatest:
         self._major_commodity_proportion("supplierRanking_12")
         self._major_commodity_proportion("supplierRanking_24")
 
-        # 2.add tag for companies
         tag_map = await self._gather_tag_dict()
-        for row in self.content["customerDetail_12"]:
-            row["QYBQ"] = tag_map[row["PURCHASER_NAME"]]
-        for row in self.content["customerDetail_24"]:
-            row["QYBQ"] = tag_map[row["PURCHASER_NAME"]]
-        for row in self.content["supplierRanking_12"]:
-            row["QYBQ"] = tag_map[row["SALES_NAME"]]
-        for row in self.content["supplierRanking_24"]:
-            row["QYBQ"] = tag_map[row["SALES_NAME"]]
+        iter_list = [
+            ("supplierRanking_12", "SALES_NAME"),
+            ("supplierRanking_24", "SALES_NAME"),
+            ("customerDetail_12", "PURCHASER_NAME"),
+            ("customerDetail_24", "PURCHASER_NAME")
+        ]
+        for k_item, k_name in iter_list:
+            for row in self.content[k_item]:
+                try:
+                    row["QYBQ"] = tag_map.get(row[k_name])
+                except Exception:
+                    pass
 
         # 3.add capitalPaidIn field to businessInfo
         try:
@@ -424,6 +445,8 @@ class ContentPipelineLatest:
         self.content["shareholderData"] = _related.get("shareholder")
         self.content["branchesData"] = _related.get("branch")
         self.content["investmentData"] = _related.get("investment")
+        self.content["equityTransparency"] = _related.get("equityTransparency")
+        self.content["equityConclusion"] = _related.get("equityConclusion")
 
     def _subj_product_proportion(self):
         _df_selling_sta = self._get_buff_df("sellingSTA")
@@ -555,18 +578,18 @@ class ContentPipelineLatest:
             info = self.content["ydcgqkInfo"]
             last_two_year_cg_time, last_year_cg_time, this_year_cg_time = "", "", ""
             last_two_year_cg_val, last_year_cg_val, this_year_cg_val = 0.0, 0.0, 0.0
-            if 'TITLE3' in info and info['TITLE3'] != "":
+            if 'TITLE3' in info and info['TITLE3'] != "" and info["TITLE3"] is not None:
                 last_two_year_cg_time = info['TITLE1'][:4]
                 last_year_cg_time = info['TITLE2'][:4]
                 this_year_cg_time = info['TITLE3'][:4]
-                last_two_year_cg_val = float(info['HJ_AVG1'].replace(",", ""))
-                last_year_cg_val = float(info['HJ_AVG2'].replace(",", ""))
-                this_year_cg_val = float(info['HJ_AVG3'].replace(",", ""))
+                last_two_year_cg_val = float(info['HJ_AVG1'].replace(",", "") if info['HJ_AVG1'] is not None else 0)
+                last_year_cg_val = float(info['HJ_AVG2'].replace(",", "") if info['HJ_AVG2'] is not None else 0)
+                this_year_cg_val = float(info['HJ_AVG3'].replace(",", "") if info['HJ_AVG3'] is not None else 0)
             else:
                 last_year_cg_time = info['TITLE1'][:4]
                 this_year_cg_time = info['TITLE2'][:4]
-                last_year_cg_val = float(info['HJ_AVG1'].replace(",", ""))
-                this_year_cg_val = float(info['HJ_AVG2'].replace(",", ""))
+                last_year_cg_val = float(info['HJ_AVG1'].replace(",", "") if info['HJ_AVG1'] is not None else 0)
+                this_year_cg_val = float(info['HJ_AVG2'].replace(",", "") if info['HJ_AVG2'] is not None else 0)
             cg_avg1, cg_avg2, cg_avg3 = 0.0, 0.0, 0.0
             if last_two_year_cg_val != 0:
                 cg_avg1 = (last_year_cg_val - last_two_year_cg_val) / last_two_year_cg_val * 100
@@ -594,21 +617,22 @@ class ContentPipelineLatest:
                 last_two_year_xs_time = info['TITLE_2'][:4]
             last_year_xs_time = info['TITLE_1'][:4]
             this_year_xs_time = info['TITLE'][:4]
-            sbavg2 = float(info['SB_AVG_2'].replace(",", ""))
-            sbavg1 = float(info['SB_AVG_1'].replace(",", ""))
-            sbavg = float(info['SB_AVG'].replace(",", ""))
+            sbavg2 = float(info['SB_AVG_2'].replace(",", "") if info["SB_AVG_2"] is not None else 0)
+            sbavg1 = float(info['SB_AVG_1'].replace(",", "") if info["SB_AVG_1"] is not None else 0)
+            sbavg = float(info['SB_AVG'].replace(",", "") if info["SB_AVG"] is not None else 0)
             if sbavg2 != 0:
                 last_two_year_xs_val = sbavg2
             else:
-                last_two_year_xs_val = float(info['FP_XX_AVG_2'].replace(",", ""))
+                last_two_year_xs_val = float(
+                    info['FP_XX_AVG_2'].replace(",", "") if info['FP_XX_AVG_2'] is not None else 0)
             if sbavg1 != 0:
                 last_year_xs_val = sbavg1
             else:
-                last_year_xs_val = float(info['FP_XX_AVG_1'].replace(",", ""))
+                last_year_xs_val = float(info['FP_XX_AVG_1'].replace(",", "") if info['FP_XX_AVG_1'] is not None else 0)
             if sbavg != 0:
                 this_year_xs_val = sbavg
             else:
-                this_year_xs_val = float(info['FP_XX_AVG'].replace(",", ""))
+                this_year_xs_val = float(info['FP_XX_AVG'].replace(",", "") if info['FP_XX_AVG'] is not None else 0)
             xs_avg1, xs_avg2, xs_avg3 = 0.0, 0.0, 0.0
             if last_two_year_xs_val != 0:
                 xs_avg1 = (last_year_xs_val - last_two_year_xs_val) / last_two_year_xs_val * 100
@@ -627,7 +651,6 @@ class ContentPipelineLatest:
             else:
                 _s1 = f"{last_year_xs_time}年-{this_year_xs_time}年每月平均销售额分别是{last_year_xs_val}、{this_year_xs_val}；整体来看，{last_year_xs_time}年-{this_year_xs_time}年{xs_avg_desc2}。"
             return _s1
-
 
         _df_sales = pd.DataFrame(self.content["ydxsqkDetail"])
         _df_purchase = pd.DataFrame(self.content["ydcgqkSTA"])
@@ -648,7 +671,7 @@ class ContentPipelineLatest:
             (merged['SBKJZSR'] - merged['HJ_M']) / merged['SBKJZSR'] * 100
         )
         # Select the necessary columns
-        result = merged[[ 'year', 'result']]
+        result = merged[['year', 'result']]
         # Sort by year in descending order
         result = result.sort_values(by='year', ascending=False)
         res = result.to_dict(orient='records')
@@ -747,7 +770,11 @@ class ContentPipelineLatest:
         if not _df_income.empty:
             _s = _df_income.iloc[0]
             t_last = time.strptime(_s['RQ'], "%Y-%m-%d")
-            _summary1 += f"{_s['SSNRQ']}-{time.strftime('%Y年%m月%d日', t_last)}营业收入是{_s['Y2013']}万元, {_s['Y2014']}万元, {_s['Y2015']}万元；"
+            _summary1 += (f"{_s['SSNRQ']}"
+                          f"-{time.strftime('%Y年%m月%d日', t_last)}营业收入是"
+                          f"{_s['Y2013'] if _s['Y2013'] is not None else '-'}万元, "
+                          f"{_s['Y2014'] if _s['Y2014'] is not None else '-'}万元, "
+                          f"{_s['Y2015'] if _s['Y2015'] is not None else '-'}万元；")
             # t_last.
             last_income = self._to_numeric(_s['Y2015'])
             senior_income = self._to_numeric(_s['Y2014'])
@@ -764,8 +791,13 @@ class ContentPipelineLatest:
                 avg_ratio_latest_str = f'上升{avg_ratio_latest_str}' if avg_ratio_latest >= 0 else f'下降{avg_ratio_latest_str}'
             if avg_ratio_senior is not None:
                 avg_ratio_senior_str = f'上升{avg_ratio_senior_str}' if avg_ratio_senior >= 0 else f'上升{avg_ratio_senior_str}'
-            _summary1 += f"其中{t_last.tm_year}年年初至{time.strftime('%m月%d日', t_last)}月均收入{_s['Y2015']}，同比{avg_ratio_latest_str}，{self._pct_range_desc(avg_ratio_latest * 100)}。"
-            _summary1 += f"{_s['SNRQ']}全年收入同比{avg_ratio_senior_str}, {self._pct_range_desc(avg_ratio_senior * 100)}."
+            if avg_ratio_latest is not None:
+                _summary1 += (f"其中{t_last.tm_year}年年初至{time.strftime('%m月%d日', t_last)}月均收入"
+                              f"{_s['Y2015']}，同比"
+                              f"{avg_ratio_latest_str}，"
+                              f"{self._pct_range_desc(avg_ratio_latest * 100)}。")
+            if avg_ratio_senior is not None:
+                _summary1 += f"{_s['SNRQ']}全年收入同比{avg_ratio_senior_str}, {self._pct_range_desc(avg_ratio_senior * 100)}."
         self.content['lrbAnalysisSummary']['summary1'] = _summary1
 
         _summary2 = ""
@@ -787,8 +819,10 @@ class ContentPipelineLatest:
         quick_ratio_2 = self._quick_parse("finIndexes.INDEX_VALUE_1", ('INDEX_TITLE', '速动比例'), True)
         quick_ratio_3 = self._quick_parse("finIndexes.INDEX_VALUE_2", ('INDEX_TITLE', '速动比例'), True)
         receivable_turnover_days_1 = self._quick_parse("finIndexes.INDEX_VALUE", ('INDEX_TITLE', '应收款周转日'), True)
-        receivable_turnover_days_2 = self._quick_parse("finIndexes.INDEX_VALUE_1", ('INDEX_TITLE', '应收款周转日'),True)
-        receivable_turnover_days_3 = self._quick_parse("finIndexes.INDEX_VALUE_2", ('INDEX_TITLE', '应收款周转日'),True)
+        receivable_turnover_days_2 = self._quick_parse("finIndexes.INDEX_VALUE_1", ('INDEX_TITLE', '应收款周转日'),
+                                                       True)
+        receivable_turnover_days_3 = self._quick_parse("finIndexes.INDEX_VALUE_2", ('INDEX_TITLE', '应收款周转日'),
+                                                       True)
         asset_total_1 = self._quick_parse("zcfzbDetail.NUM2", ('XM', '资产合计'), True)
         # asset_total_2 = self._quick_parse("zcfzbDetail.NUM1", ('XM', '资产合计'), True)
         # asset_total_3 = self._quick_parse("zcfzbDetail.NUM0", ('XM', '资产合计'), True)
@@ -913,9 +947,11 @@ class ContentPipelineLatest:
         _df_trades['_commodity_ratio']: float = _df_trades["COMMODITY_RATIO"].apply(lambda x: self._to_numeric(x))
 
         _df_grouped = _df_trades.groupby(['_major_commodity'])['_sum_amount_tax'].sum().reset_index()
+        if _df_grouped.empty:
+            return
         _df_grouped = _df_grouped.loc[_df_grouped['_sum_amount_tax'].idxmax()].to_frame().T
         major_commodity, sum_amount_tax = _df_grouped['_major_commodity'].values[0], \
-        _df_grouped['_sum_amount_tax'].values[0]
+            _df_grouped['_sum_amount_tax'].values[0]
 
         _df_trades['major_commodity_proportion'] = _df_trades.apply(
             lambda x: x['_commodity_ratio'] / 100 * x['_sum_amount_tax'] / sum_amount_tax
@@ -931,17 +967,32 @@ class ContentPipelineLatest:
     def _to_numeric(x: str) -> Optional[float]:
         try:
             return float(x.replace(",", "").replace("%", ""))
-        except ValueError:
+        except Exception:
             return None
 
     async def _gather_tag_dict(self) -> dict:
         companies: list[str] = [self.content["businessInfo"]["QYMC"]]
-        companies += [row["PURCHASER_NAME"] for row in self.content["customerDetail_12"]]
-        companies += [row["PURCHASER_NAME"] for row in self.content["customerDetail_24"]]
-        companies += [row["SALES_NAME"] for row in self.content["supplierRanking_12"]]
-        companies += [row["SALES_NAME"] for row in self.content["supplierRanking_24"]]
+
+        k_list = [
+            ("supplierRanking_12", "SALES_NAME"),
+            ("supplierRanking_24", "SALES_NAME"),
+            ("customerDetail_12", "PURCHASER_NAME"),
+            ("customerDetail_24", "PURCHASER_NAME")
+        ]
+        for name_k, item_k in k_list:
+            try:
+                for row in self.content[name_k]:
+                    companies.append(row[item_k])
+            except TypeError:
+                pass
+
+        # companies += [row["PURCHASER_NAME"] for row in self.content["customerDetail_12"]]
+        # companies += [row["PURCHASER_NAME"] for row in self.content["customerDetail_24"]]
+        # companies += [row["SALES_NAME"] for row in self.content["supplierRanking_12"]]
+        # companies += [row["SALES_NAME"] for row in self.content["supplierRanking_24"]]
         s = Series(companies)
         s.drop_duplicates(inplace=True)
+
         tags = await asyncio.gather(*(self.repo.dw_data.get_tags_by_name(row, True) for row in s))
         return {name: tag for name, tag in tags}
 

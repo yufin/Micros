@@ -2,12 +2,14 @@
 import pymongo
 import motor.motor_asyncio
 from typing import Optional
+from logging import Logger
 
 
 class MotorClient:
-    def __init__(self, uri: str):
+    def __init__(self, uri: str, logger: Logger):
         # self.__client = pymongo.MongoClient(uri)
         self._async_client = motor.motor_asyncio.AsyncIOMotorClient(uri)
+        self.logger: Logger = logger
 
     @property
     def client(self):
@@ -23,6 +25,13 @@ class MotorClient:
         db = self.client["rc"]
         return await db["raw_content"].find_one(
             {"content_id": content_id},
+            sort=[("created_at", -1)]
+        )
+
+    async def get_content_origin(self, content_id: int) -> Optional[dict]:
+        db = self.client["rc"]
+        return await db["origin_content"].find_one(
+            {"content_id": str(content_id)},
             sort=[("created_at", -1)]
         )
 

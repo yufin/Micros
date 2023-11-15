@@ -79,9 +79,16 @@
             "type": "string",
             "enum": [
               "V2",
-              "V3"
+              "V3",
+              "Latest"
             ],
             "default": "V2"
+          },
+          {
+            "name": "realtime",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
           }
         ],
         "tags": [
@@ -205,7 +212,8 @@
             "type": "string",
             "enum": [
               "V2",
-              "V3"
+              "V3",
+              "Latest"
             ],
             "default": "V2"
           },
@@ -477,7 +485,8 @@
       "type": "string",
       "enum": [
         "V2",
-        "V3"
+        "V3",
+        "Latest"
       ],
       "default": "V2"
     },

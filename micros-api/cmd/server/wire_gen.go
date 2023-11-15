@@ -15,7 +15,6 @@ import (
 	"micros-api/internal/server"
 	"micros-api/internal/service"
 	service2 "micros-api/internal/service/dw/v2"
-	"micros-api/internal/service/rc/v2"
 	"micros-api/internal/service/rc/v3"
 )
 
@@ -78,7 +77,6 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	grpcServer := server.NewGRPCServer(confServer, rcServiceServicer, logger)
 	mgoRcRepo := data.NewMgoRcRepo(dataData, logger)
 	mgoRcUsecase := biz.NewMgoRcUsecase(mgoRcRepo, logger)
-	v2RcServiceServicer := v2.NewRcServiceServicer(rcProcessedContentUsecase, rcOriginContentUsecase, rcDependencyDataUsecase, ossMetadataUsecase, rcReportOssUsecase, mgoRcUsecase, logger)
 	clientPipelineRepo := data.NewClientPipelineRepo(dataData, logger)
 	clientPipelineUsecase := biz.NewClientPipelineUsecase(clientPipelineRepo, logger)
 	v3RcServiceServicer := v3.NewRcServiceServicer(rcProcessedContentUsecase, rcOriginContentUsecase, rcDependencyDataUsecase, ossMetadataUsecase, rcReportOssUsecase, rcDecisionFactorUsecase, mgoRcUsecase, clientPipelineUsecase, logger)
@@ -94,7 +92,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	dwEnterpriseRepo := data.NewDwEnterpriseRepo(dataData, logger)
 	dwEnterpriseUsecase := biz.NewDwEnterpriseUsecase(dwEnterpriseRepo, logger)
 	dwServiceServicer := service2.NewDwServiceServicer(dwEnterpriseUsecase, logger)
-	httpServer := server.NewHTTPServer(confServer, dataData, confData, rcServiceServicer, v2RcServiceServicer, v3RcServiceServicer, rcRdmServiceServicer, treeGraphServiceServicer, netGraphServiceServicer, dwServiceServicer, logger)
+	httpServer := server.NewHTTPServer(confServer, dataData, confData, rcServiceServicer, v3RcServiceServicer, rcRdmServiceServicer, treeGraphServiceServicer, netGraphServiceServicer, dwServiceServicer, logger)
 	app := newApp(logger, grpcServer, httpServer)
 	return app, func() {
 		cleanup3()

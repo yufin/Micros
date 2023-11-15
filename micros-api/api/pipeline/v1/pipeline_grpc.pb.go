@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	PipelineService_GetContentProcess_FullMethodName = "/api.py.pipeline.v1.PipelineService/GetContentProcess"
+	PipelineService_GetContentProcess_FullMethodName = "/api.pipeline.v1.PipelineService/GetContentProcess"
 )
 
 // PipelineServiceClient is the client API for PipelineService service.
@@ -96,7 +96,7 @@ func _PipelineService_GetContentProcess_Handler(srv interface{}, ctx context.Con
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var PipelineService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "api.py.pipeline.v1.PipelineService",
+	ServiceName: "api.pipeline.v1.PipelineService",
 	HandlerType: (*PipelineServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
