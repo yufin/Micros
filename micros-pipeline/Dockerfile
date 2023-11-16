@@ -10,7 +10,7 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 COPY ./requirements.txt .
 
 RUN pip install --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple && \
-    pip install --no-cache-dir -r /opt/requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+    pip install --no-cache-dir -r ./requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 RUN useradd -m admin
 USER admin

@@ -238,10 +238,11 @@ func (s *RcServiceServicer) ListReport(ctx context.Context, req *pb.ListReportKw
 	infos := make([]*pb.ListReportResp_ReportInfo, 0)
 	for _, item := range *list {
 		infos = append(infos, &pb.ListReportResp_ReportInfo{
-			UscId:            item.UscId,
-			ContentId:        item.ContentId,
-			EnterpriseName:   item.EnterpriseName,
-			DataCollectMonth: item.DataCollectMonth,
+			UscId:              item.UscId,
+			ContentId:          item.ContentId,
+			EnterpriseName:     item.EnterpriseName,
+			DataCollectMonth:   item.DataCollectMonth,
+			ContentUpdatedTime: item.CreatedAt.Format("2006-01-02 15:04:05"),
 		})
 	}
 
@@ -256,17 +257,19 @@ func (s *RcServiceServicer) ListReport(ctx context.Context, req *pb.ListReportKw
 		checkProcessedFunc = func(item *pb.ListReportResp_ReportInfo) {
 			defer wg.Done()
 			defer func() { <-sem }()
-			processedId, createdAt, err := s.mgoRc.GetNewestDocInfoByContentId(ctx, item.ContentId)
-			if err != nil {
-				errCh <- err
-				return
-			}
-			if processedId != "" {
-				item.Available = true
-				item.ContentUpdatedTime = createdAt.Format("2006-01-02 15:04:05")
-			} else {
-				item.Available = false
-			}
+			//processedId, createdAt, err := s.mgoRc.GetNewestDocInfoByContentId(ctx, item.ContentId)
+			//if err != nil {
+			//	errCh <- err
+			//	return
+			//}
+			//if processedId != "" {
+			//	item.Available = true
+			//	item.ContentUpdatedTime = createdAt.Format("2006-01-02 15:04:05")
+			//} else {
+			//	item.Available = false
+			//}
+			// 实时版本不需要检查
+			item.Available = true
 		}
 	case pb.ReportVersion_V2:
 		checkProcessedFunc = func(item *pb.ListReportResp_ReportInfo) {
@@ -282,6 +285,7 @@ func (s *RcServiceServicer) ListReport(ctx context.Context, req *pb.ListReportKw
 				item.ContentUpdatedTime = createdAt.Format("2006-01-02 15:04:05")
 			} else {
 				item.Available = false
+				item.ContentUpdatedTime = ""
 			}
 		}
 	default:

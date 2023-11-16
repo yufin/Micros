@@ -37,4 +37,4 @@
 #    uri: mongodb://root:brillink8818mgo@10.0.232.121:27017
 #  service:
 #    dwdata_uri: 10.0.232.22:50052
-#    pipeline_uri: 192.168.44.150:50053
+#    pipeline_uri: 10.0.232.22:50053

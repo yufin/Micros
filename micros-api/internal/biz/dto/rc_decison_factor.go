@@ -1,5 +1,7 @@
 package dto
 
+import "time"
+
 type RcDecisionFactor struct {
 	BaseModel
 	UscId   string
@@ -24,6 +26,7 @@ type ListReportInfo struct {
 	FactorId         int64
 	LhQylx           int
 	Total            int64
+	CreatedAt        time.Time
 }
 
 type RcDecisionFactorClaimed struct {
