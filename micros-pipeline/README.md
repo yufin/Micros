@@ -1,6 +1,12 @@
 
-//  python -m grpc_tools.protoc -I api/pipeline/v1 --python_out=api/pipeline/v1 --grpc_python_out=api/pipeline/v1 --pyi_out=api/pipeline/v1 api/pipeline/v1/pipeline.proto
-// python -m grpc_tools.protoc -I api/dwdata/v2 --python_out=api/dwdata/v2 --grpc_python_out=api/dwdata/v2 --pyi_out=api/dwdata/v2 api/dwdata/v2/dw_data.proto
+###  python -m grpc_tools.protoc -I api/pipeline/v1 --python_out=api/pipeline/v1 --grpc_python_out=api/pipeline/v1 --pyi_out=api/pipeline/v1 api/pipeline/v1/pipeline.proto
+### python -m grpc_tools.protoc -I api/dwdata/v2 --python_out=api/dwdata/v2 --grpc_python_out=api/dwdata/v2 --pyi_out=api/dwdata/v2 api/dwdata/v2/dw_data.proto
+
+### GRPC_PYTHON_LDFLAGS=" -framework CoreFoundation" pip install grpcio==1.60 --no-binary :all:
+### GRPC_PYTHON_LDFLAGS=" -framework CoreFoundation" pip install grpcio-tools==1.60 --no-binary :all:
+### GRPC_PYTHON_LDFLAGS=" -framework CoreFoundation" pip install grpcio-reflection==1.60 --no-binary :all:
+
+
 
 # contentV2变化
 ### 新增字段:

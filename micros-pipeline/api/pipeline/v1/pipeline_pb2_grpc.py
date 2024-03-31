@@ -19,12 +19,56 @@ class PipelineServiceStub(object):
                 request_serializer=pipeline__pb2.GetContentProcessReq.SerializeToString,
                 response_deserializer=pipeline__pb2.GetContentProcessResp.FromString,
                 )
+        self.GetContentValidate = channel.unary_unary(
+                '/api.pipeline.v1.PipelineService/GetContentValidate',
+                request_serializer=pipeline__pb2.GetContentProcessReq.SerializeToString,
+                response_deserializer=pipeline__pb2.GetContentValidateResp.FromString,
+                )
+        self.GetAhpScore = channel.unary_unary(
+                '/api.pipeline.v1.PipelineService/GetAhpScore',
+                request_serializer=pipeline__pb2.GetAhpScoreReq.SerializeToString,
+                response_deserializer=pipeline__pb2.GetAhpScoreResp.FromString,
+                )
+        self.GetTradeDetail = channel.unary_unary(
+                '/api.pipeline.v1.PipelineService/GetTradeDetail',
+                request_serializer=pipeline__pb2.GetTradeDetailReq.SerializeToString,
+                response_deserializer=pipeline__pb2.GetTradeDetailResp.FromString,
+                )
+        self.GetJsonTranslate = channel.unary_unary(
+                '/api.pipeline.v1.PipelineService/GetJsonTranslate',
+                request_serializer=pipeline__pb2.GetJsonTranslateReq.SerializeToString,
+                response_deserializer=pipeline__pb2.GetJsonTranslateResp.FromString,
+                )
 
 
 class PipelineServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def GetContentProcess(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetContentValidate(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetAhpScore(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetTradeDetail(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetJsonTranslate(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -37,6 +81,26 @@ def add_PipelineServiceServicer_to_server(servicer, server):
                     servicer.GetContentProcess,
                     request_deserializer=pipeline__pb2.GetContentProcessReq.FromString,
                     response_serializer=pipeline__pb2.GetContentProcessResp.SerializeToString,
+            ),
+            'GetContentValidate': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetContentValidate,
+                    request_deserializer=pipeline__pb2.GetContentProcessReq.FromString,
+                    response_serializer=pipeline__pb2.GetContentValidateResp.SerializeToString,
+            ),
+            'GetAhpScore': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetAhpScore,
+                    request_deserializer=pipeline__pb2.GetAhpScoreReq.FromString,
+                    response_serializer=pipeline__pb2.GetAhpScoreResp.SerializeToString,
+            ),
+            'GetTradeDetail': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetTradeDetail,
+                    request_deserializer=pipeline__pb2.GetTradeDetailReq.FromString,
+                    response_serializer=pipeline__pb2.GetTradeDetailResp.SerializeToString,
+            ),
+            'GetJsonTranslate': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetJsonTranslate,
+                    request_deserializer=pipeline__pb2.GetJsonTranslateReq.FromString,
+                    response_serializer=pipeline__pb2.GetJsonTranslateResp.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -62,5 +126,73 @@ class PipelineService(object):
         return grpc.experimental.unary_unary(request, target, '/api.pipeline.v1.PipelineService/GetContentProcess',
             pipeline__pb2.GetContentProcessReq.SerializeToString,
             pipeline__pb2.GetContentProcessResp.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def GetContentValidate(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/api.pipeline.v1.PipelineService/GetContentValidate',
+            pipeline__pb2.GetContentProcessReq.SerializeToString,
+            pipeline__pb2.GetContentValidateResp.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def GetAhpScore(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/api.pipeline.v1.PipelineService/GetAhpScore',
+            pipeline__pb2.GetAhpScoreReq.SerializeToString,
+            pipeline__pb2.GetAhpScoreResp.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def GetTradeDetail(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/api.pipeline.v1.PipelineService/GetTradeDetail',
+            pipeline__pb2.GetTradeDetailReq.SerializeToString,
+            pipeline__pb2.GetTradeDetailResp.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def GetJsonTranslate(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/api.pipeline.v1.PipelineService/GetJsonTranslate',
+            pipeline__pb2.GetJsonTranslateReq.SerializeToString,
+            pipeline__pb2.GetJsonTranslateResp.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

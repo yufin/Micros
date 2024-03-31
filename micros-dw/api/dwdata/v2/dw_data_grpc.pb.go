@@ -19,16 +19,23 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	DwdataService_GetEnterpriseIdent_FullMethodName       = "/api.dwdata.v2.DwdataService/GetEnterpriseIdent"
-	DwdataService_GetEnterpriseInfo_FullMethodName        = "/api.dwdata.v2.DwdataService/GetEnterpriseInfo"
-	DwdataService_GetEnterpriseCredential_FullMethodName  = "/api.dwdata.v2.DwdataService/GetEnterpriseCredential"
-	DwdataService_GetEnterpriseRankingList_FullMethodName = "/api.dwdata.v2.DwdataService/GetEnterpriseRankingList"
-	DwdataService_GetEnterpriseIndustry_FullMethodName    = "/api.dwdata.v2.DwdataService/GetEnterpriseIndustry"
-	DwdataService_GetEnterpriseProduct_FullMethodName     = "/api.dwdata.v2.DwdataService/GetEnterpriseProduct"
-	DwdataService_GetEntEquityTransparency_FullMethodName = "/api.dwdata.v2.DwdataService/GetEntEquityTransparency"
-	DwdataService_GetEntShareholders_FullMethodName       = "/api.dwdata.v2.DwdataService/GetEntShareholders"
-	DwdataService_GetEntInvestment_FullMethodName         = "/api.dwdata.v2.DwdataService/GetEntInvestment"
-	DwdataService_GetEntBranches_FullMethodName           = "/api.dwdata.v2.DwdataService/GetEntBranches"
+	DwdataService_GetEnterpriseIdent_FullMethodName            = "/api.dwdata.v2.DwdataService/GetEnterpriseIdent"
+	DwdataService_GetEnterpriseInfo_FullMethodName             = "/api.dwdata.v2.DwdataService/GetEnterpriseInfo"
+	DwdataService_GetEnterpriseCredential_FullMethodName       = "/api.dwdata.v2.DwdataService/GetEnterpriseCredential"
+	DwdataService_GetEnterpriseRankingList_FullMethodName      = "/api.dwdata.v2.DwdataService/GetEnterpriseRankingList"
+	DwdataService_GetEnterpriseIndustry_FullMethodName         = "/api.dwdata.v2.DwdataService/GetEnterpriseIndustry"
+	DwdataService_GetEnterpriseProduct_FullMethodName          = "/api.dwdata.v2.DwdataService/GetEnterpriseProduct"
+	DwdataService_GetEntEquityTransparency_FullMethodName      = "/api.dwdata.v2.DwdataService/GetEntEquityTransparency"
+	DwdataService_GetEntShareholders_FullMethodName            = "/api.dwdata.v2.DwdataService/GetEntShareholders"
+	DwdataService_GetEntInvestment_FullMethodName              = "/api.dwdata.v2.DwdataService/GetEntInvestment"
+	DwdataService_GetEntBranches_FullMethodName                = "/api.dwdata.v2.DwdataService/GetEntBranches"
+	DwdataService_GetForeclosureDisposition_FullMethodName     = "/api.dwdata.v2.DwdataService/GetForeclosureDisposition"
+	DwdataService_GetExecutive_FullMethodName                  = "/api.dwdata.v2.DwdataService/GetExecutive"
+	DwdataService_GetEquityFrozen_FullMethodName               = "/api.dwdata.v2.DwdataService/GetEquityFrozen"
+	DwdataService_GetHighConsumptionRestriction_FullMethodName = "/api.dwdata.v2.DwdataService/GetHighConsumptionRestriction"
+	DwdataService_GetJudicialStatics_FullMethodName            = "/api.dwdata.v2.DwdataService/GetJudicialStatics"
+	DwdataService_GetCourtAnnouncement_FullMethodName          = "/api.dwdata.v2.DwdataService/GetCourtAnnouncement"
+	DwdataService_GetDiscreditedDebtor_FullMethodName          = "/api.dwdata.v2.DwdataService/GetDiscreditedDebtor"
 )
 
 // DwdataServiceClient is the client API for DwdataService service.
@@ -45,6 +52,13 @@ type DwdataServiceClient interface {
 	GetEntShareholders(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*GetShareholdersResp, error)
 	GetEntInvestment(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*GetInvestmentResp, error)
 	GetEntBranches(ctx context.Context, in *GetEntInfoReq, opts ...grpc.CallOption) (*GetBranchesResp, error)
+	GetForeclosureDisposition(ctx context.Context, in *GetEntInfoWithDurationReq, opts ...grpc.CallOption) (*GetJudicialInfoWithDurationResp, error)
+	GetExecutive(ctx context.Context, in *GetEntInfoWithDurationReq, opts ...grpc.CallOption) (*GetJudicialInfoWithDurationResp, error)
+	GetEquityFrozen(ctx context.Context, in *GetEntInfoWithDurationReq, opts ...grpc.CallOption) (*GetJudicialInfoWithDurationResp, error)
+	GetHighConsumptionRestriction(ctx context.Context, in *GetEntInfoWithDurationReq, opts ...grpc.CallOption) (*GetJudicialInfoWithDurationResp, error)
+	GetJudicialStatics(ctx context.Context, in *GetEntInfoWithDurationReq, opts ...grpc.CallOption) (*GetJudicialInfoWithDurationResp, error)
+	GetCourtAnnouncement(ctx context.Context, in *GetEntInfoWithDurationReq, opts ...grpc.CallOption) (*GetJudicialInfoWithDurationResp, error)
+	GetDiscreditedDebtor(ctx context.Context, in *GetEntInfoWithDurationReq, opts ...grpc.CallOption) (*GetJudicialInfoWithDurationResp, error)
 }
 
 type dwdataServiceClient struct {
@@ -145,6 +159,69 @@ func (c *dwdataServiceClient) GetEntBranches(ctx context.Context, in *GetEntInfo
 	return out, nil
 }
 
+func (c *dwdataServiceClient) GetForeclosureDisposition(ctx context.Context, in *GetEntInfoWithDurationReq, opts ...grpc.CallOption) (*GetJudicialInfoWithDurationResp, error) {
+	out := new(GetJudicialInfoWithDurationResp)
+	err := c.cc.Invoke(ctx, DwdataService_GetForeclosureDisposition_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dwdataServiceClient) GetExecutive(ctx context.Context, in *GetEntInfoWithDurationReq, opts ...grpc.CallOption) (*GetJudicialInfoWithDurationResp, error) {
+	out := new(GetJudicialInfoWithDurationResp)
+	err := c.cc.Invoke(ctx, DwdataService_GetExecutive_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dwdataServiceClient) GetEquityFrozen(ctx context.Context, in *GetEntInfoWithDurationReq, opts ...grpc.CallOption) (*GetJudicialInfoWithDurationResp, error) {
+	out := new(GetJudicialInfoWithDurationResp)
+	err := c.cc.Invoke(ctx, DwdataService_GetEquityFrozen_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dwdataServiceClient) GetHighConsumptionRestriction(ctx context.Context, in *GetEntInfoWithDurationReq, opts ...grpc.CallOption) (*GetJudicialInfoWithDurationResp, error) {
+	out := new(GetJudicialInfoWithDurationResp)
+	err := c.cc.Invoke(ctx, DwdataService_GetHighConsumptionRestriction_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dwdataServiceClient) GetJudicialStatics(ctx context.Context, in *GetEntInfoWithDurationReq, opts ...grpc.CallOption) (*GetJudicialInfoWithDurationResp, error) {
+	out := new(GetJudicialInfoWithDurationResp)
+	err := c.cc.Invoke(ctx, DwdataService_GetJudicialStatics_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dwdataServiceClient) GetCourtAnnouncement(ctx context.Context, in *GetEntInfoWithDurationReq, opts ...grpc.CallOption) (*GetJudicialInfoWithDurationResp, error) {
+	out := new(GetJudicialInfoWithDurationResp)
+	err := c.cc.Invoke(ctx, DwdataService_GetCourtAnnouncement_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dwdataServiceClient) GetDiscreditedDebtor(ctx context.Context, in *GetEntInfoWithDurationReq, opts ...grpc.CallOption) (*GetJudicialInfoWithDurationResp, error) {
+	out := new(GetJudicialInfoWithDurationResp)
+	err := c.cc.Invoke(ctx, DwdataService_GetDiscreditedDebtor_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DwdataServiceServer is the server API for DwdataService service.
 // All implementations must embed UnimplementedDwdataServiceServer
 // for forward compatibility
@@ -159,6 +236,13 @@ type DwdataServiceServer interface {
 	GetEntShareholders(context.Context, *GetEntInfoReq) (*GetShareholdersResp, error)
 	GetEntInvestment(context.Context, *GetEntInfoReq) (*GetInvestmentResp, error)
 	GetEntBranches(context.Context, *GetEntInfoReq) (*GetBranchesResp, error)
+	GetForeclosureDisposition(context.Context, *GetEntInfoWithDurationReq) (*GetJudicialInfoWithDurationResp, error)
+	GetExecutive(context.Context, *GetEntInfoWithDurationReq) (*GetJudicialInfoWithDurationResp, error)
+	GetEquityFrozen(context.Context, *GetEntInfoWithDurationReq) (*GetJudicialInfoWithDurationResp, error)
+	GetHighConsumptionRestriction(context.Context, *GetEntInfoWithDurationReq) (*GetJudicialInfoWithDurationResp, error)
+	GetJudicialStatics(context.Context, *GetEntInfoWithDurationReq) (*GetJudicialInfoWithDurationResp, error)
+	GetCourtAnnouncement(context.Context, *GetEntInfoWithDurationReq) (*GetJudicialInfoWithDurationResp, error)
+	GetDiscreditedDebtor(context.Context, *GetEntInfoWithDurationReq) (*GetJudicialInfoWithDurationResp, error)
 	mustEmbedUnimplementedDwdataServiceServer()
 }
 
@@ -195,6 +279,27 @@ func (UnimplementedDwdataServiceServer) GetEntInvestment(context.Context, *GetEn
 }
 func (UnimplementedDwdataServiceServer) GetEntBranches(context.Context, *GetEntInfoReq) (*GetBranchesResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetEntBranches not implemented")
+}
+func (UnimplementedDwdataServiceServer) GetForeclosureDisposition(context.Context, *GetEntInfoWithDurationReq) (*GetJudicialInfoWithDurationResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetForeclosureDisposition not implemented")
+}
+func (UnimplementedDwdataServiceServer) GetExecutive(context.Context, *GetEntInfoWithDurationReq) (*GetJudicialInfoWithDurationResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetExecutive not implemented")
+}
+func (UnimplementedDwdataServiceServer) GetEquityFrozen(context.Context, *GetEntInfoWithDurationReq) (*GetJudicialInfoWithDurationResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetEquityFrozen not implemented")
+}
+func (UnimplementedDwdataServiceServer) GetHighConsumptionRestriction(context.Context, *GetEntInfoWithDurationReq) (*GetJudicialInfoWithDurationResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetHighConsumptionRestriction not implemented")
+}
+func (UnimplementedDwdataServiceServer) GetJudicialStatics(context.Context, *GetEntInfoWithDurationReq) (*GetJudicialInfoWithDurationResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetJudicialStatics not implemented")
+}
+func (UnimplementedDwdataServiceServer) GetCourtAnnouncement(context.Context, *GetEntInfoWithDurationReq) (*GetJudicialInfoWithDurationResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCourtAnnouncement not implemented")
+}
+func (UnimplementedDwdataServiceServer) GetDiscreditedDebtor(context.Context, *GetEntInfoWithDurationReq) (*GetJudicialInfoWithDurationResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDiscreditedDebtor not implemented")
 }
 func (UnimplementedDwdataServiceServer) mustEmbedUnimplementedDwdataServiceServer() {}
 
@@ -389,6 +494,132 @@ func _DwdataService_GetEntBranches_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DwdataService_GetForeclosureDisposition_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEntInfoWithDurationReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DwdataServiceServer).GetForeclosureDisposition(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DwdataService_GetForeclosureDisposition_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DwdataServiceServer).GetForeclosureDisposition(ctx, req.(*GetEntInfoWithDurationReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DwdataService_GetExecutive_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEntInfoWithDurationReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DwdataServiceServer).GetExecutive(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DwdataService_GetExecutive_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DwdataServiceServer).GetExecutive(ctx, req.(*GetEntInfoWithDurationReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DwdataService_GetEquityFrozen_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEntInfoWithDurationReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DwdataServiceServer).GetEquityFrozen(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DwdataService_GetEquityFrozen_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DwdataServiceServer).GetEquityFrozen(ctx, req.(*GetEntInfoWithDurationReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DwdataService_GetHighConsumptionRestriction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEntInfoWithDurationReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DwdataServiceServer).GetHighConsumptionRestriction(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DwdataService_GetHighConsumptionRestriction_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DwdataServiceServer).GetHighConsumptionRestriction(ctx, req.(*GetEntInfoWithDurationReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DwdataService_GetJudicialStatics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEntInfoWithDurationReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DwdataServiceServer).GetJudicialStatics(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DwdataService_GetJudicialStatics_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DwdataServiceServer).GetJudicialStatics(ctx, req.(*GetEntInfoWithDurationReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DwdataService_GetCourtAnnouncement_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEntInfoWithDurationReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DwdataServiceServer).GetCourtAnnouncement(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DwdataService_GetCourtAnnouncement_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DwdataServiceServer).GetCourtAnnouncement(ctx, req.(*GetEntInfoWithDurationReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DwdataService_GetDiscreditedDebtor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEntInfoWithDurationReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DwdataServiceServer).GetDiscreditedDebtor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DwdataService_GetDiscreditedDebtor_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DwdataServiceServer).GetDiscreditedDebtor(ctx, req.(*GetEntInfoWithDurationReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // DwdataService_ServiceDesc is the grpc.ServiceDesc for DwdataService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -435,6 +666,34 @@ var DwdataService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetEntBranches",
 			Handler:    _DwdataService_GetEntBranches_Handler,
+		},
+		{
+			MethodName: "GetForeclosureDisposition",
+			Handler:    _DwdataService_GetForeclosureDisposition_Handler,
+		},
+		{
+			MethodName: "GetExecutive",
+			Handler:    _DwdataService_GetExecutive_Handler,
+		},
+		{
+			MethodName: "GetEquityFrozen",
+			Handler:    _DwdataService_GetEquityFrozen_Handler,
+		},
+		{
+			MethodName: "GetHighConsumptionRestriction",
+			Handler:    _DwdataService_GetHighConsumptionRestriction_Handler,
+		},
+		{
+			MethodName: "GetJudicialStatics",
+			Handler:    _DwdataService_GetJudicialStatics_Handler,
+		},
+		{
+			MethodName: "GetCourtAnnouncement",
+			Handler:    _DwdataService_GetCourtAnnouncement_Handler,
+		},
+		{
+			MethodName: "GetDiscreditedDebtor",
+			Handler:    _DwdataService_GetDiscreditedDebtor_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

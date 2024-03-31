@@ -15,6 +15,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	dwdataV2 "micros-api/api/dwdata/v2"
+	dwdataV3 "micros-api/api/dwdata/v3"
 	pipelineV1 "micros-api/api/pipeline/v1"
 	"micros-api/internal/conf"
 	"micros-api/pkg/miniocli"
@@ -35,6 +36,7 @@ var ProviderSet = wire.NewSet(
 	NewNeoCli,
 	NewMinioClient,
 	NewMgoCli,
+	NewRedisClient,
 
 	NewDwdataServiceClient,
 	NewPipelineServiceClient,
@@ -48,19 +50,25 @@ var ProviderSet = wire.NewSet(
 	NewRcRdmResultRepo,
 	NewRcRdmResDetailRepo,
 	NewMgoRcRepo,
-	NewDwEnterpriseRepo,
+	NewClientDwDataRepo,
 	NewClientPipelineRepo,
 	NewRcDecisionFactorRepo,
+	NewRcDecisionFactorV3Repo,
+	NewRcContentMetaRepo,
+	NewArtifactDataRepo,
+	NewUserAuthRepo,
 )
 
 type Data struct {
 	Db             *gorm.DB
 	DbBl           *gorm.DB
+	Rdb            *Rdb
+	MinioCli       *miniocli.MinioClient
 	Nw             *NatsWrap
 	Neo            *NeoCli
-	MinioCli       *miniocli.MinioClient
 	MgoCli         *MgoCli
 	DwDataClient   dwdataV2.DwdataServiceClient
+	DwDataClientV3 dwdataV3.DwdataServiceClient
 	PipelineClient pipelineV1.PipelineServiceClient
 }
 
@@ -88,36 +96,66 @@ func NewMinioClient(c *conf.Data) (*miniocli.MinioClient, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &miniocli.MinioClient{
 		Cli: moCli,
 	}, nil
 }
 
-func NewDbs(c *conf.Data) (*Dbs, error) {
+func NewDbs(c *conf.Data) (*Dbs, func(), error) {
 	db, err := newGormDB(c.Database.Source)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	dbBl, err := newGormDB(c.BlAuth.Database.Source)
 	if err != nil {
-		return nil, err
+		return nil, func() {
+			sqlDb, err := db.DB()
+			if err != nil {
+				log.Errorf("failed to get sqlDb obj while cleanup: %v", err)
+			}
+			if err := sqlDb.Close(); err != nil {
+				log.Errorf("failed to close db: %v", err)
+			}
+		}, err
 	}
 	return &Dbs{
-		Db:   db,
-		DbBl: dbBl,
-	}, nil
+			Db:   db,
+			DbBl: dbBl,
+		}, func() {
+			sqlDb1, err := db.DB()
+			if err != nil {
+				log.Errorf("failed to get sqlDb obj while cleanup: %v", err)
+			}
+			if err := sqlDb1.Close(); err != nil {
+				log.Errorf("failed to close db: %v", err)
+			}
+			sqlDb2, err := dbBl.DB()
+			if err != nil {
+				log.Errorf("failed to get sqlDb obj while cleanup: %v", err)
+			}
+			if err := sqlDb2.Close(); err != nil {
+				log.Errorf("failed to close db: %v", err)
+			}
+		}, nil
 }
 
-func NewNatsConn(c *conf.Data) (*NatsWrap, error) {
+func NewNatsConn(c *conf.Data) (*NatsWrap, func(), error) {
 	uri := c.Nats.Uri
 	nc, err := nats.Connect(uri)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	// init js
+	cleanUp := func() {
+		if err := nc.Drain(); err != nil {
+			log.Error(err, "nats close error")
+		}
+	}
+
 	js, err := nc.JetStream()
 	if err != nil {
-		return nil, err
+		return nil, cleanUp, err
 	}
 	_, err = js.AddStream(&nats.StreamConfig{
 		Name:      "TASK",
@@ -125,77 +163,63 @@ func NewNatsConn(c *conf.Data) (*NatsWrap, error) {
 		Subjects:  []string{"task.rc.>"},
 	})
 	if err != nil {
-		return nil, err
+		return nil, cleanUp, err
 	}
 	return &NatsWrap{
 		Nc: nc,
 		Js: js,
-	}, nil
+	}, cleanUp, nil
 }
 
-func NewNeoCli(c *conf.Data) (*NeoCli, error) {
+func NewNeoCli(c *conf.Data) (*NeoCli, func(), error) {
 	d, err := neo4j.NewDriverWithContext(c.Neo4J.Url, neo4j.BasicAuth(c.Neo4J.Username, c.Neo4J.Password, ""))
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	err = d.VerifyConnectivity(context.Background())
-	if err != nil {
-		return nil, err
+	cleanUp := func() {
+		if err := d.Close(context.Background()); err != nil {
+			log.Error(err, "neo4j close error")
+		}
 	}
-	return &NeoCli{driver: d}, nil
+
+	//err = d.VerifyConnectivity(context.Background())
+	//if err != nil {
+	//	return nil, err
+	//}
+	return &NeoCli{driver: d}, cleanUp, nil
 }
 
-func NewMgoCli(c *conf.Data) (*MgoCli, error) {
+func NewMgoCli(c *conf.Data) (*MgoCli, func(), error) {
 	cli, err := mongo.Connect(
 		context.Background(),
 		options.Client().ApplyURI(c.MongoDb.Uri),
 	)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, nil, errors.WithStack(err)
+	}
+	cleanUp := func() {
+		if err := cli.Disconnect(context.Background()); err != nil {
+			log.Errorf("failed to close mongo: %v", err)
+		}
 	}
 	err = cli.Ping(context.Background(), readpref.Primary())
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, cleanUp, errors.WithStack(err)
 	}
-	return &MgoCli{Client: cli}, nil
+	return &MgoCli{Client: cli}, cleanUp, nil
 }
 
 // NewData .
 func NewData(
-	logger log.Logger,
 	dbs *Dbs,
 	nw *NatsWrap,
 	neo *NeoCli,
 	miCli *miniocli.MinioClient,
 	mgoCli *MgoCli,
-	dwData dwdataV2.DwdataServiceClient,
+	dwdataCli *DwDataClients,
 	pipeline pipelineV1.PipelineServiceClient,
-) (*Data, func(), error) {
-	ndLog := log.NewHelper(logger)
-
-	cleanup := func() {
-		ndLog.Info("Closing the data resources")
-		for _, db := range []*gorm.DB{dbs.Db, dbs.DbBl} {
-			db := db
-			sqlDb, err := db.DB()
-			if err != nil {
-				ndLog.Errorf("failed to get sqlDb obj while cleanup: %v", err)
-			}
-			if err := sqlDb.Close(); err != nil {
-				ndLog.Errorf("failed to close db: %v", err)
-			}
-		}
-
-		if err := nw.Nc.Drain(); err != nil {
-			ndLog.Errorf("failed to drain nats: %v", err)
-		}
-
-		if err := mgoCli.close(); err != nil {
-			ndLog.Errorf("failed to disconnect mongodb: %v", err)
-		}
-
-		ndLog.Info("Data resource Closed")
-	}
+	rdb *Rdb,
+) (*Data, error) {
 
 	return &Data{
 		Db:             dbs.Db,
@@ -204,7 +228,9 @@ func NewData(
 		Neo:            neo,
 		MinioCli:       miCli,
 		MgoCli:         mgoCli,
-		DwDataClient:   dwData,
+		DwDataClient:   dwdataCli.dwDataV2,
+		DwDataClientV3: dwdataCli.dwDataV3,
 		PipelineClient: pipeline,
-	}, cleanup, nil
+		Rdb:            rdb,
+	}, nil
 }

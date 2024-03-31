@@ -3,7 +3,9 @@ package biz
 import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
+	"go.mongodb.org/mongo-driver/bson"
 	"micros-dw/internal/biz/dto"
+	"time"
 )
 
 type DwEnterpriseRepo interface {
@@ -18,6 +20,9 @@ type DwEnterpriseRepo interface {
 	GetShareholders(ctx context.Context, uscId string) (*[]dto.EnterpriseShareholder, error)
 	GetInvestments(ctx context.Context, uscId string) (*[]dto.EnterpriseInvestment, error)
 	GetBranches(ctx context.Context, uscId string) (*[]dto.EnterpriseBranches, error)
+	GetDocInExtendDuration(ctx context.Context, uscId string, tp time.Time, coll string, extendDate int) (bson.M, error)
+	GetDocInDuration(ctx context.Context, uscId string, tp time.Time, coll string) (bson.M, error)
+	GetDocWithDuration(ctx context.Context, uscId string, tp time.Time, coll string, extendDate int) (map[string]any, error)
 }
 
 type DwEnterpriseUsecase struct {
@@ -77,4 +82,19 @@ func (uc *DwEnterpriseUsecase) GetInvestments(ctx context.Context, uscId string)
 func (uc *DwEnterpriseUsecase) GetBranches(ctx context.Context, uscId string) (*[]dto.EnterpriseBranches, error) {
 	uc.log.WithContext(ctx).Infof("biz.DwEnterpriseUsecase.GetBranches %s", uscId)
 	return uc.repo.GetBranches(ctx, uscId)
+}
+
+func (uc *DwEnterpriseUsecase) GetDocInExtendDuration(ctx context.Context, uscId string, tp time.Time, coll string, extendDate int) (bson.M, error) {
+	uc.log.WithContext(ctx).Infof("biz.DwEnterpriseUsecase.GetDocInExtendDuration %s", uscId)
+	return uc.repo.GetDocInExtendDuration(ctx, uscId, tp, coll, extendDate)
+}
+
+func (uc *DwEnterpriseUsecase) GetDocInDuration(ctx context.Context, uscId string, tp time.Time, coll string) (bson.M, error) {
+	uc.log.WithContext(ctx).Infof("biz.DwEnterpriseUsecase.GetDocInDuration %s", uscId)
+	return uc.repo.GetDocInDuration(ctx, uscId, tp, coll)
+}
+
+func (uc *DwEnterpriseUsecase) GetDocWithDuration(ctx context.Context, uscId string, tp time.Time, coll string, extendDate int) (map[string]any, error) {
+	uc.log.WithContext(ctx).Infof("biz.DwEnterpriseUsecase.GetDocWithDuration %s", uscId)
+	return uc.repo.GetDocWithDuration(ctx, uscId, tp, coll, extendDate)
 }

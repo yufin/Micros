@@ -1,0 +1,30 @@
+server:
+  http:
+    addr: 0.0.0.0:8004
+    timeout: 10s
+  grpc:
+    addr: 0.0.0.0:50054
+    timeout: 10s
+
+data:
+  database:
+    driver: mysql
+    source: root:password-dev@tcp(192.168.44.169:3306)/data_spider?charset=utf8mb4&parseTime=True&loc=Local&timeout=10000ms
+  redis:
+    addr: 192.168.44.169:6379
+    read_timeout: 0.2s
+    write_timeout: 0.2s
+  mongoDb:
+    uri: mongodb://root:dev-password@192.168.44.169:27020
+  vzoomSftp:
+    username: lhgyl
+    password: lhgyl2022
+    uri: 119.147.91.52:8155
+    pool_size: 3
+  temporal:
+    client_uri: 192.168.44.169:7233
+  wechatBot:
+#    hook_content_sync: https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=e305bb2f-1ea3-488d-b7c6-632e1dc66d82
+#    hook_content_sync: https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=89d3031c-b09c-4e16-9792-8397ca9ba2f6
+    hook_content_sync: https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=e305bb2f-1ea3-488d-b7c6-632e1dc66d82
+    env_name: dev

@@ -2,8 +2,9 @@ syntax = "proto3";
 
 package api.rc.v3;
 
-import "google/api/annotations.proto";
 import "google/protobuf/struct.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
 
 option go_package = "micros-api/api/rc/v3;v3";
 option java_multiple_files = true;
@@ -21,7 +22,7 @@ service RcService {
 
   rpc UpdateReportDecisionFactor(UpdateReportDecisionFactorReq) returns (InsertReportDecisionFactorResp) {
     option (google.api.http) = {
-      put: "/micros/rc/v3/report/decision-factor"
+      post: "/micros/rc/v3/report/decision-factor/update"
       body: "*"
     };
   }
@@ -38,10 +39,41 @@ service RcService {
     };
   }
 
+  rpc ListCompanies(ListReportKwdSearchReq) returns (ListCompaniesResp) {
+    option (google.api.http) = {
+      get: "/micros/rc/v3/report/companies"
+    };
+  }
+
+  rpc ListCompaniesWaiting(ListCompanyWaitingReq) returns (ListCompaniesWaitingResp) {
+    option (google.api.http) = {
+      get: "/micros/rc/v3/report/companies/waiting"
+    };
+  }
+
+  rpc ListReportByUscId(ListReportByUscIdReq) returns (ListReportByUscIdResp) {
+    option (google.api.http) = {
+      get: "/micros/rc/v3/report/companies/list"
+    };
+  }
+
 
   rpc GetReportContent(GetReportContentReq) returns (GetReportContentResp) {
     option (google.api.http) = {
       get: "/micros/rc/v3/report/content"
+    };
+  }
+
+  rpc UpdateReportContentSnapshot(UpdateReportContentSnapshotReq) returns (UpdateReportContentSnapshotResp) {
+    option (google.api.http) = {
+      post: "/micros/rc/v3/report/content/snapshot/update"
+      body: "*"
+    };
+  }
+
+  rpc GetReportDataValidationStats(GetReportDataValidationStatsReq) returns (GetReportDataValidationStatsResp) {
+    option (google.api.http) = {
+      get: "/micros/rc/v3/report/validate"
     };
   }
 
@@ -52,7 +84,93 @@ service RcService {
   }
 
 
+  rpc GetTradeDetail(GetTradeDetailReq) returns (GetTradeDetailResp) {
+    option (google.api.http) = {
+      get: "/micros/rc/v3/report/trade_detail"
+    };
+  }
+
+  rpc GetReportPrintConfig(google.protobuf.Empty) returns (GetReportPrintConfigResp) {
+    option (google.api.http) = {
+      get: "/micros/rc/v3/report/print_config"
+    };
+  }
+
+  rpc UpdateReportPrintConfig(SaveReportPrintConfigReq) returns (SaveReportPrintConfigResp) {
+    option (google.api.http) = {
+      post: "/micros/rc/v3/report/print_config/update"
+      body: "*"
+    };
+  }
 }
+
+message SaveReportPrintConfigReq {
+  google.protobuf.Struct config = 1;
+}
+
+message SaveReportPrintConfigResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+}
+
+message GetReportPrintConfigResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  google.protobuf.Struct config = 4;
+}
+
+message UpdateReportContentSnapshotReq {
+  int64 content_id = 1;
+  ReportVersion report_version = 2;
+}
+
+message UpdateReportContentSnapshotResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+}
+
+message GetTradeDetailReq {
+  enum TimePeriodOption {
+    PERIOD_1ST = 0;
+    PERIOD_2ND = 1;
+    PERIOD_3RD = 2;
+    PERIOD_4TH = 3;
+  }
+  enum TradeFrequencyOption {
+    FREQUENCY_LOW = 0;
+    FREQUENCY_MID = 1;
+    FREQUENCY_HIGH = 2;
+  }
+  enum TopCusOption {
+    TOP_1 = 0;
+    TOP_5 = 1;
+    TOP_10 = 2;
+    TOP_20 = 3;
+    ALL = 4;
+  }
+  enum TradeType {
+    CUSTOMER = 0;
+    SUPPLIER = 1;
+  }
+
+  int64 content_id = 1;
+  ReportVersion report_version = 2;
+  repeated TimePeriodOption option_time_period = 3;
+  TopCusOption option_top_cus = 4;
+  repeated TradeFrequencyOption option_trade_frequency = 5;
+  TradeType trade_type = 6;
+}
+
+message GetTradeDetailResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  google.protobuf.Struct data = 4;
+}
+
 
 message GetAhpResultReq {
   int64 claim_id = 1;
@@ -126,6 +244,38 @@ message UpdateDependencyDataReq{
   string addition_data = 8;
 }
 
+message ListCompaniesWaitingResp {
+  message CompaniesWaiting {
+    // 企业名称
+    string usc_id = 1;
+    // 企业统一信用社会代码
+    string created_at = 2;
+    string id = 3;
+  }
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  uint32 total = 4;
+  repeated CompaniesWaiting data = 5;
+}
+
+
+message ListCompaniesResp {
+  message CompanyInfo {
+    // 企业名称
+    string enterprise_name = 1;
+    // 企业统一信用社会代码
+    string usc_id = 2;
+    string last_update = 3;
+    string id =4;
+  }
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  uint32 total = 4;
+  repeated CompanyInfo data = 5;
+}
+
 message ListReportResp {
   message ReportInfo {
     // 报告id
@@ -151,10 +301,35 @@ message ListReportResp {
   repeated ReportInfo data = 6;
 }
 
+message ListReportByUscIdResp {
+  message ReportInfo {
+    int64 content_id = 1;
+    string data_collect_month = 4;
+    bool available = 5;
+    string content_updated_time = 6;
+    string id = 7;
+    int32 status = 8;
+    string create_by = 9;
+  }
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  uint32 total = 4;
+  repeated ReportInfo data = 6;
+}
+
 enum ReportVersion {
   V2 = 0;
-  V3 = 1;
-  Latest = 2;
+  V2_5 = 1;
+  V3 = 2;
+  Latest = 3;
+}
+
+message ListCompanyWaitingReq {
+  ReportVersion version = 1;
+  string uscid_kwd = 2;
+  uint32 page_size = 3;
+  uint32 page_num = 4;
 }
 
 message ListReportKwdSearchReq {
@@ -164,11 +339,20 @@ message ListReportKwdSearchReq {
   uint32 page_num = 4;
 }
 
+message ListReportByUscIdReq {
+  ReportVersion version = 1;
+  string usc_id = 2;
+  uint32 page_size = 3;
+  uint32 page_num = 4;
+}
+
+
 message GetReportContentReq {
   int64 content_id = 1;
   ReportVersion version = 2;
   bool realtime = 3;
 }
+
 
 message GetReportContentResp {
   // 报告内容
@@ -177,6 +361,20 @@ message GetReportContentResp {
   string msg = 3;
   google.protobuf.Struct data = 4;
 }
+
+message GetReportDataValidationStatsReq {
+  int64 content_id = 1;
+  ReportVersion version = 2;
+}
+
+message GetReportDataValidationStatsResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  repeated google.protobuf.Struct data = 4;
+}
+
+
 //message ReportContentByDepIdReq {
 //  int64 dep_id = 1;
 //  string lang = 2;

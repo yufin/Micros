@@ -16,6 +16,9 @@ type RcDecisionFactorRepo interface {
 	GetByContentIdWithDataScope(ctx context.Context, contentId int64) (*dto.RcDecisionFactorClaimed, error)
 	GetClaimRecord(ctx context.Context, claimId int64) (*dto.RcContentFactorClaim, error)
 	InsertClaim(ctx context.Context, data *dto.RcContentFactorClaim) (int64, error)
+	ListCompanies(ctx context.Context, page *dto.PaginationReq, kwd string) (*[]dto.ListCompaniesInfo, int64, error)
+	ListReportClaimedByUscId(ctx context.Context, page *dto.PaginationReq, uscId string) (*[]dto.ListReportInfo, int64, error)
+	SyncClaimed(ctx context.Context, uscId string, version string) error
 }
 
 type RcDecisionFactorUsecase struct {
@@ -65,4 +68,19 @@ func (uc *RcDecisionFactorUsecase) GetWithDataScope(ctx context.Context, id int6
 func (uc *RcDecisionFactorUsecase) CheckContentIdAccessible(ctx context.Context, contentId int64) (bool, error) {
 	uc.log.WithContext(ctx).Infof("biz.RcDecisionFactorUsecase.CheckContentIdAccessible %v", contentId)
 	return uc.repo.CheckContentIdAccessible(ctx, contentId)
+}
+
+func (uc *RcDecisionFactorUsecase) ListCompanies(ctx context.Context, page *dto.PaginationReq, kwd string) (*[]dto.ListCompaniesInfo, int64, error) {
+	uc.log.WithContext(ctx).Infof("biz.RcDecisionFactorUsecase.ListCompanies %v", page)
+	return uc.repo.ListCompanies(ctx, page, kwd)
+}
+
+func (uc *RcDecisionFactorUsecase) ListReportClaimedByUscId(ctx context.Context, page *dto.PaginationReq, uscId string) (*[]dto.ListReportInfo, int64, error) {
+	uc.log.WithContext(ctx).Infof("biz.RcDecisionFactorUsecase.ListReportClaimedByUscId %v", uscId)
+	return uc.repo.ListReportClaimedByUscId(ctx, page, uscId)
+}
+
+func (uc *RcDecisionFactorUsecase) SyncClaimed(ctx context.Context, uscId string, version string) error {
+	uc.log.WithContext(ctx).Infof("biz.RcDecisionFactorUsecase.SyncClaimed %v", uscId)
+	return uc.repo.SyncClaimed(ctx, uscId, version)
 }

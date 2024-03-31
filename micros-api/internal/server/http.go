@@ -7,6 +7,7 @@ import (
 	"github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/go-kratos/swagger-api/openapiv2"
 	dwV22 "micros-api/api/dw/v2"
+	dwV3 "micros-api/api/dw/v3"
 	gv1 "micros-api/api/graph/v1"
 	rcv1 "micros-api/api/rc/v1"
 	rcv3 "micros-api/api/rc/v3"
@@ -15,6 +16,7 @@ import (
 	"micros-api/internal/midware"
 	"micros-api/internal/service"
 	dwV2 "micros-api/internal/service/dw/v2"
+	dwV3servie "micros-api/internal/service/dw/v3"
 	v3 "micros-api/internal/service/rc/v3"
 )
 
@@ -28,6 +30,7 @@ func NewHTTPServer(c *conf.Server,
 	tgs *service.TreeGraphServiceServicer,
 	ngs *service.NetGraphServiceServicer,
 	dwV2Ent *dwV2.DwServiceServicer,
+	dwv3 *dwV3servie.DwServiceServicer,
 	logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		// 一个请求进入时的处理顺序为 Middleware 注册的顺序，而响应返回的处理顺序为注册顺序的倒序
@@ -36,6 +39,7 @@ func NewHTTPServer(c *conf.Server,
 			logging.Server(logger),
 			midware.BlAuth(confData, data),
 		),
+		http.ResponseEncoder(CustomResponseEncoder),
 	}
 	if c.Http.Network != "" {
 		opts = append(opts, http.Network(c.Http.Network))
@@ -57,6 +61,11 @@ func NewHTTPServer(c *conf.Server,
 	rcv1.RegisterRcRdmServiceHTTPServer(srv, rrs)
 	gv1.RegisterNetGraphServiceHTTPServer(srv, ngs)
 	dwV22.RegisterDwServiceHTTPServer(srv, dwV2Ent)
-
+	dwV3.RegisterDwServiceHTTPServer(srv, dwv3)
 	return srv
+}
+
+func CustomResponseEncoder(w http.ResponseWriter, r *http.Request, v interface{}) error {
+	w.Header().Set("Cache-Control", "no-store")
+	return http.DefaultResponseEncoder(w, r, v)
 }

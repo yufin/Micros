@@ -1,0 +1,27 @@
+server:
+  grpc:
+    addr: 0.0.0.0:50053
+    timeout: 200s
+  registry:
+    consul:
+      addr: '192.168.44.169'
+      port: 8500
+      token: '5a2af290-6fb4-23ff-66b8-1b9a8aa89b7f'
+
+data:
+  mongodb:
+    uri: mongodb://root:brillink8818mgo@10.0.232.121:27017
+  dwdata:
+    target: 10.0.232.22:50052
+  sqldb:
+    host: 10.0.232.121
+    port: 3308
+    user: blscf
+    password: Dzkw46MZDbB7axDC
+    db: bl_business
+  baidu_translate_api:
+    app_id: '20221108001442272'
+    secret_key: Afkrj0NefMvyNNiTw8qi
+    url: https://fanyi-api.baidu.com/api/trans/vip/fieldtranslate
+tls:
+  folder_path: /data/certs

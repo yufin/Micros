@@ -11,6 +11,7 @@ import (
 	"gorm.io/gorm"
 	"micros-dw/internal/biz"
 	"micros-dw/internal/biz/dto"
+	"time"
 )
 
 type DwEnterpriseDataRepo struct {
@@ -154,7 +155,7 @@ func (repo *DwEnterpriseDataRepo) GetEntProduct(ctx context.Context, uscId strin
 
 func (repo *DwEnterpriseDataRepo) GetEntEquityTransparency(ctx context.Context, uscId string) (*dto.EnterpriseEquityTransparency, error) {
 	data := bson.M{}
-	err := repo.data.Mongo.Client.Database("dw").Collection("penetration").FindOne(
+	err := repo.data.Mongo.Client.Database("dw").Collection("basic_penetration").FindOne(
 		context.TODO(),
 		bson.M{"usc_id": uscId},
 	).Decode(&data)
@@ -191,7 +192,7 @@ func (repo *DwEnterpriseDataRepo) GetEntEquityTransparency(ctx context.Context, 
 func (repo *DwEnterpriseDataRepo) GetShareholders(ctx context.Context, uscId string) (*[]dto.EnterpriseShareholder, error) {
 	var res bson.M
 	if err := repo.data.Mongo.Client.Database("dw").
-		Collection("shareholders").
+		Collection("basic_shareholders").
 		FindOne(context.TODO(), bson.M{"usc_id": uscId}).Decode(&res); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return nil, nil
@@ -217,7 +218,7 @@ func (repo *DwEnterpriseDataRepo) GetShareholders(ctx context.Context, uscId str
 func (repo *DwEnterpriseDataRepo) GetInvestments(ctx context.Context, uscId string) (*[]dto.EnterpriseInvestment, error) {
 	var res bson.M
 	if err := repo.data.Mongo.Client.Database("dw").
-		Collection("investment").
+		Collection("basic_investment").
 		FindOne(context.TODO(), bson.M{"usc_id": uscId}).Decode(&res); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return nil, nil
@@ -242,7 +243,7 @@ func (repo *DwEnterpriseDataRepo) GetInvestments(ctx context.Context, uscId stri
 func (repo *DwEnterpriseDataRepo) GetBranches(ctx context.Context, uscId string) (*[]dto.EnterpriseBranches, error) {
 	var res bson.M
 	if err := repo.data.Mongo.Client.Database("dw").
-		Collection("branchlist").
+		Collection("basic_branchlist").
 		FindOne(context.TODO(), bson.M{"usc_id": uscId},
 			options.FindOne().SetProjection(bson.M{"branch_list": 1, "_id": 0})).Decode(&res); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
@@ -263,4 +264,94 @@ func (repo *DwEnterpriseDataRepo) GetBranches(ctx context.Context, uscId string)
 		return nil, err
 	}
 	return &branches.Branches, nil
+}
+
+func (repo *DwEnterpriseDataRepo) GetDocInDuration(ctx context.Context, uscId string, tp time.Time, coll string) (bson.M, error) {
+	var res bson.M
+
+	filter := bson.D{
+		{"$and", []bson.D{
+			{{"date", bson.D{{"$lte", tp}}}},
+			{{"check_date", bson.D{{"$gte", tp}}}},
+			{{"usc_id", uscId}},
+		}},
+	}
+
+	err := repo.data.Mongo.Client.Database("dw").
+		Collection(coll).
+		FindOne(context.TODO(), filter).
+		Decode(&res)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return res, nil
+}
+
+func (repo *DwEnterpriseDataRepo) GetDocInExtendDuration(ctx context.Context, uscId string, tp time.Time, collName string, extendDate int) (bson.M, error) {
+	var res bson.M
+
+	pipeline := mongo.Pipeline{
+		{
+			{"$addFields", bson.D{
+				{"valid_time_end", bson.D{{"$add", bson.A{"$check_date", extendDate * 24 * 60 * 60000}}}},
+			}},
+		},
+		{
+			{"$match", bson.D{
+				{"$and", bson.A{
+					bson.D{{"date", bson.D{{"$lte", tp}}}},
+					bson.D{{"valid_time_end", bson.D{{"$gte", tp}}}},
+					bson.D{{"usc_id", uscId}},
+				}},
+			}},
+		},
+		{
+			{"$project", bson.D{
+				{"valid_time_end", 0},
+			}},
+		},
+	}
+	cur, err := repo.data.Mongo.Client.Database("dw").Collection(collName).Aggregate(context.TODO(), pipeline)
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(context.TODO())
+
+	if cur.TryNext(context.TODO()) {
+		if err := cur.Decode(&res); err != nil {
+			if errors.Is(err, mongo.ErrNoDocuments) {
+				return nil, nil
+			}
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (repo *DwEnterpriseDataRepo) GetDocWithDuration(ctx context.Context, uscId string, tp time.Time, coll string, extendDate int) (map[string]any, error) {
+	res, err := repo.GetDocInDuration(ctx, uscId, tp, coll)
+	if err != nil {
+		return nil, err
+	}
+	if res == nil {
+		res, err = repo.GetDocInExtendDuration(ctx, uscId, tp, coll, extendDate)
+		if err != nil {
+			return nil, err
+		}
+	}
+	var m map[string]any
+	if res != nil {
+		b, err := bson.MarshalExtJSON(res, false, false)
+		if err != nil {
+			return nil, err
+		}
+		err = json.Unmarshal(b, &m)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return m, nil
 }

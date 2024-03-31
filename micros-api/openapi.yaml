@@ -15,8 +15,7 @@ paths:
                 - name: claimId
                   in: query
                   schema:
-                    type: integer
-                    format: int64
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -24,6 +23,120 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/GetAhpResultResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/rc/v3/report/companies:
+        get:
+            tags:
+                - RcService
+            operationId: RcService_ListCompanies
+            parameters:
+                - name: version
+                  in: query
+                  schema:
+                    type: integer
+                    format: enum
+                - name: nameKwd
+                  in: query
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageNum
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListCompaniesResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/rc/v3/report/companies/list:
+        get:
+            tags:
+                - RcService
+            operationId: RcService_ListReportByUscId
+            parameters:
+                - name: version
+                  in: query
+                  schema:
+                    type: integer
+                    format: enum
+                - name: uscId
+                  in: query
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageNum
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListReportByUscIdResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/rc/v3/report/companies/waiting:
+        get:
+            tags:
+                - RcService
+            operationId: RcService_ListCompaniesWaiting
+            parameters:
+                - name: version
+                  in: query
+                  schema:
+                    type: integer
+                    format: enum
+                - name: uscidKwd
+                  in: query
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: pageNum
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListCompaniesWaitingResp'
                 default:
                     description: Default error response
                     content:
@@ -39,8 +152,7 @@ paths:
                 - name: contentId
                   in: query
                   schema:
-                    type: integer
-                    format: int64
+                    type: string
                 - name: version
                   in: query
                   schema:
@@ -63,6 +175,30 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /micros/rc/v3/report/content/snapshot/update:
+        post:
+            tags:
+                - RcService
+            operationId: RcService_UpdateReportContentSnapshot
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateReportContentSnapshotReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UpdateReportContentSnapshotResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /micros/rc/v3/report/decision-factor:
         get:
             tags:
@@ -72,8 +208,7 @@ paths:
                 - name: contentId
                   in: query
                   schema:
-                    type: integer
-                    format: int64
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -81,29 +216,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/GetDecisionFactorResp'
-                default:
-                    description: Default error response
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Status'
-        put:
-            tags:
-                - RcService
-            operationId: RcService_UpdateReportDecisionFactor
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/UpdateReportDecisionFactorReq'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/InsertReportDecisionFactorResp'
                 default:
                     description: Default error response
                     content:
@@ -119,6 +231,30 @@ paths:
                     application/json:
                         schema:
                             $ref: '#/components/schemas/InsertReportDecisionFactorReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/InsertReportDecisionFactorResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/rc/v3/report/decision-factor/update:
+        post:
+            tags:
+                - RcService
+            operationId: RcService_UpdateReportDecisionFactor
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateReportDecisionFactorReq'
                 required: true
             responses:
                 "200":
@@ -165,6 +301,128 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ListReportResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/rc/v3/report/print_config:
+        get:
+            tags:
+                - RcService
+            operationId: RcService_GetReportPrintConfig
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetReportPrintConfigResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/rc/v3/report/print_config/update:
+        post:
+            tags:
+                - RcService
+            operationId: RcService_UpdateReportPrintConfig
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SaveReportPrintConfigReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SaveReportPrintConfigResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/rc/v3/report/trade_detail:
+        get:
+            tags:
+                - RcService
+            operationId: RcService_GetTradeDetail
+            parameters:
+                - name: contentId
+                  in: query
+                  schema:
+                    type: string
+                - name: reportVersion
+                  in: query
+                  schema:
+                    type: integer
+                    format: enum
+                - name: optionTimePeriod
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: integer
+                        format: enum
+                - name: optionTopCus
+                  in: query
+                  schema:
+                    type: integer
+                    format: enum
+                - name: optionTradeFrequency
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: integer
+                        format: enum
+                - name: tradeType
+                  in: query
+                  schema:
+                    type: integer
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetTradeDetailResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /micros/rc/v3/report/validate:
+        get:
+            tags:
+                - RcService
+            operationId: RcService_GetReportDataValidationStats
+            parameters:
+                - name: contentId
+                  in: query
+                  schema:
+                    type: string
+                - name: version
+                  in: query
+                  schema:
+                    type: integer
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetReportDataValidationStatsResp'
                 default:
                     description: Default error response
                     content:
@@ -221,17 +479,53 @@ components:
                 createdAt:
                     type: string
                 createdBy:
-                    type: integer
-                    format: int64
+                    type: string
                 claimId:
-                    type: integer
-                    format: int64
+                    type: string
         GetReportContentResp:
             type: object
             properties:
                 success:
                     type: boolean
                     description: 报告内容
+                code:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+                data:
+                    type: object
+        GetReportDataValidationStatsResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                code:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+                data:
+                    type: array
+                    items:
+                        type: object
+        GetReportPrintConfigResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                code:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+                config:
+                    type: object
+        GetTradeDetailResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
                 code:
                     type: integer
                     format: int32
@@ -278,6 +572,99 @@ components:
                     format: int32
                 msg:
                     type: string
+        ListCompaniesResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                code:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+                total:
+                    type: integer
+                    format: uint32
+                data:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ListCompaniesResp_CompanyInfo'
+        ListCompaniesResp_CompanyInfo:
+            type: object
+            properties:
+                enterpriseName:
+                    type: string
+                    description: 企业名称
+                uscId:
+                    type: string
+                    description: 企业统一信用社会代码
+                lastUpdate:
+                    type: string
+                id:
+                    type: string
+        ListCompaniesWaitingResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                code:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+                total:
+                    type: integer
+                    format: uint32
+                data:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ListCompaniesWaitingResp_CompaniesWaiting'
+        ListCompaniesWaitingResp_CompaniesWaiting:
+            type: object
+            properties:
+                uscId:
+                    type: string
+                    description: 企业名称
+                createdAt:
+                    type: string
+                    description: 企业统一信用社会代码
+                id:
+                    type: string
+        ListReportByUscIdResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                code:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
+                total:
+                    type: integer
+                    format: uint32
+                data:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ListReportByUscIdResp_ReportInfo'
+        ListReportByUscIdResp_ReportInfo:
+            type: object
+            properties:
+                contentId:
+                    type: string
+                dataCollectMonth:
+                    type: string
+                available:
+                    type: boolean
+                contentUpdatedTime:
+                    type: string
+                id:
+                    type: string
+                status:
+                    type: integer
+                    format: int32
+                createBy:
+                    type: string
         ListReportResp:
             type: object
             properties:
@@ -302,9 +689,8 @@ components:
             type: object
             properties:
                 contentId:
-                    type: integer
+                    type: string
                     description: 报告id
-                    format: int64
                 enterpriseName:
                     type: string
                     description: 企业名称
@@ -320,6 +706,21 @@ components:
                 contentUpdatedTime:
                     type: string
                     description: 报告生成时间 yyyy-MM-dd HH:mm:ss
+        SaveReportPrintConfigReq:
+            type: object
+            properties:
+                config:
+                    type: object
+        SaveReportPrintConfigResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                code:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
         Status:
             type: object
             properties:
@@ -336,12 +737,29 @@ components:
                         $ref: '#/components/schemas/GoogleProtobufAny'
                     description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
             description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
+        UpdateReportContentSnapshotReq:
+            type: object
+            properties:
+                contentId:
+                    type: string
+                reportVersion:
+                    type: integer
+                    format: enum
+        UpdateReportContentSnapshotResp:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                code:
+                    type: integer
+                    format: int32
+                msg:
+                    type: string
         UpdateReportDecisionFactorReq:
             type: object
             properties:
                 claimId:
-                    type: integer
-                    format: int64
+                    type: string
                 lhQylx:
                     type: integer
                     format: int32

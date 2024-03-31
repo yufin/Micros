@@ -2,16 +2,13 @@ package midware
 
 import (
 	"encoding/json"
-	"github.com/buger/jsonparser"
-	"github.com/go-kratos/kratos/v2/errors"
 	"gorm.io/gorm"
 	"micros-api/internal/data"
 	"micros-api/pkg"
 	"sort"
-	"strconv"
 )
 
-type DataScopeResp struct {
+type dataScopeResp struct {
 	UserId           int64
 	RoleId           int64
 	DeptId           int64
@@ -20,31 +17,9 @@ type DataScopeResp struct {
 	DataScopeDeptIds string
 }
 
-func getScopesByAuthData(dt *data.Data, authData []byte) (*pkg.DataScopeInfo, error) {
-	// authData to jsonBytes
-	var userId int64
-	userId, err := jsonparser.GetInt(authData, "user_id")
-	userIdBytes, dType, _, err := jsonparser.Get(authData, "user_id")
-	switch dType {
-	case jsonparser.String:
-		userId, err = strconv.ParseInt(string(userIdBytes), 10, 64)
-		if err != nil {
-			return nil, err
-		}
-	case jsonparser.Number:
-		userId, err = jsonparser.ParseInt(userIdBytes)
-		if err != nil {
-			return nil, err
-		}
-	default:
-		return nil, errors.New(500, "At parseScopes dtype of user_id upexpect", string(userIdBytes))
-	}
-
-	if err != nil {
-		return nil, err
-	}
-	var dsp DataScopeResp
-	err = dt.DbBl.
+func getScopesByUserId(dt *data.Data, userId int64) (*pkg.DataScopeInfo, error) {
+	var dsp dataScopeResp
+	err := dt.DbBl.
 		Raw(`select user_id, role_id, dept_id, data_scope, data_scope_dept_ids, post_ids
 				from (select u.id as user_id, dept_id, role_id, post_ids
 					  from system_users u

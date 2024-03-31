@@ -7,6 +7,7 @@ ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
+
 COPY ./requirements.txt .
 
 RUN pip install --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple && \
@@ -17,4 +18,7 @@ USER admin
 
 COPY . .
 
-ENTRYPOINT ["python", "./cmd/app/main.py"]
+VOLUME /data/certs
+VOLUME /data/conf
+
+ENTRYPOINT ["python", "./cmd/app/main.py", "-conf", "/data/conf/config_prod.yml"]

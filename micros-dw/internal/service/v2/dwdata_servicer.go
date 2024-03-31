@@ -1,4 +1,4 @@
-package service
+package v2
 
 import (
 	"context"
@@ -346,5 +346,174 @@ func (s *DwdataServiceServicer) GetEntBranches(ctx context.Context, req *pb.GetE
 		Code:    http.StatusOK,
 		Msg:     "",
 		Data:    data,
+	}, nil
+}
+
+func (s *DwdataServiceServicer) GetForeclosureDisposition(ctx context.Context, req *pb.GetEntInfoWithDurationReq) (*pb.GetJudicialInfoWithDurationResp, error) {
+	res, err := s.dwEnterprise.GetDocWithDuration(ctx, req.UscId, req.TimePoint.AsTime(), "law_sale", int(req.ValidateExtendDate))
+	if err != nil {
+		return nil, err
+	}
+	if res == nil {
+		return &pb.GetJudicialInfoWithDurationResp{
+			Success: false,
+			Code:    http.StatusNoContent,
+			Msg:     "not content",
+		}, nil
+	}
+	st, err := structpb.NewStruct(res)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.GetJudicialInfoWithDurationResp{
+		Success: true,
+		Code:    http.StatusOK,
+		Msg:     "",
+		Data:    st,
+	}, nil
+}
+
+func (s *DwdataServiceServicer) GetExecutive(ctx context.Context, req *pb.GetEntInfoWithDurationReq) (*pb.GetJudicialInfoWithDurationResp, error) {
+	println(req.TimePoint.AsTime().Format("2006-01-02"))
+	res, err := s.dwEnterprise.GetDocWithDuration(ctx, req.UscId, req.TimePoint.AsTime(), "law_execution", int(req.ValidateExtendDate))
+	if err != nil {
+		return nil, err
+	}
+	if res == nil {
+		return &pb.GetJudicialInfoWithDurationResp{
+			Success: false,
+			Code:    http.StatusNoContent,
+			Msg:     "not content",
+		}, nil
+	}
+	st, err := structpb.NewStruct(res)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.GetJudicialInfoWithDurationResp{
+		Success: true,
+		Code:    http.StatusOK,
+		Msg:     "",
+		Data:    st,
+	}, nil
+}
+
+func (s *DwdataServiceServicer) GetEquityFrozen(ctx context.Context, req *pb.GetEntInfoWithDurationReq) (*pb.GetJudicialInfoWithDurationResp, error) {
+	res, err := s.dwEnterprise.GetDocWithDuration(ctx, req.UscId, req.TimePoint.AsTime(), "law_equity_freeze", int(req.ValidateExtendDate))
+	if err != nil {
+		return nil, err
+	}
+	if res == nil {
+		return &pb.GetJudicialInfoWithDurationResp{
+			Success: false,
+			Code:    http.StatusNoContent,
+			Msg:     "not content",
+		}, nil
+	}
+	st, err := structpb.NewStruct(res)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.GetJudicialInfoWithDurationResp{
+		Success: true,
+		Code:    http.StatusOK,
+		Msg:     "",
+		Data:    st,
+	}, nil
+}
+
+func (s *DwdataServiceServicer) GetHighConsumptionRestriction(ctx context.Context, req *pb.GetEntInfoWithDurationReq) (*pb.GetJudicialInfoWithDurationResp, error) {
+	res, err := s.dwEnterprise.GetDocWithDuration(ctx, req.UscId, req.TimePoint.AsTime(), "law_consumption_restrict", int(req.ValidateExtendDate))
+	if err != nil {
+		return nil, err
+	}
+	if res == nil {
+		return &pb.GetJudicialInfoWithDurationResp{
+			Success: false,
+			Code:    http.StatusNoContent,
+			Msg:     "not content",
+		}, nil
+	}
+	st, err := structpb.NewStruct(res)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.GetJudicialInfoWithDurationResp{
+		Success: true,
+		Code:    http.StatusOK,
+		Msg:     "",
+		Data:    st,
+	}, nil
+}
+
+func (s *DwdataServiceServicer) GetJudicialStatics(ctx context.Context, req *pb.GetEntInfoWithDurationReq) (*pb.GetJudicialInfoWithDurationResp, error) {
+	res, err := s.dwEnterprise.GetDocWithDuration(ctx, req.UscId, req.TimePoint.AsTime(), "law_statistics", int(req.ValidateExtendDate))
+	if err != nil {
+		return nil, err
+	}
+	if res == nil {
+		return &pb.GetJudicialInfoWithDurationResp{
+			Success: false,
+			Code:    http.StatusNoContent,
+			Msg:     "not content",
+		}, nil
+	}
+	st, err := structpb.NewStruct(res)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.GetJudicialInfoWithDurationResp{
+		Success: true,
+		Code:    http.StatusOK,
+		Msg:     "",
+		Data:    st,
+	}, nil
+}
+
+func (s *DwdataServiceServicer) GetCourtAnnouncement(ctx context.Context, req *pb.GetEntInfoWithDurationReq) (*pb.GetJudicialInfoWithDurationResp, error) {
+	res, err := s.dwEnterprise.GetDocWithDuration(ctx, req.UscId, req.TimePoint.AsTime(), "law_cases", int(req.ValidateExtendDate))
+	if err != nil {
+		return nil, err
+	}
+	if res == nil {
+		return &pb.GetJudicialInfoWithDurationResp{
+			Success: false,
+			Code:    http.StatusNoContent,
+			Msg:     "not content",
+		}, nil
+	}
+	st, err := structpb.NewStruct(res)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.GetJudicialInfoWithDurationResp{
+		Success: true,
+		Code:    http.StatusOK,
+		Msg:     "",
+		Data:    st,
+	}, nil
+}
+
+func (s *DwdataServiceServicer) GetDiscreditedDebtor(ctx context.Context, req *pb.GetEntInfoWithDurationReq) (*pb.GetJudicialInfoWithDurationResp, error) {
+	res, err := s.dwEnterprise.GetDocWithDuration(ctx, req.UscId, req.TimePoint.AsTime(), "law_lose_credit", int(req.ValidateExtendDate))
+	if err != nil {
+		return nil, err
+	}
+	if res == nil {
+		return &pb.GetJudicialInfoWithDurationResp{
+			Success: false,
+			Code:    http.StatusNoContent,
+			Msg:     "not content",
+		}, nil
+	}
+	st, err := structpb.NewStruct(res)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.GetJudicialInfoWithDurationResp{
+		Success: true,
+		Code:    http.StatusOK,
+		Msg:     "",
+		Data:    st,
 	}, nil
 }

@@ -20,6 +20,6 @@ func NewClientPipelineUsecase(repo ClientPipelineRepo, logger log.Logger) *Clien
 }
 
 func (uc *ClientPipelineUsecase) GetClient(ctx context.Context) pipelineV1.PipelineServiceClient {
-	uc.log.WithContext(ctx).Infof("biz.ClientPipelineUsecase.GetClient")
+	//uc.log.WithContext(ctx).Infof("biz.ClientPipelineUsecase.GetClient")
 	return uc.repo.GetClient(ctx)
 }

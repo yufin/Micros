@@ -8,7 +8,6 @@ from pandas import Series
 import time
 from internal.data.data import DataRepo
 from typing import Union
-from pprint import pprint
 from loguru import logger
 
 pd.set_option('display.max_columns', None)
@@ -16,7 +15,7 @@ pd.set_option('display.max_rows', None)
 pd.set_option('display.width', 1000)
 
 
-class ContentPipelineV3:
+class ContentPipelineV25:
     # 用于报文v1版本
 
     def __init__(
@@ -25,7 +24,8 @@ class ContentPipelineV3:
             doc: dict,
             repo: DataRepo
     ):
-        # assert doc["version"] == "V2.0"
+        assert isinstance(doc, dict)
+        assert doc["version"] == "V1.0"
         self.logger: Logger = logger
         self.doc = doc
         self.content: dict = self.doc["content"]['impExpEntReport']
@@ -145,8 +145,8 @@ class ContentPipelineV3:
                     annual_changed_desc = "近期采购量基本稳定"
 
                 _summary.append(
-                    f'近12个月第{i + 1}大供应商为{s_cus12_top["SALES_NAME"]}，销售占比为'
-                    f'{round(s_cus12_top["RATIO_AMOUNT_TAX"], 2) * 100}%，近24个月此供应商采购占比为'
+                    f'近12个月第{i + 1}大供应商为{s_cus12_top["SALES_NAME"]}，采购占比为'
+                    f'{round(s_cus12_top["RATIO_AMOUNT_TAX"] * 100, 2)}%，近24个月此供应商采购占比为'
                     f'{round(s_cus12_top_at24["RATIO_AMOUNT_TAX"] * 100, 2)}%，采购排名第'
                     f'{int(s_cus12_top_at24["rank"])}，近12个月内采购占比相较于24个月内变化'
                     f'{"+" if annual_changed_ratio > 0 else ""}{round(annual_changed_ratio, 2)}%。{annual_changed_desc}。'
@@ -236,7 +236,10 @@ class ContentPipelineV3:
         if not _df_cust24.empty:
             for i in range(0, min(len(_df_cust24) - 1, 5)):
                 s_cus12_top = cus12_desc_tax_ratio.iloc[i]
-                s_cus12_top_at24 = _df_cust24[_df_cust24["PURCHASER_NAME"] == s_cus12_top["PURCHASER_NAME"]].iloc[0]
+                df_cus12_top_at24 = _df_cust24[_df_cust24["PURCHASER_NAME"] == s_cus12_top["PURCHASER_NAME"]]
+                if df_cus12_top_at24.empty:
+                    continue
+                s_cus12_top_at24 = df_cus12_top_at24.iloc[0]
                 annual_changed_ratio = (s_cus12_top["RATIO_AMOUNT_TAX"] - s_cus12_top_at24["RATIO_AMOUNT_TAX"]) / \
                                        s_cus12_top_at24["RATIO_AMOUNT_TAX"] * 100
                 annual_changed_desc = ""
@@ -264,7 +267,7 @@ class ContentPipelineV3:
 
                 _summary.append(
                     f'近12个月第{i + 1}大客户为{s_cus12_top["PURCHASER_NAME"]}，销售占比为'
-                    f'{round(s_cus12_top["RATIO_AMOUNT_TAX"], 2) * 100}%，近24个月此客户销售占比为'
+                    f'{round(s_cus12_top["RATIO_AMOUNT_TAX"]* 100, 2)}%，近24个月此客户销售占比为'
                     f'{round(s_cus12_top_at24["RATIO_AMOUNT_TAX"] * 100, 2)}%，销售排名第'
                     f'{int(s_cus12_top_at24["rank"])}，近12个月内销售占比相较于24个月内变化'
                     f'{"+" if annual_changed_ratio > 0 else ""}{round(annual_changed_ratio, 2)}%。{annual_changed_desc}。'
@@ -407,7 +410,9 @@ class ContentPipelineV3:
             subj_d = tag_map.get(self.content["businessInfo"]["QYMC"])
             self.content["businessInfo"]["capitalPaidIn"] = None
             if subj_d is not None:
-                self.content["businessInfo"]["capitalPaidIn"] = subj_d["companyInfo"]["paidInCapital"]
+                ci = subj_d.get("companyInfo", {})
+                if isinstance(ci, dict):
+                    self.content["businessInfo"]["capitalPaidIn"] = ci.get("paidInCapital")
                 self.content['subjectCompanyTags'] = {_k: _v for _k, _v in subj_d.items() if _k != "companyInfo"}
             else:
                 pass
@@ -690,9 +695,9 @@ class ContentPipelineV3:
         ]
 
         if len(res) == 2:
-            summary = f"{res[1]['year']}-{res[0]['year']} difference/sales amount were respectively {res[1]['result']:.2f}%, {res[0]['result']:.2f}%;"
+            summary = f"{res[1]['year']}-{res[0]['year']}年销售增长率分别为{res[1]['result']:.2f}%, {res[0]['result']:.2f}%;"
         else:
-            summary = f"{res[2]['year']}-{res[0]['year']} difference/sales amount were respectively {res[2]['result']:.2f}%, {res[1]['result']:.2f}%, {res[0]['result']:.2f}%;"
+            summary = f"{res[2]['year']}-{res[0]['year']}年销售增长率分别为{res[2]['result']:.2f}%, {res[1]['result']:.2f}%, {res[0]['result']:.2f}%;"
 
         summaries2 = [
             summary,
@@ -782,8 +787,8 @@ class ContentPipelineV3:
             avg_income_last = last_income / t_last.tm_yday * 30 if last_income is not None else None
             avg_income_senior = senior_income / 12 if senior_income is not None else None
             avg_income_junior = junior_income / 12 if junior_income is not None else None
-            avg_ratio_latest = avg_income_last / avg_income_senior - 1. if avg_income_last is not None and avg_income_senior is not None else None
-            avg_ratio_senior = avg_income_senior / avg_income_junior - 1. if avg_income_senior is not None and avg_income_junior is not None else None
+            avg_ratio_latest = avg_income_last / avg_income_senior - 1. if avg_income_last is not None and avg_income_senior is not None and avg_income_senior != 0 else None
+            avg_ratio_senior = avg_income_senior / avg_income_junior - 1. if avg_income_senior is not None and avg_income_junior is not None and avg_income_junior != 0 else None
             avg_ratio_latest_str = f'{avg_ratio_latest * 100:.2f}%' if avg_ratio_latest is not None else 'N/A'
             avg_ratio_senior_str = f'{avg_ratio_senior * 100:.2f}%' if avg_ratio_senior is not None else 'N/A'
             # Add descriptions
@@ -879,6 +884,10 @@ class ContentPipelineV3:
             op_desc = "-"
 
         _summary3 += f"近期公司运营能力{op_desc}。"
+
+        _summary1 = _summary1.replace("None", "-")
+        _summary2 = _summary2.replace("None", "-")
+        _summary3 = _summary3.replace("None", "-")
         self.content['zcfzbAnalysisSummary'] = {
             "summary1": _summary1,
             "summary2": _summary2,
@@ -961,6 +970,7 @@ class ContentPipelineV3:
         del _df_trades['_major_commodity']
         del _df_trades['_sum_amount_tax']
         del _df_trades['_commodity_ratio']
+        _df_trades.fillna(0, inplace=True)
         self.content[key_trades] = _df_trades.to_dict(orient='records')
 
     @staticmethod
@@ -985,11 +995,6 @@ class ContentPipelineV3:
                     companies.append(row[item_k])
             except TypeError:
                 pass
-
-        # companies += [row["PURCHASER_NAME"] for row in self.content["customerDetail_12"]]
-        # companies += [row["PURCHASER_NAME"] for row in self.content["customerDetail_24"]]
-        # companies += [row["SALES_NAME"] for row in self.content["supplierRanking_12"]]
-        # companies += [row["SALES_NAME"] for row in self.content["supplierRanking_24"]]
         s = Series(companies)
         s.drop_duplicates(inplace=True)
 
@@ -1060,8 +1065,10 @@ class ContentPipelineV3:
                         reset_val = __lambda_reformat_index_value("增资注册资本%s万", val, "nopercent")
                     elif v < 0:
                         reset_val = __lambda_reformat_index_value("减资注册资本%s万", val, "nopercent")
+
                 except ValueError:
                     reset_val = "无"
+
             elif desc == "变更的风险提示\n（变更频繁）":
                 reset_val = __lambda_reformat_index_value("变更%s次", val, "nopercent")
             elif desc == "金融欠款纠纷":
@@ -1104,6 +1111,8 @@ class ContentPipelineV3:
                 reset_val = __day_format(val)
             elif desc == "存货周转天数":
                 reset_val = __day_format(val)
+            else:
+                reset_val = '无'
             return desc, reset_val
 
         _df_risk_idx = self._get_buff_df('riskIndexes')

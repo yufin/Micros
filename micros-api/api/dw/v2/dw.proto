@@ -4,11 +4,11 @@ package api.dw.v2;
 
 import "google/api/annotations.proto";
 import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
 
 option go_package = "micros-api/api/dw/v2;dwV2";
 option java_multiple_files = true;
 option java_outer_classname = "DwV2";
-option java_package = "api.dw.v2";
 
 
 service DwService {
@@ -80,7 +80,55 @@ service DwService {
     };
   }
 
+  rpc GetForeclosureDisposition(GetEntInfoWithTime) returns (EntStructResp) {
+    option (google.api.http) = {
+      get: "/micros/dw/v2/enterprise/judiciary/foreclosure-disposition"
+    };
+  }
+
+  rpc GetExecutive(GetEntInfoWithTime) returns (EntStructResp) {
+    option (google.api.http) = {
+      get: "/micros/dw/v2/enterprise/judiciary/executive"
+    };
+  }
+
+  rpc GetEquityFrozen(GetEntInfoWithTime) returns (EntStructResp) {
+    option (google.api.http) = {
+      get: "/micros/dw/v2/enterprise/judiciary/equity-frozen"
+    };
+  }
+
+  rpc GetHighConsumptionRestriction(GetEntInfoWithTime) returns (EntStructResp) {
+    option (google.api.http) = {
+      get: "/micros/dw/v2/enterprise/judiciary/high-consumption-restriction"
+    };
+  }
+
+  rpc GetJudicialStatics(GetEntInfoWithTime) returns (EntStructResp) {
+    option (google.api.http) = {
+      get: "/micros/dw/v2/enterprise/judiciary/stat"
+    };
+  }
+
+  rpc GetCourtAnnouncement(GetEntInfoWithTime) returns (EntStructResp) {
+    option (google.api.http) = {
+      get: "/micros/dw/v2/enterprise/judiciary/court-announcement"
+    };
+  }
+
+  rpc GetDiscreditedDebtor(GetEntInfoWithTime) returns (EntStructResp) {
+    option (google.api.http) = {
+      get: "/micros/dw/v2/enterprise/judiciary/discredited-debtor"
+    };
+  }
+
 }
+
+message GetEntInfoWithTime {
+  string usc_id = 1;
+  google.protobuf.Timestamp time_point = 2;
+}
+
 
 message EnterpriseRelations {
   message RelationsData {

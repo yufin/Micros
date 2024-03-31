@@ -1,0 +1,30 @@
+server:
+  http:
+    addr: 0.0.0.0:8004
+    timeout: 10s
+  grpc:
+    addr: 0.0.0.0:50054
+    timeout: 10s
+
+data:
+  database:
+    driver: mysql
+    source: blscf:Dzkw46MZDbB7axDC@tcp(10.0.232.121:3308)/bl_business?charset=utf8mb4&parseTime=True&loc=Local&timeout=10000ms
+  redis:
+    addr: 10.0.232.22:6379
+    read_timeout: 1.0s
+    write_timeout: 1.0s
+    password: redis43f28hvn
+    db: 4
+  mongoDb:
+    uri: mongodb://root:brillink8818mgo@10.0.232.121:27017
+  vzoomSftp:
+    username: lhgyl
+    password: lhgyl2022
+    uri: 119.147.91.52:8155
+    pool_size: 3
+  temporal:
+    client_uri: 10.0.232.121:7233
+  wechatBot:
+    hook_content_sync: https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=0636c13d-8efb-4753-8446-e913e8e1e31b
+    env_name: 生产环境

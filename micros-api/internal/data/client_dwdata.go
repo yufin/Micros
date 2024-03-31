@@ -4,23 +4,32 @@ import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
 	dwdataV2 "micros-api/api/dwdata/v2"
+	dwdataV3 "micros-api/api/dwdata/v3"
 	"micros-api/internal/biz"
 	"micros-api/internal/biz/dto"
 )
 
-type DwEnterpriseDataRepo struct {
+type ClientDwDataRepo struct {
 	data *Data
 	log  *log.Helper
 }
 
-func NewDwEnterpriseRepo(data *Data, logger log.Logger) biz.DwEnterpriseRepo {
-	return &DwEnterpriseDataRepo{
+func NewClientDwDataRepo(data *Data, logger log.Logger) biz.ClientDwDataRepo {
+	return &ClientDwDataRepo{
 		data: data,
 		log:  log.NewHelper(logger),
 	}
 }
 
-func (repo *DwEnterpriseDataRepo) GetEntIdent(ctx context.Context, name string) (string, error) {
+func (repo *ClientDwDataRepo) GetClient(ctx context.Context) dwdataV2.DwdataServiceClient {
+	return repo.data.DwDataClient
+}
+
+func (repo *ClientDwDataRepo) GetClientV3(ctx context.Context) dwdataV3.DwdataServiceClient {
+	return repo.data.DwDataClientV3
+}
+
+func (repo *ClientDwDataRepo) GetEntIdent(ctx context.Context, name string) (string, error) {
 	resp, err := repo.data.DwDataClient.GetEnterpriseIdent(context.TODO(), &dwdataV2.GetEntIdentReq{EnterpriseName: name})
 	if err != nil {
 		return "", err
@@ -28,7 +37,7 @@ func (repo *DwEnterpriseDataRepo) GetEntIdent(ctx context.Context, name string) 
 	return resp.Data.UscId, nil
 }
 
-func (repo *DwEnterpriseDataRepo) GetEntInfo(ctx context.Context, uscId string) (*dto.EnterpriseInfo, error) {
+func (repo *ClientDwDataRepo) GetEntInfo(ctx context.Context, uscId string) (*dto.EnterpriseInfo, error) {
 	resp, err := repo.data.DwDataClient.GetEnterpriseInfo(context.TODO(), &dwdataV2.GetEntInfoReq{UscId: uscId})
 	if err != nil {
 		return nil, err
@@ -65,7 +74,7 @@ func (repo *DwEnterpriseDataRepo) GetEntInfo(ctx context.Context, uscId string) 
 	}, nil
 }
 
-func (repo *DwEnterpriseDataRepo) GetEntCredential(ctx context.Context, uscId string) (*[]dto.EnterpriseCertification, error) {
+func (repo *ClientDwDataRepo) GetEntCredential(ctx context.Context, uscId string) (*[]dto.EnterpriseCertification, error) {
 	resp, err := repo.data.DwDataClient.GetEnterpriseCredential(context.TODO(), &dwdataV2.GetEntInfoReq{UscId: uscId})
 	if err != nil {
 		return nil, err
@@ -88,7 +97,7 @@ func (repo *DwEnterpriseDataRepo) GetEntCredential(ctx context.Context, uscId st
 	return &data, nil
 }
 
-func (repo *DwEnterpriseDataRepo) GetEntRankingList(ctx context.Context, uscId string) (*[]dto.EnterpriseRankingList, error) {
+func (repo *ClientDwDataRepo) GetEntRankingList(ctx context.Context, uscId string) (*[]dto.EnterpriseRankingList, error) {
 	resp, err := repo.data.DwDataClient.GetEnterpriseRankingList(context.TODO(), &dwdataV2.GetEntInfoReq{UscId: uscId})
 	if err != nil {
 		return nil, err
@@ -114,7 +123,7 @@ func (repo *DwEnterpriseDataRepo) GetEntRankingList(ctx context.Context, uscId s
 	return &data, nil
 }
 
-func (repo *DwEnterpriseDataRepo) GetEntIndustry(ctx context.Context, uscId string) (*[]string, error) {
+func (repo *ClientDwDataRepo) GetEntIndustry(ctx context.Context, uscId string) (*[]string, error) {
 	resp, err := repo.data.DwDataClient.GetEnterpriseIndustry(context.TODO(), &dwdataV2.GetEntInfoReq{UscId: uscId})
 	if err != nil {
 		return nil, err
@@ -122,7 +131,7 @@ func (repo *DwEnterpriseDataRepo) GetEntIndustry(ctx context.Context, uscId stri
 	return &resp.Data, nil
 }
 
-func (repo *DwEnterpriseDataRepo) GetEntProduct(ctx context.Context, uscId string) (*[]string, error) {
+func (repo *ClientDwDataRepo) GetEntProduct(ctx context.Context, uscId string) (*[]string, error) {
 	resp, err := repo.data.DwDataClient.GetEnterpriseProduct(context.TODO(), &dwdataV2.GetEntInfoReq{UscId: uscId})
 	if err != nil {
 		return nil, err
@@ -130,7 +139,7 @@ func (repo *DwEnterpriseDataRepo) GetEntProduct(ctx context.Context, uscId strin
 	return &resp.Data, nil
 }
 
-func (repo *DwEnterpriseDataRepo) GetEquityTransparency(ctx context.Context, uscId string) (*dto.EnterpriseEquityTransparency, error) {
+func (repo *ClientDwDataRepo) GetEquityTransparency(ctx context.Context, uscId string) (*dto.EnterpriseEquityTransparency, error) {
 	resp, err := repo.data.DwDataClient.GetEntEquityTransparency(context.TODO(), &dwdataV2.GetEntInfoReq{UscId: uscId})
 	if err != nil {
 		return nil, err
@@ -152,7 +161,7 @@ func (repo *DwEnterpriseDataRepo) GetEquityTransparency(ctx context.Context, usc
 	}, nil
 }
 
-func (repo *DwEnterpriseDataRepo) GetShareholders(ctx context.Context, uscId string) (*dwdataV2.GetShareholdersResp, error) {
+func (repo *ClientDwDataRepo) GetShareholders(ctx context.Context, uscId string) (*dwdataV2.GetShareholdersResp, error) {
 	resp, err := repo.data.DwDataClient.GetEntShareholders(context.TODO(), &dwdataV2.GetEntInfoReq{
 		UscId: uscId,
 	})
@@ -162,7 +171,7 @@ func (repo *DwEnterpriseDataRepo) GetShareholders(ctx context.Context, uscId str
 	return resp, nil
 }
 
-func (repo *DwEnterpriseDataRepo) GetInvestments(ctx context.Context, uscId string) (*dwdataV2.GetInvestmentResp, error) {
+func (repo *ClientDwDataRepo) GetInvestments(ctx context.Context, uscId string) (*dwdataV2.GetInvestmentResp, error) {
 	resp, err := repo.data.DwDataClient.GetEntInvestment(context.TODO(), &dwdataV2.GetEntInfoReq{
 		UscId: uscId,
 	})
@@ -172,7 +181,7 @@ func (repo *DwEnterpriseDataRepo) GetInvestments(ctx context.Context, uscId stri
 	return resp, nil
 }
 
-func (repo *DwEnterpriseDataRepo) GetBranches(ctx context.Context, uscId string) (*dwdataV2.GetBranchesResp, error) {
+func (repo *ClientDwDataRepo) GetBranches(ctx context.Context, uscId string) (*dwdataV2.GetBranchesResp, error) {
 	resp, err := repo.data.DwDataClient.GetEntBranches(context.TODO(), &dwdataV2.GetEntInfoReq{
 		UscId: uscId,
 	})

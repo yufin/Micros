@@ -39,9 +39,18 @@ message Data {
   message MongoDb {
     string uri = 1;
   }
+  message Consul{
+    string addr = 1;
+    string token = 2;
+  }
+  message Tls {
+    string folder_path = 1;
+  }
   Database database = 1;
   Redis redis = 2;
   MongoDb mongoDb = 3;
+  Consul consul = 4;
+  Tls tls = 5;
 }
 
 //ca7dcb57e00d4724895fb1d2fa29985b085ba1504ee54ebbb23d5a14adac9da0

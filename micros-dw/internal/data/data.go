@@ -11,6 +11,7 @@ var ProviderSet = wire.NewSet(
 	NewGormDb,
 	NewData,
 	NewDwEnterpriseRepo,
+	NewDwDataRepo,
 )
 
 type Data struct {

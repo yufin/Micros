@@ -36,6 +36,8 @@ message Data {
     string addr = 2;
     google.protobuf.Duration read_timeout = 3;
     google.protobuf.Duration write_timeout = 4;
+    string password = 5;
+    int32 db = 6;
   }
   message Nats {
     string uri = 1;
@@ -64,7 +66,14 @@ message Data {
   }
   message Service {
     string dwdata_uri = 1;
-    string pipeline_uri = 2;
+    string pipeline_uri = 4;
+  }
+  message Consul {
+    string addr = 1;
+    string token = 2;
+  }
+  message Tls{
+    string folder_path = 1;
   }
   Database database = 1;
   Redis redis = 2;
@@ -74,4 +83,6 @@ message Data {
   Minio minio = 6;
   MongoDb mongoDb = 7;
   Service service = 8;
+  Consul consul = 9;
+  Tls tls = 10;
 }

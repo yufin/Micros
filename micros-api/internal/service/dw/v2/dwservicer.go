@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/go-kratos/kratos/v2/log"
 	"google.golang.org/protobuf/types/known/structpb"
+	dwdataV2 "micros-api/api/dwdata/v2"
 	"micros-api/internal/biz"
 	"micros-api/internal/data"
 	"net/http"
@@ -15,19 +16,19 @@ import (
 type DwServiceServicer struct {
 	pb.UnimplementedDwServiceServer
 	log          *log.Helper
-	dwEnterprise *biz.DwEnterpriseUsecase
+	clientDwData *biz.ClientDwDataUsecase
 	data         *data.Data
 }
 
-func NewDwServiceServicer(dwe *biz.DwEnterpriseUsecase, logger log.Logger) *DwServiceServicer {
+func NewDwServiceServicer(dwe *biz.ClientDwDataUsecase, logger log.Logger) *DwServiceServicer {
 	return &DwServiceServicer{
-		dwEnterprise: dwe,
+		clientDwData: dwe,
 		log:          log.NewHelper(logger),
 	}
 }
 
 func (s *DwServiceServicer) GetEntRelations(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EnterpriseRelations, error) {
-	info, err := s.dwEnterprise.GetEntInfo(ctx, req.UscId)
+	info, err := s.clientDwData.GetEntInfo(ctx, req.UscId)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +43,7 @@ func (s *DwServiceServicer) GetEntRelations(ctx context.Context, req *pb.GetEntI
 	var relData pb.EnterpriseRelations_RelationsData
 	relData.EnterpriseName = info.EnterpriseTitle
 
-	branch, err := s.dwEnterprise.GetBranches(ctx, req.UscId)
+	branch, err := s.clientDwData.GetBranches(ctx, req.UscId)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +61,7 @@ func (s *DwServiceServicer) GetEntRelations(ctx context.Context, req *pb.GetEntI
 	}
 	relData.Branch = branchData
 
-	investment, err := s.dwEnterprise.GetInvestments(ctx, req.UscId)
+	investment, err := s.clientDwData.GetInvestments(ctx, req.UscId)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +80,7 @@ func (s *DwServiceServicer) GetEntRelations(ctx context.Context, req *pb.GetEntI
 	}
 	relData.Investment = investmentData
 
-	shareholder, err := s.dwEnterprise.GetShareholders(ctx, req.UscId)
+	shareholder, err := s.clientDwData.GetShareholders(ctx, req.UscId)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +108,7 @@ func (s *DwServiceServicer) GetEntRelations(ctx context.Context, req *pb.GetEntI
 }
 
 func (s *DwServiceServicer) GetEnterpriseIdent(ctx context.Context, req *pb.GetEntIdentReq) (*pb.EntIdentResp, error) {
-	res, err := s.dwEnterprise.GetEntIdent(ctx, req.EnterpriseName)
+	res, err := s.clientDwData.GetEntIdent(ctx, req.EnterpriseName)
 	if err != nil {
 		return nil, err
 	}
@@ -128,7 +129,7 @@ func (s *DwServiceServicer) GetEnterpriseIdent(ctx context.Context, req *pb.GetE
 }
 
 func (s *DwServiceServicer) GetEnterpriseInfo(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntStructResp, error) {
-	res, err := s.dwEnterprise.GetEntInfo(ctx, req.UscId)
+	res, err := s.clientDwData.GetEntInfo(ctx, req.UscId)
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +163,7 @@ func (s *DwServiceServicer) GetEnterpriseInfo(ctx context.Context, req *pb.GetEn
 }
 
 func (s *DwServiceServicer) GetEnterpriseCredential(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntArrayResp, error) {
-	res, err := s.dwEnterprise.GetEntCredential(ctx, req.UscId)
+	res, err := s.clientDwData.GetEntCredential(ctx, req.UscId)
 
 	if err != nil {
 		return nil, err
@@ -202,7 +203,7 @@ func (s *DwServiceServicer) GetEnterpriseCredential(ctx context.Context, req *pb
 }
 
 func (s *DwServiceServicer) GetEnterpriseRankingList(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntArrayResp, error) {
-	res, err := s.dwEnterprise.GetEntRankingList(ctx, req.UscId)
+	res, err := s.clientDwData.GetEntRankingList(ctx, req.UscId)
 	if err != nil {
 		return nil, err
 	}
@@ -241,7 +242,7 @@ func (s *DwServiceServicer) GetEnterpriseRankingList(ctx context.Context, req *p
 }
 
 func (s *DwServiceServicer) GetEnterpriseIndustry(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntStrArrayResp, error) {
-	res, err := s.dwEnterprise.GetEntIndustry(ctx, req.UscId)
+	res, err := s.clientDwData.GetEntIndustry(ctx, req.UscId)
 	if err != nil {
 		return nil, err
 	}
@@ -262,7 +263,7 @@ func (s *DwServiceServicer) GetEnterpriseIndustry(ctx context.Context, req *pb.G
 }
 
 func (s *DwServiceServicer) GetEnterpriseProduct(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EntStrArrayResp, error) {
-	res, err := s.dwEnterprise.GetEntProduct(ctx, req.UscId)
+	res, err := s.clientDwData.GetEntProduct(ctx, req.UscId)
 	if err != nil {
 		return nil, err
 	}
@@ -283,7 +284,7 @@ func (s *DwServiceServicer) GetEnterpriseProduct(ctx context.Context, req *pb.Ge
 }
 
 func (s *DwServiceServicer) GetEnterpriseEquityTransparency(ctx context.Context, req *pb.GetEntInfoReq) (*pb.EquityTransparencyResp, error) {
-	res, err := s.dwEnterprise.GetEquityTransparency(ctx, req.UscId)
+	res, err := s.clientDwData.GetEquityTransparency(ctx, req.UscId)
 	if err != nil {
 		return nil, err
 	}
@@ -309,7 +310,7 @@ func (s *DwServiceServicer) GetEnterpriseEquityTransparency(ctx context.Context,
 }
 
 func (s *DwServiceServicer) GetEntBranches(ctx context.Context, req *pb.GetEntInfoReq) (*pb.BranchesResp, error) {
-	res, err := s.dwEnterprise.GetBranches(ctx, req.UscId)
+	res, err := s.clientDwData.GetBranches(ctx, req.UscId)
 	if err != nil {
 		return nil, err
 	}
@@ -341,7 +342,7 @@ func (s *DwServiceServicer) GetEntBranches(ctx context.Context, req *pb.GetEntIn
 }
 
 func (s *DwServiceServicer) GetEntInvestment(ctx context.Context, req *pb.GetEntInfoReq) (*pb.InvestmentResp, error) {
-	res, err := s.dwEnterprise.GetInvestments(ctx, req.UscId)
+	res, err := s.clientDwData.GetInvestments(ctx, req.UscId)
 	if err != nil {
 		return nil, err
 	}
@@ -375,7 +376,7 @@ func (s *DwServiceServicer) GetEntInvestment(ctx context.Context, req *pb.GetEnt
 }
 
 func (s *DwServiceServicer) GetEntShareholders(ctx context.Context, req *pb.GetEntInfoReq) (*pb.ShareholdersResp, error) {
-	res, err := s.dwEnterprise.GetShareholders(ctx, req.UscId)
+	res, err := s.clientDwData.GetShareholders(ctx, req.UscId)
 	if err != nil {
 		return nil, err
 	}
@@ -405,5 +406,285 @@ func (s *DwServiceServicer) GetEntShareholders(ctx context.Context, req *pb.GetE
 		Msg:     "",
 		Found:   true,
 		Data:    d,
+	}, nil
+}
+
+func (s *DwServiceServicer) GetForeclosureDisposition(ctx context.Context, req *pb.GetEntInfoWithTime) (*pb.EntStructResp, error) {
+	cli := s.clientDwData.GetClient(context.TODO())
+	req.TimePoint.AsTime()
+	resp, err := cli.GetForeclosureDisposition(context.TODO(), &dwdataV2.GetEntInfoWithDurationReq{
+		UscId:              req.UscId,
+		TimePoint:          req.TimePoint,
+		ValidateExtendDate: 60,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if resp == nil {
+		return &pb.EntStructResp{
+			Success: false,
+			Code:    http.StatusNoContent,
+			Msg:     "content not found",
+			Data:    nil,
+		}, nil
+	}
+	if !resp.Success {
+		return &pb.EntStructResp{
+			Success: false,
+			Code:    resp.Code,
+			Msg:     resp.Msg,
+			Data:    nil,
+		}, nil
+	}
+	m := resp.Data.AsMap()
+	st, err := structpb.NewStruct(m)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.EntStructResp{
+		Success: true,
+		Code:    http.StatusOK,
+		Msg:     "",
+		Data:    st,
+	}, nil
+}
+
+func (s *DwServiceServicer) GetExecutive(ctx context.Context, req *pb.GetEntInfoWithTime) (*pb.EntStructResp, error) {
+	cli := s.clientDwData.GetClient(context.TODO())
+	req.TimePoint.AsTime()
+	resp, err := cli.GetExecutive(context.TODO(), &dwdataV2.GetEntInfoWithDurationReq{
+		UscId:              req.UscId,
+		TimePoint:          req.TimePoint,
+		ValidateExtendDate: 60,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if resp == nil {
+		return &pb.EntStructResp{
+			Success: false,
+			Code:    http.StatusNoContent,
+			Msg:     "content not found",
+			Data:    nil,
+		}, nil
+	}
+	if !resp.Success {
+		return &pb.EntStructResp{
+			Success: false,
+			Code:    resp.Code,
+			Msg:     resp.Msg,
+			Data:    nil,
+		}, nil
+	}
+	m := resp.Data.AsMap()
+	st, err := structpb.NewStruct(m)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.EntStructResp{
+		Success: true,
+		Code:    http.StatusOK,
+		Msg:     "",
+		Data:    st,
+	}, nil
+}
+
+func (s *DwServiceServicer) GetEquityFrozen(ctx context.Context, req *pb.GetEntInfoWithTime) (*pb.EntStructResp, error) {
+	cli := s.clientDwData.GetClient(context.TODO())
+	req.TimePoint.AsTime()
+	resp, err := cli.GetEquityFrozen(context.TODO(), &dwdataV2.GetEntInfoWithDurationReq{
+		UscId:              req.UscId,
+		TimePoint:          req.TimePoint,
+		ValidateExtendDate: 60,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if resp == nil {
+		return &pb.EntStructResp{
+			Success: false,
+			Code:    http.StatusNoContent,
+			Msg:     "content not found",
+			Data:    nil,
+		}, nil
+	}
+	if !resp.Success {
+		return &pb.EntStructResp{
+			Success: false,
+			Code:    resp.Code,
+			Msg:     resp.Msg,
+			Data:    nil,
+		}, nil
+	}
+	m := resp.Data.AsMap()
+	st, err := structpb.NewStruct(m)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.EntStructResp{
+		Success: true,
+		Code:    http.StatusOK,
+		Msg:     "",
+		Data:    st,
+	}, nil
+}
+
+func (s *DwServiceServicer) GetHighConsumptionRestriction(ctx context.Context, req *pb.GetEntInfoWithTime) (*pb.EntStructResp, error) {
+	cli := s.clientDwData.GetClient(context.TODO())
+	req.TimePoint.AsTime()
+	resp, err := cli.GetHighConsumptionRestriction(context.TODO(), &dwdataV2.GetEntInfoWithDurationReq{
+		UscId:              req.UscId,
+		TimePoint:          req.TimePoint,
+		ValidateExtendDate: 60,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if resp == nil {
+		return &pb.EntStructResp{
+			Success: false,
+			Code:    http.StatusNoContent,
+			Msg:     "content not found",
+			Data:    nil,
+		}, nil
+	}
+	if !resp.Success {
+		return &pb.EntStructResp{
+			Success: false,
+			Code:    resp.Code,
+			Msg:     resp.Msg,
+			Data:    nil,
+		}, nil
+	}
+	m := resp.Data.AsMap()
+	st, err := structpb.NewStruct(m)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.EntStructResp{
+		Success: true,
+		Code:    http.StatusOK,
+		Msg:     "",
+		Data:    st,
+	}, nil
+}
+
+func (s *DwServiceServicer) GetJudicialStatics(ctx context.Context, req *pb.GetEntInfoWithTime) (*pb.EntStructResp, error) {
+	cli := s.clientDwData.GetClient(context.TODO())
+	req.TimePoint.AsTime()
+	resp, err := cli.GetJudicialStatics(context.TODO(), &dwdataV2.GetEntInfoWithDurationReq{
+		UscId:              req.UscId,
+		TimePoint:          req.TimePoint,
+		ValidateExtendDate: 730,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if resp == nil {
+		return &pb.EntStructResp{
+			Success: false,
+			Code:    http.StatusNoContent,
+			Msg:     "content not found",
+			Data:    nil,
+		}, nil
+	}
+	if !resp.Success {
+		return &pb.EntStructResp{
+			Success: false,
+			Code:    resp.Code,
+			Msg:     resp.Msg,
+			Data:    nil,
+		}, nil
+	}
+	m := resp.Data.AsMap()
+	st, err := structpb.NewStruct(m)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.EntStructResp{
+		Success: true,
+		Code:    http.StatusOK,
+		Msg:     "",
+		Data:    st,
+	}, nil
+}
+
+func (s *DwServiceServicer) GetCourtAnnouncement(ctx context.Context, req *pb.GetEntInfoWithTime) (*pb.EntStructResp, error) {
+	cli := s.clientDwData.GetClient(context.TODO())
+	req.TimePoint.AsTime()
+	resp, err := cli.GetCourtAnnouncement(context.TODO(), &dwdataV2.GetEntInfoWithDurationReq{
+		UscId:              req.UscId,
+		TimePoint:          req.TimePoint,
+		ValidateExtendDate: 730,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if resp == nil {
+		return &pb.EntStructResp{
+			Success: false,
+			Code:    http.StatusNoContent,
+			Msg:     "content not found",
+			Data:    nil,
+		}, nil
+	}
+	if !resp.Success {
+		return &pb.EntStructResp{
+			Success: false,
+			Code:    resp.Code,
+			Msg:     resp.Msg,
+			Data:    nil,
+		}, nil
+	}
+	m := resp.Data.AsMap()
+	st, err := structpb.NewStruct(m)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.EntStructResp{
+		Success: true,
+		Code:    http.StatusOK,
+		Msg:     "",
+		Data:    st,
+	}, nil
+}
+
+func (s *DwServiceServicer) GetDiscreditedDebtor(ctx context.Context, req *pb.GetEntInfoWithTime) (*pb.EntStructResp, error) {
+	cli := s.clientDwData.GetClient(context.TODO())
+	req.TimePoint.AsTime()
+	resp, err := cli.GetDiscreditedDebtor(context.TODO(), &dwdataV2.GetEntInfoWithDurationReq{
+		UscId:              req.UscId,
+		TimePoint:          req.TimePoint,
+		ValidateExtendDate: 60,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if resp == nil {
+		return &pb.EntStructResp{
+			Success: false,
+			Code:    http.StatusNoContent,
+			Msg:     "content not found",
+			Data:    nil,
+		}, nil
+	}
+	if !resp.Success {
+		return &pb.EntStructResp{
+			Success: false,
+			Code:    resp.Code,
+			Msg:     resp.Msg,
+			Data:    nil,
+		}, nil
+	}
+	m := resp.Data.AsMap()
+	st, err := structpb.NewStruct(m)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.EntStructResp{
+		Success: true,
+		Code:    http.StatusOK,
+		Msg:     "",
+		Data:    st,
 	}, nil
 }

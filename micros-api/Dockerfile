@@ -1,4 +1,4 @@
-FROM golang:1.18 AS builder
+FROM golang:1.21 AS builder
 
 COPY . /src
 WORKDIR /src
@@ -20,8 +20,10 @@ WORKDIR /app
 EXPOSE 8000
 #EXPOSE 9000
 VOLUME /data/conf
+VOLUME /data/certs
 
-CMD ["./server", "-conf", "/data/conf"]
+#CMD ["./server", "-conf", "/data/conf"]
+CMD ["./server", "-conf", "/data/conf/config_prod.yaml"]
 
 #docker image build -t blmicros-api:1.5 .
 

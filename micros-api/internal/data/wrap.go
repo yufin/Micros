@@ -5,8 +5,8 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/nats-io/nats.go"
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
-	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/mongo"
+
 	"gorm.io/gorm"
 )
 
@@ -18,6 +18,10 @@ type NatsWrap struct {
 type Dbs struct {
 	Db   *gorm.DB
 	DbBl *gorm.DB
+}
+
+type MgoCli struct {
+	Client *mongo.Client
 }
 
 type NeoCli struct {
@@ -45,16 +49,4 @@ func (n NeoCli) CypherQuery(ctx context.Context, cypher string, params map[strin
 		output = append(output, *record)
 	}
 	return output, err
-}
-
-type MgoCli struct {
-	Client *mongo.Client
-}
-
-func (m *MgoCli) close() error {
-	err := m.Client.Disconnect(context.Background())
-	if err != nil {
-		return errors.WithStack(err)
-	}
-	return nil
 }

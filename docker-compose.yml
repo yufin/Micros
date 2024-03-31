@@ -1,37 +1,63 @@
 version: '3.1'
 services:
   api:
+    networks:
+      - consul
     build:
       context: ./micros-api
       dockerfile: Dockerfile
+    image: micros-api:2.0.0
     ports:
       - "8009:8000"
+      - "50051:50051"
     depends_on:
-      - dwData
+      - dwdata
       - pipeline
     volumes:
         - ./micros-api/configs:/data/conf
-
-  dwData:
+        - ./certs:/data/certs
+  dwdata:
+    networks:
+      - consul
     build:
       context: ./micros-dw
       dockerfile: Dockerfile
+    image: micros-dwdata:2.0.0
     ports:
       - "50052:50052"
     environment:
       - DWDATA_URI=api:50052
     volumes:
       - ./micros-dw/configs:/data/conf
+      - ./certs:/data/certs
 
   pipeline:
+    networks:
+      - consul
     build:
       context: ./micros-pipeline
       dockerfile: Dockerfile
+    image: micros-pipeline:2.0.0
     ports:
       - "50053:50053"
     depends_on:
-      - dwData
-#    volumes:
-#      - ./micros-pipeline/configs:/data/conf
+      - dwdata
+    volumes:
+      - ./certs:/data/certs
+      - ./micros-pipeline/configs:/data/conf
+
+  worker:
+    build:
+      context: ./micros-worker
+      dockerfile: Dockerfile
+    image: micros-worker:1.0.0
+    ports:
+      - "50054:50054"
+      - "8004:8004"
+    volumes:
+      - ./micros-worker/configs:/data/conf
 
 
+networks:
+  consul:
+    external: true

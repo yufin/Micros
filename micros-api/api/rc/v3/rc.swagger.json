@@ -47,6 +47,177 @@
         ]
       }
     },
+    "/micros/rc/v3/report/companies": {
+      "get": {
+        "operationId": "RcService_ListCompanies",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3ListCompaniesResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "V2",
+              "V2_5",
+              "V3",
+              "Latest"
+            ],
+            "default": "V2"
+          },
+          {
+            "name": "name_kwd",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "page_num",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "RcService"
+        ]
+      }
+    },
+    "/micros/rc/v3/report/companies/list": {
+      "get": {
+        "operationId": "RcService_ListReportByUscId",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3ListReportByUscIdResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "V2",
+              "V2_5",
+              "V3",
+              "Latest"
+            ],
+            "default": "V2"
+          },
+          {
+            "name": "usc_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "page_num",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "RcService"
+        ]
+      }
+    },
+    "/micros/rc/v3/report/companies/waiting": {
+      "get": {
+        "operationId": "RcService_ListCompaniesWaiting",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3ListCompaniesWaitingResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "V2",
+              "V2_5",
+              "V3",
+              "Latest"
+            ],
+            "default": "V2"
+          },
+          {
+            "name": "uscid_kwd",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "page_num",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "RcService"
+        ]
+      }
+    },
     "/micros/rc/v3/report/content": {
       "get": {
         "operationId": "RcService_GetReportContent",
@@ -79,6 +250,7 @@
             "type": "string",
             "enum": [
               "V2",
+              "V2_5",
               "V3",
               "Latest"
             ],
@@ -89,6 +261,38 @@
             "in": "query",
             "required": false,
             "type": "boolean"
+          }
+        ],
+        "tags": [
+          "RcService"
+        ]
+      }
+    },
+    "/micros/rc/v3/report/content/snapshot/update": {
+      "post": {
+        "operationId": "RcService_UpdateReportContentSnapshot",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3UpdateReportContentSnapshotResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v3UpdateReportContentSnapshotReq"
+            }
           }
         ],
         "tags": [
@@ -155,8 +359,10 @@
         "tags": [
           "RcService"
         ]
-      },
-      "put": {
+      }
+    },
+    "/micros/rc/v3/report/decision-factor/update": {
+      "post": {
         "operationId": "RcService_UpdateReportDecisionFactor",
         "responses": {
           "200": {
@@ -212,6 +418,7 @@
             "type": "string",
             "enum": [
               "V2",
+              "V2_5",
               "V3",
               "Latest"
             ],
@@ -236,6 +443,234 @@
             "required": false,
             "type": "integer",
             "format": "int64"
+          }
+        ],
+        "tags": [
+          "RcService"
+        ]
+      }
+    },
+    "/micros/rc/v3/report/print_config": {
+      "get": {
+        "operationId": "RcService_GetReportPrintConfig",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetReportPrintConfigResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "RcService"
+        ]
+      },
+      "post": {
+        "operationId": "RcService_SaveReportPrintConfig",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3SaveReportPrintConfigResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v3SaveReportPrintConfigReq"
+            }
+          }
+        ],
+        "tags": [
+          "RcService"
+        ]
+      }
+    },
+    "/micros/rc/v3/report/print_config/update": {
+      "post": {
+        "operationId": "RcService_UpdateReportPrintConfig",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3SaveReportPrintConfigResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v3SaveReportPrintConfigReq"
+            }
+          }
+        ],
+        "tags": [
+          "RcService"
+        ]
+      }
+    },
+    "/micros/rc/v3/report/trade_detail": {
+      "get": {
+        "operationId": "RcService_GetTradeDetail",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetTradeDetailResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "content_id",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "report_version",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "V2",
+              "V2_5",
+              "V3",
+              "Latest"
+            ],
+            "default": "V2"
+          },
+          {
+            "name": "option_time_period",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "PERIOD_1ST",
+                "PERIOD_2ND",
+                "PERIOD_3RD",
+                "PERIOD_4TH"
+              ]
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "option_top_cus",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "TOP_1",
+              "TOP_5",
+              "TOP_10",
+              "TOP_20",
+              "ALL"
+            ],
+            "default": "TOP_1"
+          },
+          {
+            "name": "option_trade_frequency",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "FREQUENCY_LOW",
+                "FREQUENCY_MID",
+                "FREQUENCY_HIGH"
+              ]
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "trade_type",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "CUSTOMER",
+              "SUPPLIER"
+            ],
+            "default": "CUSTOMER"
+          }
+        ],
+        "tags": [
+          "RcService"
+        ]
+      }
+    },
+    "/micros/rc/v3/report/validate": {
+      "get": {
+        "operationId": "RcService_GetReportDataValidationStats",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetReportDataValidationStatsResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "content_id",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "V2",
+              "V2_5",
+              "V3",
+              "Latest"
+            ],
+            "default": "V2"
           }
         ],
         "tags": [
@@ -285,14 +720,47 @@
         }
       }
     },
-    "ListReportRespReportInfo": {
+    "GetTradeDetailReqTimePeriodOption": {
+      "type": "string",
+      "enum": [
+        "PERIOD_1ST",
+        "PERIOD_2ND",
+        "PERIOD_3RD",
+        "PERIOD_4TH"
+      ],
+      "default": "PERIOD_1ST"
+    },
+    "GetTradeDetailReqTopCusOption": {
+      "type": "string",
+      "enum": [
+        "TOP_1",
+        "TOP_5",
+        "TOP_10",
+        "TOP_20",
+        "ALL"
+      ],
+      "default": "TOP_1"
+    },
+    "GetTradeDetailReqTradeFrequencyOption": {
+      "type": "string",
+      "enum": [
+        "FREQUENCY_LOW",
+        "FREQUENCY_MID",
+        "FREQUENCY_HIGH"
+      ],
+      "default": "FREQUENCY_LOW"
+    },
+    "GetTradeDetailReqTradeType": {
+      "type": "string",
+      "enum": [
+        "CUSTOMER",
+        "SUPPLIER"
+      ],
+      "default": "CUSTOMER"
+    },
+    "ListCompaniesRespCompanyInfo": {
       "type": "object",
       "properties": {
-        "content_id": {
-          "type": "string",
-          "format": "int64",
-          "title": "报告id"
-        },
         "enterprise_name": {
           "type": "string",
           "title": "企业名称"
@@ -301,18 +769,27 @@
           "type": "string",
           "title": "企业统一信用社会代码"
         },
-        "data_collect_month": {
-          "type": "string",
-          "title": "报文更新月份"
+        "last_update": {
+          "type": "string"
         },
-        "available": {
-          "type": "boolean",
-          "title": "报告是否可用"
-        },
-        "content_updated_time": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "ListCompaniesWaitingRespCompaniesWaiting": {
+      "type": "object",
+      "properties": {
+        "usc_id": {
           "type": "string",
-          "description": "报告状态码\n rc_dependency_data.id",
-          "title": "报告生成时间 yyyy-MM-dd HH:mm:ss"
+          "title": "企业名称"
+        },
+        "created_at": {
+          "type": "string",
+          "title": "企业统一信用社会代码"
+        },
+        "id": {
+          "type": "string"
         }
       }
     },
@@ -331,7 +808,7 @@
         "NULL_VALUE"
       ],
       "default": "NULL_VALUE",
-      "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\n The JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
+      "description": "`NullValue` is a singleton enumeration to represent the null value for the\r\n`Value` type union.\r\n\r\n The JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
     },
     "rpcStatus": {
       "type": "object",
@@ -407,6 +884,63 @@
         }
       }
     },
+    "v3GetReportDataValidationStatsResp": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "v3GetReportPrintConfigResp": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        },
+        "config": {
+          "type": "object"
+        }
+      }
+    },
+    "v3GetTradeDetailResp": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object"
+        }
+      }
+    },
     "v3InsertReportDecisionFactorReq": {
       "type": "object",
       "properties": {
@@ -451,6 +985,112 @@
         }
       }
     },
+    "v3ListCompaniesResp": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/ListCompaniesRespCompanyInfo"
+          }
+        }
+      }
+    },
+    "v3ListCompaniesWaitingResp": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/ListCompaniesWaitingRespCompaniesWaiting"
+          }
+        }
+      }
+    },
+    "v3ListReportByUscIdResp": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v3ListReportByUscIdRespReportInfo"
+          }
+        }
+      }
+    },
+    "v3ListReportByUscIdRespReportInfo": {
+      "type": "object",
+      "properties": {
+        "content_id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "data_collect_month": {
+          "type": "string"
+        },
+        "available": {
+          "type": "boolean"
+        },
+        "content_updated_time": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "create_by": {
+          "type": "string"
+        }
+      }
+    },
     "v3ListReportResp": {
       "type": "object",
       "properties": {
@@ -476,8 +1116,39 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/ListReportRespReportInfo"
+            "$ref": "#/definitions/v3ListReportRespReportInfo"
           }
+        }
+      }
+    },
+    "v3ListReportRespReportInfo": {
+      "type": "object",
+      "properties": {
+        "content_id": {
+          "type": "string",
+          "format": "int64",
+          "title": "报告id"
+        },
+        "enterprise_name": {
+          "type": "string",
+          "title": "企业名称"
+        },
+        "usc_id": {
+          "type": "string",
+          "title": "企业统一信用社会代码"
+        },
+        "data_collect_month": {
+          "type": "string",
+          "title": "报文更新月份"
+        },
+        "available": {
+          "type": "boolean",
+          "title": "报告是否可用"
+        },
+        "content_updated_time": {
+          "type": "string",
+          "description": "报告状态码\r\n rc_dependency_data.id",
+          "title": "报告生成时间 yyyy-MM-dd HH:mm:ss"
         }
       }
     },
@@ -485,10 +1156,61 @@
       "type": "string",
       "enum": [
         "V2",
+        "V2_5",
         "V3",
         "Latest"
       ],
       "default": "V2"
+    },
+    "v3SaveReportPrintConfigReq": {
+      "type": "object",
+      "properties": {
+        "config": {
+          "type": "object"
+        }
+      }
+    },
+    "v3SaveReportPrintConfigResp": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        }
+      }
+    },
+    "v3UpdateReportContentSnapshotReq": {
+      "type": "object",
+      "properties": {
+        "content_id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "report_version": {
+          "$ref": "#/definitions/v3ReportVersion"
+        }
+      }
+    },
+    "v3UpdateReportContentSnapshotResp": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        }
+      }
     },
     "v3UpdateReportDecisionFactorReq": {
       "type": "object",

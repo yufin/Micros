@@ -2,8 +2,11 @@ package biz
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"micros-api/internal/biz/dto"
 	"time"
 )
@@ -17,6 +20,10 @@ type MgoRcRepo interface {
 	GetNewestDocInfoByContentId(ctx context.Context, contentId int64) (string, time.Time, error)
 	GetNewestDocByContentId(ctx context.Context, contentId int64) (bson.M, error)
 	GetRdmResultByClaimedId(ctx context.Context, claimId int64) (bson.M, error)
+	GetCountOnDistinctUscIdForColl(ctx context.Context, collName string) (int, error)
+	SaveReportPrintConfig(ctx context.Context, b []byte) (*mongo.InsertOneResult, error)
+	GetReportPrintConfig(ctx context.Context, cond bson.M) ([]byte, error)
+	DeleteReportPrintConfig(ctx context.Context, cond bson.M) error
 }
 
 type MgoRcUsecase struct {
@@ -26,6 +33,50 @@ type MgoRcUsecase struct {
 
 func NewMgoRcUsecase(repo MgoRcRepo, logger log.Logger) *MgoRcUsecase {
 	return &MgoRcUsecase{repo: repo, log: log.NewHelper(logger)}
+}
+
+func (uc *MgoRcUsecase) SaveReportPrintConfig(ctx context.Context, req dto.ReportPrintConfig) error {
+	b, err := json.Marshal(req)
+	if err != nil {
+		return err
+	}
+	_, err = uc.repo.SaveReportPrintConfig(ctx, b)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (uc *MgoRcUsecase) GetReportPrintConfig(ctx context.Context, createBy int64) (*dto.ReportPrintConfig, error) {
+	cond := bson.M{"create_by": createBy}
+	b, err := uc.repo.GetReportPrintConfig(ctx, cond)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, nil
+		}
+
+		return nil, err
+	}
+	var res dto.ReportPrintConfig
+	err = json.Unmarshal(b, &res)
+	if err != nil {
+		return nil, err
+	}
+	return &res, err
+}
+
+func (uc *MgoRcUsecase) UpdateReportPrintConfig(ctx context.Context, config dto.ReportPrintConfig) error {
+	cond := bson.M{"create_by": config.CreateBy}
+	err := uc.repo.DeleteReportPrintConfig(ctx, cond)
+	if err != nil {
+		return err
+	}
+	return uc.SaveReportPrintConfig(ctx, config)
+}
+
+func (uc *MgoRcUsecase) GetCountOnDistinctUscIdForColl(ctx context.Context, collName string) (int, error) {
+	uc.log.WithContext(ctx).Infof("biz.MgoRcUsecase.GetCountOnDistinctUscIdForColl %s", collName)
+	return uc.repo.GetCountOnDistinctUscIdForColl(ctx, collName)
 }
 
 func (uc *MgoRcUsecase) GetRdmResultByClaimedId(ctx context.Context, claimId int64) (bson.M, error) {

@@ -1,0 +1,227 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "api/notice/v1/notice.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "CommonNotice"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/notice/config/wechat-bot": {
+      "post": {
+        "summary": "存储企业微信机器人配置",
+        "operationId": "CommonNotice_SaveSenderConfigWechatBot",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1SaveConfigResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1SaveSenderConfigWechatBotReq"
+            }
+          }
+        ],
+        "tags": [
+          "CommonNotice"
+        ]
+      }
+    },
+    "/notice/pub/wechat-bot/markdown": {
+      "post": {
+        "summary": "发送企业微信机器人markdown通知",
+        "operationId": "CommonNotice_PubNoticeByWechatBotMarkdown",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1PubNoticeResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1PubNoticeByWechatBotMarkdownReq"
+            }
+          }
+        ],
+        "tags": [
+          "CommonNotice"
+        ]
+      }
+    },
+    "/notice/pub/wechat-bot/text": {
+      "post": {
+        "summary": "发送企业微信机器人text通知",
+        "operationId": "CommonNotice_PubNoticeByWechatBotText",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1PubNoticeResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1PubNoticeByWechatBotTextReq"
+            }
+          }
+        ],
+        "tags": [
+          "CommonNotice"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1PubNoticeByWechatBotMarkdownReq": {
+      "type": "object",
+      "properties": {
+        "sender_id": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        }
+      }
+    },
+    "v1PubNoticeByWechatBotTextReq": {
+      "type": "object",
+      "properties": {
+        "sender_id": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "mention_list": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "v1PubNoticeResp": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "err_code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        },
+        "workflow_id": {
+          "type": "string"
+        }
+      }
+    },
+    "v1SaveConfigResp": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "err_code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "v1SaveSenderConfigWechatBotReq": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "comment": {
+          "type": "string"
+        },
+        "web_hook": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

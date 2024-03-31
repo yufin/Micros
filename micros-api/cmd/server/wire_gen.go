@@ -15,6 +15,7 @@ import (
 	"micros-api/internal/server"
 	"micros-api/internal/service"
 	service2 "micros-api/internal/service/dw/v2"
+	service3 "micros-api/internal/service/dw/v3"
 	"micros-api/internal/service/rc/v3"
 )
 
@@ -26,37 +27,78 @@ import (
 
 // wireApp init kratos application.
 func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*kratos.App, func(), error) {
-	dbs, err := data.NewDbs(confData)
+	dbs, cleanup, err := data.NewDbs(confData)
 	if err != nil {
 		return nil, nil, err
 	}
-	natsWrap, err := data.NewNatsConn(confData)
-	if err != nil {
-		return nil, nil, err
-	}
-	neoCli, err := data.NewNeoCli(confData)
-	if err != nil {
-		return nil, nil, err
-	}
-	minioClient, err := data.NewMinioClient(confData)
-	if err != nil {
-		return nil, nil, err
-	}
-	mgoCli, err := data.NewMgoCli(confData)
-	if err != nil {
-		return nil, nil, err
-	}
-	dwdataServiceClient, cleanup, err := data.NewDwdataServiceClient(confData)
-	if err != nil {
-		return nil, nil, err
-	}
-	pipelineServiceClient, cleanup2, err := data.NewPipelineServiceClient(confData)
+	natsWrap, cleanup2, err := data.NewNatsConn(confData)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	dataData, cleanup3, err := data.NewData(logger, dbs, natsWrap, neoCli, minioClient, mgoCli, dwdataServiceClient, pipelineServiceClient)
+	neoCli, cleanup3, err := data.NewNeoCli(confData)
 	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	minioClient, err := data.NewMinioClient(confData)
+	if err != nil {
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	mgoCli, cleanup4, err := data.NewMgoCli(confData)
+	if err != nil {
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	consulClient, err := server.NewConsulClient(confData)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	registry := server.NewRegistry(consulClient)
+	dwDataClients, cleanup5, err := data.NewDwdataServiceClient(confData, registry)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	pipelineServiceClient, cleanup6, err := data.NewPipelineServiceClient(confData, registry)
+	if err != nil {
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	rdb, cleanup7, err := data.NewRedisClient(confData)
+	if err != nil {
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	dataData, err := data.NewData(dbs, natsWrap, neoCli, minioClient, mgoCli, dwDataClients, pipelineServiceClient, rdb)
+	if err != nil {
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
@@ -75,11 +117,17 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	rcDecisionFactorUsecase := biz.NewRcDecisionFactorUsecase(rcDecisionFactorRepo, logger)
 	rcServiceServicer := service.NewRcServiceServicer(rcProcessedContentUsecase, rcOriginContentUsecase, rcDependencyDataUsecase, ossMetadataUsecase, rcReportOssUsecase, rcDecisionFactorUsecase, logger)
 	grpcServer := server.NewGRPCServer(confServer, rcServiceServicer, logger)
+	rcDecisionFactorV3Repo := data.NewRcDecisionFactorV3Repo(dataData, logger)
+	rcDecisionFactorV3Usecase := biz.NewRcDecisionFactorV3Usecase(rcDecisionFactorV3Repo, logger)
 	mgoRcRepo := data.NewMgoRcRepo(dataData, logger)
 	mgoRcUsecase := biz.NewMgoRcUsecase(mgoRcRepo, logger)
 	clientPipelineRepo := data.NewClientPipelineRepo(dataData, logger)
 	clientPipelineUsecase := biz.NewClientPipelineUsecase(clientPipelineRepo, logger)
-	v3RcServiceServicer := v3.NewRcServiceServicer(rcProcessedContentUsecase, rcOriginContentUsecase, rcDependencyDataUsecase, ossMetadataUsecase, rcReportOssUsecase, rcDecisionFactorUsecase, mgoRcUsecase, clientPipelineUsecase, logger)
+	rcContentMetaRepo := data.NewRcContentMetaRepo(dataData, logger)
+	rcContentMetaUsecase := biz.NewRcContentMetaUsecase(rcContentMetaRepo, logger)
+	userAuthRepo := data.NewUserAuthRepo(dataData, logger)
+	userAuthUsecase := biz.NewUserAuthUsecase(userAuthRepo, logger)
+	v3RcServiceServicer := v3.NewRcServiceServicer(rcProcessedContentUsecase, rcOriginContentUsecase, rcDependencyDataUsecase, ossMetadataUsecase, rcReportOssUsecase, rcDecisionFactorUsecase, rcDecisionFactorV3Usecase, mgoRcUsecase, clientPipelineUsecase, rcContentMetaUsecase, userAuthUsecase, dataData, logger)
 	rcRdmResultRepo := data.NewRcRdmResultRepo(dataData, logger)
 	rcRdmResultUsecase := biz.NewRcRdmResultUsecase(rcRdmResultRepo, logger)
 	rcRdmResDetailRepo := data.NewRcRdmResDetailRepo(dataData, logger)
@@ -89,12 +137,19 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	graphUsecase := biz.NewGraphUsecase(graphRepo, logger)
 	treeGraphServiceServicer := service.NewTreeGraphServiceServicer(graphUsecase, logger)
 	netGraphServiceServicer := service.NewNetGraphServiceServicer(graphUsecase, logger)
-	dwEnterpriseRepo := data.NewDwEnterpriseRepo(dataData, logger)
-	dwEnterpriseUsecase := biz.NewDwEnterpriseUsecase(dwEnterpriseRepo, logger)
-	dwServiceServicer := service2.NewDwServiceServicer(dwEnterpriseUsecase, logger)
-	httpServer := server.NewHTTPServer(confServer, dataData, confData, rcServiceServicer, v3RcServiceServicer, rcRdmServiceServicer, treeGraphServiceServicer, netGraphServiceServicer, dwServiceServicer, logger)
-	app := newApp(logger, grpcServer, httpServer)
+	clientDwDataRepo := data.NewClientDwDataRepo(dataData, logger)
+	clientDwDataUsecase := biz.NewClientDwDataUsecase(clientDwDataRepo, logger)
+	dwServiceServicer := service2.NewDwServiceServicer(clientDwDataUsecase, logger)
+	artifactDataRepo := data.NewArtifactDataRepo(dataData, logger)
+	artifactDataUsecase := biz.NewArtifactDataUsecase(artifactDataRepo, logger)
+	serviceDwServiceServicer := service3.NewDwServiceServicer(clientDwDataUsecase, mgoRcUsecase, dataData, clientPipelineUsecase, artifactDataUsecase, logger)
+	httpServer := server.NewHTTPServer(confServer, dataData, confData, rcServiceServicer, v3RcServiceServicer, rcRdmServiceServicer, treeGraphServiceServicer, netGraphServiceServicer, dwServiceServicer, serviceDwServiceServicer, logger)
+	app := newApp(logger, grpcServer, httpServer, registry)
 	return app, func() {
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
 		cleanup3()
 		cleanup2()
 		cleanup()

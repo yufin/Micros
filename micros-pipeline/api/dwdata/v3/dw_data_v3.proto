@@ -1,0 +1,129 @@
+syntax = "proto3";
+
+package api.dwdata.v3;
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "micros-dw/api/dwdata/v3;dwdataV3";
+option java_multiple_files = true;
+option java_outer_classname = "DwdataV3";
+option java_package = "api.dwdata.v3";
+
+
+service DwdataService {
+
+  rpc GetUscIdByEnterpriseName(GetUscIdByEnterpriseNameReq) returns (GetUscIdByEnterpriseNameResp) {} // 获取企业信用代码 done
+
+  rpc GetEnterpriseInfo(GetDataBeforeTimePointReq) returns (GetDataDictResp) {} // basic_status_enterprise_info 工商信息 done
+
+  rpc GetEntEquityTransparency(GetDataBeforeTimePointReq) returns (GetDataListResp) {}  // basic_status_equity_penetration 股权穿透 done
+
+  rpc GetEntEquityTransparencyConclusion(GetDataBeforeTimePointReq) returns (GetDataDictResp) {}  // basic_status_equity_penetration.conclusion 股权穿透结论 done
+
+  rpc GetEntShareholders(GetDataBeforeTimePointReq) returns (GetDataListResp) {}  // basic_status_shareholders 股东信息 done
+
+  rpc GetEntInvestment(GetDataBeforeTimePointReq) returns (GetDataListResp) {}   // basic_status_investments 对外投资 done
+
+  rpc GetEntFinancing(GetDataBeforeTimePointReq) returns (GetDataListResp) {}   // develop_record_financing 融资 done
+
+  rpc GetEntBranches(GetDataBeforeTimePointReq) returns (GetDataListResp) {}   // law_status_branchlist 分支机构 done
+
+  rpc GetCaseRegistrationInfo(GetDataBeforeTimePointReq) returns (GetDataListResp) {} // law_records_new_cases 立案信息 done
+
+  rpc GetForeclosureDisposition(GetDataBeforeTimePointReq) returns (GetDataListResp)  {}  // law_status_sales 法拍信息 done
+
+  rpc GetExecutive(GetDataBeforeTimePointReq) returns (GetDataListResp) {} //  law_records_execution 法院强制执行 done
+
+  rpc GetHistoricalExecutive(GetDataBeforeTimePointReq) returns (GetDataListResp) {} //  law_records_his_execution 法院历史执行 done
+
+  rpc GetEquityFrozen(GetDataBeforeTimePointReq) returns (GetDataListResp) {}   // 资产冻结 law_status_equity_freezes done
+
+  rpc GetHighConsumptionRestriction(GetDataBeforeTimePointReq) returns (GetDataListResp) {} // law_status_consumption_restriction 高消费限制 done
+
+  rpc GetCourtAnnouncement(GetDataBeforeTimePointReq) returns (GetDataListResp) {} // law_records_cases 案件信息 done
+
+  rpc GetEnterpriseManagerInfo(GetDataBeforeTimePointReq) returns (GetDataListResp) {} // law_records_members 主要人员 done
+
+  rpc GetDiscreditedDebtor(GetDataBeforeTimePointReq) returns (GetDataListResp) {} // law_status_lose_credit done
+
+  rpc GetJudicialStatics(GetDataBeforeTimePointReq) returns (GetDataListResp) {} // temp desp
+
+  rpc GetEnterpriseCredential(GetDataBeforeTimePointReq) returns (GetDataListResp) {}  //
+
+  rpc GetEnterpriseRankingList(GetDataBeforeTimePointReq) returns (GetEntRankingListResp) {} //
+
+  rpc GetEnterpriseIndustry(GetDataBeforeTimePointReq) returns (GetDataListResp) {} //
+
+  rpc GetEnterpriseProduct(GetDataBeforeTimePointReq) returns (GetDataListResp) {} //
+
+
+}
+
+
+message GetDataDictResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  google.protobuf.Struct data = 4;
+//  google.protobuf.Timestamp created_at = 4;
+//  google.protobuf.Timestamp updated_at = 5;
+}
+
+message GetDataListResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  repeated google.protobuf.Struct data = 4;
+  int64 total = 5;
+//  google.protobuf.Timestamp created_at = 5;
+//  google.protobuf.Timestamp updated_at = 6;
+}
+
+message GetDataWithDurationReq {
+  string usc_id = 1;
+  google.protobuf.Timestamp time_point = 2;
+  int32 validate_extend_date = 3;
+}
+
+message GetDataBeforeTimePointReq {
+  string usc_id = 1;
+  google.protobuf.Timestamp time_point = 2;
+  int64 page_size = 3;
+  int64 page_num = 4;
+}
+
+message GetUscIdByEnterpriseNameReq {
+  string enterprise_name = 1;
+}
+
+message GetUscIdByEnterpriseNameResp {
+  message EntIdent {
+    bool exists = 1;
+    bool isLegal = 2;
+    string usc_id = 3;
+  }
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  EntIdent data = 4;
+}
+
+message GetEntRankingListResp {
+  message EnterpriseRankingList {
+    string usc_id = 1;
+    int32 ranking_position = 2;
+    string list_title = 3;
+    string list_type = 4;
+    string list_source = 5;
+    int32 list_participants_total = 6;
+    string list_published_date = 7;
+    string list_url_qcc = 8;
+    string list_url_origin = 9;
+  }
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  repeated EnterpriseRankingList data = 4;
+  int64 total = 5;
+}

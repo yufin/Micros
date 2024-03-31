@@ -29,6 +29,52 @@ func NewMgoRcRepo(data *Data, logger log.Logger) biz.MgoRcRepo {
 	}
 }
 
+func (r *MgoRcRepo) SaveReportPrintConfig(ctx context.Context, b []byte) (*mongo.InsertOneResult, error) {
+	var m bson.M
+	err := bson.UnmarshalExtJSON(b, false, &m)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := r.data.MgoCli.Client.
+		Database("rc").
+		Collection("report_print_config").
+		InsertOne(ctx, m)
+	if err != nil {
+		return nil, err
+	}
+	return res, err
+}
+
+func (r *MgoRcRepo) GetReportPrintConfig(ctx context.Context, cond bson.M) ([]byte, error) {
+	var m bson.M
+	err := r.data.MgoCli.Client.
+		Database("rc").
+		Collection("report_print_config").
+		FindOne(ctx, cond).
+		Decode(&m)
+	if err != nil {
+		return nil, err
+	}
+
+	b, err := bson.MarshalExtJSON(m, false, false)
+	if err != nil {
+		return nil, err
+	}
+	return b, err
+}
+
+func (r *MgoRcRepo) DeleteReportPrintConfig(ctx context.Context, cond bson.M) error {
+	_, err := r.data.MgoCli.Client.
+		Database("rc").
+		Collection("report_print_config").
+		DeleteOne(ctx, cond)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (repo *MgoRcRepo) GetRdmResultByClaimedId(ctx context.Context, claimId int64) (bson.M, error) {
 	var data bson.M
 	err := repo.data.MgoCli.Client.Database("rc").Collection("rdm_result").
@@ -303,4 +349,32 @@ func (repo *MgoRcRepo) GetContentInfosByKwd(ctx context.Context, page *dto.Pagin
 		},
 		Data: &infos,
 	}, nil
+}
+
+func (repo *MgoRcRepo) GetCountOnDistinctUscIdForColl(ctx context.Context, collName string) (int, error) {
+	collection := repo.data.MgoCli.Client.Database("dw2").Collection(collName)
+
+	// Aggregation pipeline
+	pipeline := mongo.Pipeline{
+		bson.D{{"$group", bson.D{{"_id", "$usc_id"}}}},
+		bson.D{{"$group", bson.D{{"_id", nil}, {"count", bson.D{{"$sum", 1}}}}}},
+	}
+
+	cursor, err := collection.Aggregate(context.TODO(), pipeline)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var results []bson.M
+	if err = cursor.All(context.Background(), &results); err != nil {
+		log.Fatal(err)
+	}
+	if len(results) == 0 {
+		return 0, nil
+	}
+	totalDist := results[0]["count"]
+	totalDistInt, ok := totalDist.(int32)
+	if !ok {
+		return 0, errors.New("type assertion failed")
+	}
+	return int(totalDistInt), nil
 }

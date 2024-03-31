@@ -226,6 +226,265 @@
         ]
       }
     },
+    "/micros/dw/v2/enterprise/judiciary/court-announcement": {
+      "get": {
+        "operationId": "DwService_GetCourtAnnouncement",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2EntStructResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "usc_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "time_point",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    },
+    "/micros/dw/v2/enterprise/judiciary/discredited-debtor": {
+      "get": {
+        "operationId": "DwService_GetDiscreditedDebtor",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2EntStructResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "usc_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "time_point",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    },
+    "/micros/dw/v2/enterprise/judiciary/equity-frozen": {
+      "get": {
+        "operationId": "DwService_GetEquityFrozen",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2EntStructResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "usc_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "time_point",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    },
+    "/micros/dw/v2/enterprise/judiciary/executive": {
+      "get": {
+        "operationId": "DwService_GetExecutive",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2EntStructResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "usc_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "time_point",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    },
+    "/micros/dw/v2/enterprise/judiciary/foreclosure-disposition": {
+      "get": {
+        "operationId": "DwService_GetForeclosureDisposition",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2EntStructResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "usc_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "time_point",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    },
+    "/micros/dw/v2/enterprise/judiciary/high-consumption-restriction": {
+      "get": {
+        "operationId": "DwService_GetHighConsumptionRestriction",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2EntStructResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "usc_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "time_point",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    },
+    "/micros/dw/v2/enterprise/judiciary/stat": {
+      "get": {
+        "operationId": "DwService_GetJudicialStatics",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2EntStructResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "usc_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "time_point",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    },
     "/micros/dw/v2/enterprise/product": {
       "get": {
         "operationId": "DwService_GetEnterpriseProduct",
@@ -351,6 +610,9 @@
     "EnterpriseRelationsRelationsData": {
       "type": "object",
       "properties": {
+        "enterprise_name": {
+          "type": "string"
+        },
         "shareholder": {
           "type": "array",
           "items": {

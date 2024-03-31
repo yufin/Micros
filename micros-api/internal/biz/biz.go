@@ -13,7 +13,11 @@ var ProviderSet = wire.NewSet(
 	NewRcRdmResultUsecase,
 	NewRcRdmResDetailUsecase,
 	NewMgoRcUsecase,
-	NewDwEnterpriseUsecase,
+	NewClientDwDataUsecase,
 	NewClientPipelineUsecase,
 	NewRcDecisionFactorUsecase,
+	NewRcDecisionFactorV3Usecase,
+	NewRcContentMetaUsecase,
+	NewArtifactDataUsecase,
+	NewUserAuthUsecase,
 )

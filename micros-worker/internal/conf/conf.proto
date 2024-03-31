@@ -1,0 +1,63 @@
+syntax = "proto3";
+package kratos.api;
+
+option go_package = "micros-worker/internal/conf;conf";
+
+import "google/protobuf/duration.proto";
+
+message Bootstrap {
+  Server server = 1;
+  Data data = 2;
+}
+
+message Server {
+  message HTTP {
+    string network = 1;
+    string addr = 2;
+    google.protobuf.Duration timeout = 3;
+  }
+  message GRPC {
+    string network = 1;
+    string addr = 2;
+    google.protobuf.Duration timeout = 3;
+  }
+  HTTP http = 1;
+  GRPC grpc = 2;
+}
+
+message Data {
+  message Database {
+    string driver = 1;
+    string source = 2;
+  }
+  message MongoDb {
+    string uri = 1;
+  }
+  message Redis {
+    string network = 1;
+    string addr = 2;
+    google.protobuf.Duration read_timeout = 3;
+    google.protobuf.Duration write_timeout = 4;
+    string password = 5;
+    int32 db = 6;
+  }
+  message VzoomSftp {
+    string username = 1;
+    string password = 2;
+    string uri = 3;
+    int32 pool_size = 4;
+  }
+  message Temporal {
+    string client_uri = 1;
+  }
+  message WechatBot {
+    string hook_content_sync = 1;
+    string env_name = 2;
+  }
+  Database database = 1;
+  Redis redis = 2;
+  MongoDb mongoDb = 3;
+  VzoomSftp vzoom_sftp = 4;
+  Temporal temporal = 5;
+  WechatBot wechat_bot = 6;
+}

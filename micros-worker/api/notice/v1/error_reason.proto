@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package notice.v1;
+
+import "errors/errors.proto";
+
+option go_package = "micros-worker/api/notice/v1;v1";
+option java_multiple_files = true;
+option java_package = "notice.v1";
+option objc_class_prefix = "APINoticeV1";
+
+enum ErrorReason {
+//  option (errors.default_cod) = 500;
+  CONTENT_FORMAT_INVALID = 0;
+}

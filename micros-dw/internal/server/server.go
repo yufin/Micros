@@ -8,4 +8,6 @@ import (
 var ProviderSet = wire.NewSet(
 	NewGRPCServer,
 	//NewHTTPServer,
+	NewConsulClient,
+	NewRegistry,
 )

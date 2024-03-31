@@ -13,112 +13,112 @@ option java_package = "api.graph.v1";
 
 
 service TreeGraphService {
-	rpc GetTreeNode(IdReq) returns (TreeNodeResp) {
-		option (google.api.http) = {
-			get: "/micros/graph/v1/tree/node"
-		};
-	}
+  rpc GetTreeNode(IdReq) returns (TreeNodeResp) {
+    option (google.api.http) = {
+      get: "/micros/graph/v1/tree/node"
+    };
+  }
 
-	rpc GetChildren(PgIdReq) returns (TreeNodesResp) {
-		option (google.api.http) = {
-			get: "/micros/graph/v1/tree/children"
-		};
-	}
+  rpc GetChildren(PgIdReq) returns (TreeNodesResp) {
+    option (google.api.http) = {
+      get: "/micros/graph/v1/tree/children"
+    };
+  }
 
-	rpc GetTitleAutoComplete(TitleAutoCompleteReq) returns (TitleAutoCompleteResp) {
-		option (google.api.http) = {
-			get: "/micros/graph/v1/tree/title-autocomplete"
-		};
-	}
+  rpc GetTitleAutoComplete(TitleAutoCompleteReq) returns (TitleAutoCompleteResp) {
+    option (google.api.http) = {
+      get: "/micros/graph/v1/tree/title-autocomplete"
+    };
+  }
 
-	rpc GetPathBetween(GetPathReq) returns (TreeNodeResp) {
-		option (google.api.http) = {
-			get: "/micros/graph/v1/tree/path"
-		};
-	}
+  rpc GetPathBetween(GetPathReq) returns (TreeNodeResp) {
+    option (google.api.http) = {
+      get: "/micros/graph/v1/tree/path"
+    };
+  }
 
-	rpc GetConst(google.protobuf.Empty) returns (ConstResp) {
-		option (google.api.http) = {
-			get: "/micros/graph/v1/tree/const"
-		};
-	}
+  rpc GetConst(google.protobuf.Empty) returns (ConstResp) {
+    option (google.api.http) = {
+      get: "/micros/graph/v1/tree/const"
+    };
+  }
 }
 
 
 
 message ConstResp {
-	bool success = 1;
-	int32 code = 2;
-	string msg = 3;
-	google.protobuf.Struct data =4;
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  google.protobuf.Struct data =4;
 }
 
 message IdReq {
-	string id = 3;
+  string id = 3;
 }
 
 message PgIdReq {
-	uint32 page_num = 1;
-	uint32 page_size = 2;
-	string id = 3;
+  uint32 page_num = 1;
+  uint32 page_size = 2;
+  string id = 3;
 }
 
 
 message TreeNode {
-	string entity_id = 1;
-	string id = 2;
-	string title = 3;
-	repeated string labels = 4;
-	int32 children_count = 5;
-	repeated TreeNode children = 6;
+  string entity_id = 1;
+  string id = 2;
+  string title = 3;
+  repeated string labels = 4;
+  int32 children_count = 5;
+  repeated TreeNode children = 6;
 }
 
 
 message TreeNodeResp {
-	bool success = 1;
-	int32 code = 2;
-	string msg = 3;
-	TreeNode data = 4;
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  TreeNode data = 4;
 }
 
 message TreeNodesResp {
-	bool success = 1;
-	int32 code = 2;
-	string msg = 3;
-	uint32 total = 4;
-	uint32 current = 5;
-	uint32 page_size = 6;
-	repeated TreeNode data = 7;
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  uint32 total = 4;
+  uint32 current = 5;
+  uint32 page_size = 6;
+  repeated TreeNode data = 7;
 }
 
 enum LabelType {
-	COMPANY = 0;
-	TAG = 1;
+  COMPANY = 0;
+  TAG = 1;
 }
 
 message TitleAutoCompleteReq {
-	uint32 page_num = 1;
-	uint32 page_size = 2;
-	string key_word = 3;
-	LabelType node_label = 4;
+  uint32 page_num = 1;
+  uint32 page_size = 2;
+  string key_word = 3;
+  LabelType node_label = 4;
 }
 
 message TitleAutoComplete {
-	string title = 1;
-	string id = 2;
+  string title = 1;
+  string id = 2;
 }
 
 message TitleAutoCompleteResp {
-	bool success = 1;
-	int32 code = 2;
-	string msg = 3;
-	uint32 total = 4;
-	uint32 current = 5;
-	uint32 page_size = 6;
-	repeated TitleAutoComplete data = 7;
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  uint32 total = 4;
+  uint32 current = 5;
+  uint32 page_size = 6;
+  repeated TitleAutoComplete data = 7;
 }
 
 message GetPathReq {
-	string source = 1;
-	string target = 2;
+  string source = 1;
+  string target = 2;
 }

@@ -1,0 +1,1477 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "api/dw/v3/dw.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "DwService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/micros/dw/v3/artifact-data": {
+      "get": {
+        "operationId": "DwService_GetArtifactData",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetDataListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "item",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "ENTERPRISE_COMMENT",
+              "PRODUCT_EVAL_RULE"
+            ],
+            "default": "ENTERPRISE_COMMENT"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "page_num",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "field_match",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "match_target",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      },
+      "post": {
+        "operationId": "DwService_InsertArtifactData",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3InsertArtifactDataResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v3InsertArtifactDataReq"
+            }
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    },
+    "/micros/dw/v3/artifact-data/delete": {
+      "post": {
+        "operationId": "DwService_DeleteArtifactData",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3DeleteArtifactDataResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v3DeleteArtifactDataReq"
+            }
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    },
+    "/micros/dw/v3/enterprise/branches": {
+      "get": {
+        "operationId": "DwService_GetEntBranches",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetDataListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "usc_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "time_point",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "page_num",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    },
+    "/micros/dw/v3/enterprise/case-regis": {
+      "get": {
+        "operationId": "DwService_GetCaseRegistrationInfo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetDataListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "usc_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "time_point",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "page_num",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    },
+    "/micros/dw/v3/enterprise/credential": {
+      "get": {
+        "operationId": "DwService_GetEnterpriseCredential",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetDataListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "usc_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "time_point",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "page_num",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    },
+    "/micros/dw/v3/enterprise/equity-transparency": {
+      "get": {
+        "operationId": "DwService_GetEntEquityTransparency",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetDataListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "usc_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "time_point",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "page_num",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    },
+    "/micros/dw/v3/enterprise/equity-transparency/conclusion": {
+      "get": {
+        "operationId": "DwService_GetEntEquityTransparencyConclusion",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetDataDictResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "usc_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "time_point",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "page_num",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    },
+    "/micros/dw/v3/enterprise/ident": {
+      "get": {
+        "operationId": "DwService_GetUscIdByEnterpriseName",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetUscIdByEnterpriseNameResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "enterprise_name",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    },
+    "/micros/dw/v3/enterprise/info": {
+      "get": {
+        "operationId": "DwService_GetEnterpriseInfo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetDataDictResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "usc_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "time_point",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "page_num",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    },
+    "/micros/dw/v3/enterprise/investments": {
+      "get": {
+        "operationId": "DwService_GetEntInvestment",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetDataListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "usc_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "time_point",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "page_num",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    },
+    "/micros/dw/v3/enterprise/judiciary/court-announcement": {
+      "get": {
+        "operationId": "DwService_GetCourtAnnouncement",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetDataListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "usc_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "time_point",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "page_num",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    },
+    "/micros/dw/v3/enterprise/judiciary/discredited-debtor": {
+      "get": {
+        "operationId": "DwService_GetDiscreditedDebtor",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetDataListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "usc_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "time_point",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "page_num",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    },
+    "/micros/dw/v3/enterprise/judiciary/equity-frozen": {
+      "get": {
+        "operationId": "DwService_GetEquityFrozen",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetDataListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "usc_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "time_point",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "page_num",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    },
+    "/micros/dw/v3/enterprise/judiciary/executive": {
+      "get": {
+        "operationId": "DwService_GetExecutive",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetDataListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "usc_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "time_point",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "page_num",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    },
+    "/micros/dw/v3/enterprise/judiciary/foreclosure-disposition": {
+      "get": {
+        "operationId": "DwService_GetForeclosureDisposition",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetDataListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "usc_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "time_point",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "page_num",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    },
+    "/micros/dw/v3/enterprise/judiciary/high-consumption-restriction": {
+      "get": {
+        "operationId": "DwService_GetHighConsumptionRestriction",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetDataListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "usc_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "time_point",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "page_num",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    },
+    "/micros/dw/v3/enterprise/macro-econ": {
+      "get": {
+        "operationId": "DwService_GetMacroEconomyData",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetDataListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "page_num",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "item",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    },
+    "/micros/dw/v3/enterprise/managers-info": {
+      "get": {
+        "operationId": "DwService_GetEnterpriseManagerInfo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetDataListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "usc_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "time_point",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "page_num",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    },
+    "/micros/dw/v3/enterprise/ranking-list": {
+      "get": {
+        "operationId": "DwService_GetEnterpriseRankingList",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetEntRankingListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "usc_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "time_point",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "page_num",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    },
+    "/micros/dw/v3/enterprise/relations": {
+      "get": {
+        "operationId": "DwService_GetEntRelations",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3EnterpriseRelationsResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "usc_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "time_point",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "page_num",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    },
+    "/micros/dw/v3/enterprise/shareholders": {
+      "get": {
+        "operationId": "DwService_GetEntShareholders",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetDataListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "usc_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "time_point",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "page_num",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    },
+    "/micros/dw/v3/enterprise/stat": {
+      "get": {
+        "operationId": "DwService_GetCollStat",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetCollStatResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "coll_name",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "basic_status_branchlist",
+              "basic_status_enterprise_info",
+              "basic_status_equity_penetration",
+              "basic_status_investments",
+              "basic_status_members",
+              "basic_status_shareholders",
+              "develop_records_bd_detail",
+              "develop_records_financing",
+              "develop_records_honour_tags",
+              "develop_records_ranking_tags",
+              "law_records_cases",
+              "law_records_execution",
+              "law_records_his_execution",
+              "law_records_new_cases",
+              "law_status_consumption_restriction",
+              "law_status_equity_freezes",
+              "law_status_lose_credit",
+              "law_status_sales"
+            ],
+            "default": "basic_status_branchlist"
+          }
+        ],
+        "tags": [
+          "DwService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "EnterpriseRelationsRespRelationsData": {
+      "type": "object",
+      "properties": {
+        "enterprise_name": {
+          "type": "string"
+        },
+        "shareholder": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "investment": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "branch": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "total_shareholder": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "total_investment": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "total_branch": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "GetCollStatReqCollName": {
+      "type": "string",
+      "enum": [
+        "basic_status_branchlist",
+        "basic_status_enterprise_info",
+        "basic_status_equity_penetration",
+        "basic_status_investments",
+        "basic_status_members",
+        "basic_status_shareholders",
+        "develop_records_bd_detail",
+        "develop_records_financing",
+        "develop_records_honour_tags",
+        "develop_records_ranking_tags",
+        "law_records_cases",
+        "law_records_execution",
+        "law_records_his_execution",
+        "law_records_new_cases",
+        "law_status_consumption_restriction",
+        "law_status_equity_freezes",
+        "law_status_lose_credit",
+        "law_status_sales"
+      ],
+      "default": "basic_status_branchlist"
+    },
+    "GetEntRankingListRespEnterpriseRankingList": {
+      "type": "object",
+      "properties": {
+        "usc_id": {
+          "type": "string"
+        },
+        "ranking_position": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "list_title": {
+          "type": "string"
+        },
+        "list_type": {
+          "type": "string"
+        },
+        "list_source": {
+          "type": "string"
+        },
+        "list_participants_total": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "list_published_date": {
+          "type": "string"
+        },
+        "list_url_qcc": {
+          "type": "string"
+        },
+        "list_url_origin": {
+          "type": "string"
+        }
+      }
+    },
+    "GetUscIdByEnterpriseNameRespEntIdent": {
+      "type": "object",
+      "properties": {
+        "exists": {
+          "type": "boolean"
+        },
+        "isLegal": {
+          "type": "boolean"
+        },
+        "usc_id": {
+          "type": "string"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "protobufNullValue": {
+      "type": "string",
+      "enum": [
+        "NULL_VALUE"
+      ],
+      "default": "NULL_VALUE",
+      "description": "`NullValue` is a singleton enumeration to represent the null value for the\r\n`Value` type union.\r\n\r\n The JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v3ArtifactDataItem": {
+      "type": "string",
+      "enum": [
+        "ENTERPRISE_COMMENT",
+        "PRODUCT_EVAL_RULE"
+      ],
+      "default": "ENTERPRISE_COMMENT"
+    },
+    "v3DeleteArtifactDataReq": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/v3ArtifactDataItem"
+        },
+        "coll_id": {
+          "type": "string"
+        }
+      }
+    },
+    "v3DeleteArtifactDataResp": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        }
+      }
+    },
+    "v3EnterpriseRelationsResp": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/EnterpriseRelationsRespRelationsData"
+        }
+      }
+    },
+    "v3GetCollStatResp": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object"
+        }
+      }
+    },
+    "v3GetDataDictResp": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object",
+          "title": "google.protobuf.Timestamp created_at = 4;\n  google.protobuf.Timestamp updated_at = 5;"
+        }
+      }
+    },
+    "v3GetDataListResp": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "title": "google.protobuf.Timestamp created_at = 5;\n  google.protobuf.Timestamp updated_at = 6;"
+        }
+      }
+    },
+    "v3GetEntRankingListResp": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/GetEntRankingListRespEnterpriseRankingList"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "v3GetUscIdByEnterpriseNameResp": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/GetUscIdByEnterpriseNameRespEntIdent"
+        }
+      }
+    },
+    "v3InsertArtifactDataReq": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/v3ArtifactDataItem"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "v3InsertArtifactDataResp": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "msg": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

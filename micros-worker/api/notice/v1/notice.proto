@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package notice.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "micros-worker/api/notice/v1;v1";
+option java_multiple_files = true;
+
+
+
+// The greeting service definition.
+service CommonNotice {
+  // 发送企业微信机器人markdown通知
+  rpc PubNoticeByWechatBotMarkdown (PubNoticeByWechatBotMarkdownReq) returns (PubNoticeResp) {
+    option (google.api.http) = {
+      post: "/notice/pub/wechat-bot/markdown"
+      body: "*"
+    };
+  }
+  // 发送企业微信机器人text通知
+  rpc PubNoticeByWechatBotText (PubNoticeByWechatBotTextReq) returns (PubNoticeResp) {
+    option (google.api.http) = {
+      post: "/notice/pub/wechat-bot/text"
+      body: "*"
+    };
+  }
+
+  // 存储企业微信机器人配置
+  rpc SaveSenderConfigWechatBot (SaveSenderConfigWechatBotReq) returns (SaveConfigResp) {
+    option (google.api.http) = {
+      post: "/notice/config/wechat-bot"
+      body: "*"
+    };
+  }
+
+
+}
+
+
+
+
+message SaveSenderConfigWechatBotReq {
+   string title = 1;
+   string comment = 2;
+   string web_hook = 3;
+}
+
+message PubNoticeByWechatBotMarkdownReq {
+  string sender_id = 1;
+  string content = 2;
+}
+
+message PubNoticeByWechatBotTextReq {
+  string sender_id = 1;
+  string content = 2;
+  repeated string mention_list = 3;
+}
+
+
+message PubNoticeResp {
+  bool success = 1;
+  int32 err_code = 2;
+  string msg = 3;
+  string workflow_id = 4;
+}
+
+message SaveConfigResp {
+  bool success = 1;
+  int32 err_code = 2;
+  string msg = 3;
+  string id = 4;
+}

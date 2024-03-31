@@ -3,34 +3,109 @@ package api.pipeline.v1;
 
 import "google/protobuf/struct.proto";
 
-option go_package = "micros-py/api/py/pipeline/v1;pipelineV1";
+option go_package = "micros-pipeline/api/pipeline/v1;pipelineV1";
 option java_multiple_files = true;
 option java_outer_classname = "PipelineV1";
 option java_package = "api.pipeline.v1";
 
 
 service PipelineService {
-
   rpc GetContentProcess (GetContentProcessReq) returns (GetContentProcessResp) {}
-
+  rpc GetContentValidate (GetContentProcessReq) returns (GetContentValidateResp) {}
+  rpc GetAhpScore (GetAhpScoreReq) returns (GetAhpScoreResp) {}
+  rpc GetTradeDetail(GetTradeDetailReq) returns (GetTradeDetailResp) {}
+  rpc GetJsonTranslate(GetJsonTranslateReq) returns (GetJsonTranslateResp) {}
 }
+
+
+message GetTradeDetailReq {
+  enum TimePeriodOption {
+    PERIOD_1ST = 0;
+    PERIOD_2ND = 1;
+    PERIOD_3RD = 2;
+    PERIOD_4TH = 3;
+  }
+  enum TradeFrequencyOption {
+    FREQUENCY_LOW = 0;
+    FREQUENCY_MID = 1;
+    FREQUENCY_HIGH = 2;
+  }
+  enum TopCusOption {
+    TOP_1 = 0;
+    TOP_5 = 1;
+    TOP_10 = 2;
+    TOP_20 = 3;
+    ALL = 4;
+  }
+  enum TradeType {
+    CUSTOMER = 0;
+    SUPPLIER = 1;
+  }
+
+  int64 content_id = 1;
+  ReportVersion report_version = 2;
+  repeated TimePeriodOption option_time_period = 3;
+  TopCusOption option_top_cus = 4;
+  repeated TradeFrequencyOption option_trade_frequency = 5;
+  TradeType trade_type = 6;
+}
+
+message GetTradeDetailResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  google.protobuf.Struct data = 4;
+}
+
 
 enum ContentVersion {
   CONTENT_V1 = 0;
   CONTENT_V2 = 1;
 }
+
 enum ReportVersion {
   V2 = 0;
-  V3 = 1;
-  LATEST = 2;
+  V2_5 = 1;
+  V3 = 2;
+  LATEST = 3;
+}
+
+message GetAhpScoreReq {
+  int64 claim_id = 1;
+}
+
+message GetAhpScoreResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  google.protobuf.Struct data = 4;
 }
 
 message GetContentProcessReq {
   int64 content_id = 1;
   ReportVersion report_version = 2;
+  string lang = 3;
 }
 
 message GetContentProcessResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  google.protobuf.Struct data = 4;
+}
+
+message GetContentValidateResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  repeated google.protobuf.Struct data = 4;
+}
+
+message GetJsonTranslateReq {
+  google.protobuf.Struct data = 1;
+}
+
+message GetJsonTranslateResp {
   bool success = 1;
   int32 code = 2;
   string msg = 3;

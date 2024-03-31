@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -19,12 +20,20 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	RcService_InsertReportDecisionFactor_FullMethodName = "/api.rc.v3.RcService/InsertReportDecisionFactor"
-	RcService_UpdateReportDecisionFactor_FullMethodName = "/api.rc.v3.RcService/UpdateReportDecisionFactor"
-	RcService_GetReportDecisionFactor_FullMethodName    = "/api.rc.v3.RcService/GetReportDecisionFactor"
-	RcService_ListReport_FullMethodName                 = "/api.rc.v3.RcService/ListReport"
-	RcService_GetReportContent_FullMethodName           = "/api.rc.v3.RcService/GetReportContent"
-	RcService_GetAhpResult_FullMethodName               = "/api.rc.v3.RcService/GetAhpResult"
+	RcService_InsertReportDecisionFactor_FullMethodName   = "/api.rc.v3.RcService/InsertReportDecisionFactor"
+	RcService_UpdateReportDecisionFactor_FullMethodName   = "/api.rc.v3.RcService/UpdateReportDecisionFactor"
+	RcService_GetReportDecisionFactor_FullMethodName      = "/api.rc.v3.RcService/GetReportDecisionFactor"
+	RcService_ListReport_FullMethodName                   = "/api.rc.v3.RcService/ListReport"
+	RcService_ListCompanies_FullMethodName                = "/api.rc.v3.RcService/ListCompanies"
+	RcService_ListCompaniesWaiting_FullMethodName         = "/api.rc.v3.RcService/ListCompaniesWaiting"
+	RcService_ListReportByUscId_FullMethodName            = "/api.rc.v3.RcService/ListReportByUscId"
+	RcService_GetReportContent_FullMethodName             = "/api.rc.v3.RcService/GetReportContent"
+	RcService_UpdateReportContentSnapshot_FullMethodName  = "/api.rc.v3.RcService/UpdateReportContentSnapshot"
+	RcService_GetReportDataValidationStats_FullMethodName = "/api.rc.v3.RcService/GetReportDataValidationStats"
+	RcService_GetAhpResult_FullMethodName                 = "/api.rc.v3.RcService/GetAhpResult"
+	RcService_GetTradeDetail_FullMethodName               = "/api.rc.v3.RcService/GetTradeDetail"
+	RcService_GetReportPrintConfig_FullMethodName         = "/api.rc.v3.RcService/GetReportPrintConfig"
+	RcService_UpdateReportPrintConfig_FullMethodName      = "/api.rc.v3.RcService/UpdateReportPrintConfig"
 )
 
 // RcServiceClient is the client API for RcService service.
@@ -35,8 +44,16 @@ type RcServiceClient interface {
 	UpdateReportDecisionFactor(ctx context.Context, in *UpdateReportDecisionFactorReq, opts ...grpc.CallOption) (*InsertReportDecisionFactorResp, error)
 	GetReportDecisionFactor(ctx context.Context, in *GetDecisionFactorReq, opts ...grpc.CallOption) (*GetDecisionFactorResp, error)
 	ListReport(ctx context.Context, in *ListReportKwdSearchReq, opts ...grpc.CallOption) (*ListReportResp, error)
+	ListCompanies(ctx context.Context, in *ListReportKwdSearchReq, opts ...grpc.CallOption) (*ListCompaniesResp, error)
+	ListCompaniesWaiting(ctx context.Context, in *ListCompanyWaitingReq, opts ...grpc.CallOption) (*ListCompaniesWaitingResp, error)
+	ListReportByUscId(ctx context.Context, in *ListReportByUscIdReq, opts ...grpc.CallOption) (*ListReportByUscIdResp, error)
 	GetReportContent(ctx context.Context, in *GetReportContentReq, opts ...grpc.CallOption) (*GetReportContentResp, error)
+	UpdateReportContentSnapshot(ctx context.Context, in *UpdateReportContentSnapshotReq, opts ...grpc.CallOption) (*UpdateReportContentSnapshotResp, error)
+	GetReportDataValidationStats(ctx context.Context, in *GetReportDataValidationStatsReq, opts ...grpc.CallOption) (*GetReportDataValidationStatsResp, error)
 	GetAhpResult(ctx context.Context, in *GetAhpResultReq, opts ...grpc.CallOption) (*GetAhpResultResp, error)
+	GetTradeDetail(ctx context.Context, in *GetTradeDetailReq, opts ...grpc.CallOption) (*GetTradeDetailResp, error)
+	GetReportPrintConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetReportPrintConfigResp, error)
+	UpdateReportPrintConfig(ctx context.Context, in *SaveReportPrintConfigReq, opts ...grpc.CallOption) (*SaveReportPrintConfigResp, error)
 }
 
 type rcServiceClient struct {
@@ -83,9 +100,54 @@ func (c *rcServiceClient) ListReport(ctx context.Context, in *ListReportKwdSearc
 	return out, nil
 }
 
+func (c *rcServiceClient) ListCompanies(ctx context.Context, in *ListReportKwdSearchReq, opts ...grpc.CallOption) (*ListCompaniesResp, error) {
+	out := new(ListCompaniesResp)
+	err := c.cc.Invoke(ctx, RcService_ListCompanies_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *rcServiceClient) ListCompaniesWaiting(ctx context.Context, in *ListCompanyWaitingReq, opts ...grpc.CallOption) (*ListCompaniesWaitingResp, error) {
+	out := new(ListCompaniesWaitingResp)
+	err := c.cc.Invoke(ctx, RcService_ListCompaniesWaiting_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *rcServiceClient) ListReportByUscId(ctx context.Context, in *ListReportByUscIdReq, opts ...grpc.CallOption) (*ListReportByUscIdResp, error) {
+	out := new(ListReportByUscIdResp)
+	err := c.cc.Invoke(ctx, RcService_ListReportByUscId_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *rcServiceClient) GetReportContent(ctx context.Context, in *GetReportContentReq, opts ...grpc.CallOption) (*GetReportContentResp, error) {
 	out := new(GetReportContentResp)
 	err := c.cc.Invoke(ctx, RcService_GetReportContent_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *rcServiceClient) UpdateReportContentSnapshot(ctx context.Context, in *UpdateReportContentSnapshotReq, opts ...grpc.CallOption) (*UpdateReportContentSnapshotResp, error) {
+	out := new(UpdateReportContentSnapshotResp)
+	err := c.cc.Invoke(ctx, RcService_UpdateReportContentSnapshot_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *rcServiceClient) GetReportDataValidationStats(ctx context.Context, in *GetReportDataValidationStatsReq, opts ...grpc.CallOption) (*GetReportDataValidationStatsResp, error) {
+	out := new(GetReportDataValidationStatsResp)
+	err := c.cc.Invoke(ctx, RcService_GetReportDataValidationStats_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -101,6 +163,33 @@ func (c *rcServiceClient) GetAhpResult(ctx context.Context, in *GetAhpResultReq,
 	return out, nil
 }
 
+func (c *rcServiceClient) GetTradeDetail(ctx context.Context, in *GetTradeDetailReq, opts ...grpc.CallOption) (*GetTradeDetailResp, error) {
+	out := new(GetTradeDetailResp)
+	err := c.cc.Invoke(ctx, RcService_GetTradeDetail_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *rcServiceClient) GetReportPrintConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetReportPrintConfigResp, error) {
+	out := new(GetReportPrintConfigResp)
+	err := c.cc.Invoke(ctx, RcService_GetReportPrintConfig_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *rcServiceClient) UpdateReportPrintConfig(ctx context.Context, in *SaveReportPrintConfigReq, opts ...grpc.CallOption) (*SaveReportPrintConfigResp, error) {
+	out := new(SaveReportPrintConfigResp)
+	err := c.cc.Invoke(ctx, RcService_UpdateReportPrintConfig_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RcServiceServer is the server API for RcService service.
 // All implementations must embed UnimplementedRcServiceServer
 // for forward compatibility
@@ -109,8 +198,16 @@ type RcServiceServer interface {
 	UpdateReportDecisionFactor(context.Context, *UpdateReportDecisionFactorReq) (*InsertReportDecisionFactorResp, error)
 	GetReportDecisionFactor(context.Context, *GetDecisionFactorReq) (*GetDecisionFactorResp, error)
 	ListReport(context.Context, *ListReportKwdSearchReq) (*ListReportResp, error)
+	ListCompanies(context.Context, *ListReportKwdSearchReq) (*ListCompaniesResp, error)
+	ListCompaniesWaiting(context.Context, *ListCompanyWaitingReq) (*ListCompaniesWaitingResp, error)
+	ListReportByUscId(context.Context, *ListReportByUscIdReq) (*ListReportByUscIdResp, error)
 	GetReportContent(context.Context, *GetReportContentReq) (*GetReportContentResp, error)
+	UpdateReportContentSnapshot(context.Context, *UpdateReportContentSnapshotReq) (*UpdateReportContentSnapshotResp, error)
+	GetReportDataValidationStats(context.Context, *GetReportDataValidationStatsReq) (*GetReportDataValidationStatsResp, error)
 	GetAhpResult(context.Context, *GetAhpResultReq) (*GetAhpResultResp, error)
+	GetTradeDetail(context.Context, *GetTradeDetailReq) (*GetTradeDetailResp, error)
+	GetReportPrintConfig(context.Context, *emptypb.Empty) (*GetReportPrintConfigResp, error)
+	UpdateReportPrintConfig(context.Context, *SaveReportPrintConfigReq) (*SaveReportPrintConfigResp, error)
 	mustEmbedUnimplementedRcServiceServer()
 }
 
@@ -130,11 +227,35 @@ func (UnimplementedRcServiceServer) GetReportDecisionFactor(context.Context, *Ge
 func (UnimplementedRcServiceServer) ListReport(context.Context, *ListReportKwdSearchReq) (*ListReportResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListReport not implemented")
 }
+func (UnimplementedRcServiceServer) ListCompanies(context.Context, *ListReportKwdSearchReq) (*ListCompaniesResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListCompanies not implemented")
+}
+func (UnimplementedRcServiceServer) ListCompaniesWaiting(context.Context, *ListCompanyWaitingReq) (*ListCompaniesWaitingResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListCompaniesWaiting not implemented")
+}
+func (UnimplementedRcServiceServer) ListReportByUscId(context.Context, *ListReportByUscIdReq) (*ListReportByUscIdResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListReportByUscId not implemented")
+}
 func (UnimplementedRcServiceServer) GetReportContent(context.Context, *GetReportContentReq) (*GetReportContentResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetReportContent not implemented")
 }
+func (UnimplementedRcServiceServer) UpdateReportContentSnapshot(context.Context, *UpdateReportContentSnapshotReq) (*UpdateReportContentSnapshotResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateReportContentSnapshot not implemented")
+}
+func (UnimplementedRcServiceServer) GetReportDataValidationStats(context.Context, *GetReportDataValidationStatsReq) (*GetReportDataValidationStatsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetReportDataValidationStats not implemented")
+}
 func (UnimplementedRcServiceServer) GetAhpResult(context.Context, *GetAhpResultReq) (*GetAhpResultResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAhpResult not implemented")
+}
+func (UnimplementedRcServiceServer) GetTradeDetail(context.Context, *GetTradeDetailReq) (*GetTradeDetailResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTradeDetail not implemented")
+}
+func (UnimplementedRcServiceServer) GetReportPrintConfig(context.Context, *emptypb.Empty) (*GetReportPrintConfigResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetReportPrintConfig not implemented")
+}
+func (UnimplementedRcServiceServer) UpdateReportPrintConfig(context.Context, *SaveReportPrintConfigReq) (*SaveReportPrintConfigResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateReportPrintConfig not implemented")
 }
 func (UnimplementedRcServiceServer) mustEmbedUnimplementedRcServiceServer() {}
 
@@ -221,6 +342,60 @@ func _RcService_ListReport_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RcService_ListCompanies_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListReportKwdSearchReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RcServiceServer).ListCompanies(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RcService_ListCompanies_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RcServiceServer).ListCompanies(ctx, req.(*ListReportKwdSearchReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RcService_ListCompaniesWaiting_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListCompanyWaitingReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RcServiceServer).ListCompaniesWaiting(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RcService_ListCompaniesWaiting_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RcServiceServer).ListCompaniesWaiting(ctx, req.(*ListCompanyWaitingReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RcService_ListReportByUscId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListReportByUscIdReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RcServiceServer).ListReportByUscId(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RcService_ListReportByUscId_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RcServiceServer).ListReportByUscId(ctx, req.(*ListReportByUscIdReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _RcService_GetReportContent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetReportContentReq)
 	if err := dec(in); err != nil {
@@ -239,6 +414,42 @@ func _RcService_GetReportContent_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RcService_UpdateReportContentSnapshot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateReportContentSnapshotReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RcServiceServer).UpdateReportContentSnapshot(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RcService_UpdateReportContentSnapshot_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RcServiceServer).UpdateReportContentSnapshot(ctx, req.(*UpdateReportContentSnapshotReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RcService_GetReportDataValidationStats_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetReportDataValidationStatsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RcServiceServer).GetReportDataValidationStats(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RcService_GetReportDataValidationStats_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RcServiceServer).GetReportDataValidationStats(ctx, req.(*GetReportDataValidationStatsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _RcService_GetAhpResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetAhpResultReq)
 	if err := dec(in); err != nil {
@@ -253,6 +464,60 @@ func _RcService_GetAhpResult_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(RcServiceServer).GetAhpResult(ctx, req.(*GetAhpResultReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RcService_GetTradeDetail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTradeDetailReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RcServiceServer).GetTradeDetail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RcService_GetTradeDetail_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RcServiceServer).GetTradeDetail(ctx, req.(*GetTradeDetailReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RcService_GetReportPrintConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RcServiceServer).GetReportPrintConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RcService_GetReportPrintConfig_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RcServiceServer).GetReportPrintConfig(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RcService_UpdateReportPrintConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SaveReportPrintConfigReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RcServiceServer).UpdateReportPrintConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RcService_UpdateReportPrintConfig_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RcServiceServer).UpdateReportPrintConfig(ctx, req.(*SaveReportPrintConfigReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -281,12 +546,44 @@ var RcService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _RcService_ListReport_Handler,
 		},
 		{
+			MethodName: "ListCompanies",
+			Handler:    _RcService_ListCompanies_Handler,
+		},
+		{
+			MethodName: "ListCompaniesWaiting",
+			Handler:    _RcService_ListCompaniesWaiting_Handler,
+		},
+		{
+			MethodName: "ListReportByUscId",
+			Handler:    _RcService_ListReportByUscId_Handler,
+		},
+		{
 			MethodName: "GetReportContent",
 			Handler:    _RcService_GetReportContent_Handler,
 		},
 		{
+			MethodName: "UpdateReportContentSnapshot",
+			Handler:    _RcService_UpdateReportContentSnapshot_Handler,
+		},
+		{
+			MethodName: "GetReportDataValidationStats",
+			Handler:    _RcService_GetReportDataValidationStats_Handler,
+		},
+		{
 			MethodName: "GetAhpResult",
 			Handler:    _RcService_GetAhpResult_Handler,
+		},
+		{
+			MethodName: "GetTradeDetail",
+			Handler:    _RcService_GetTradeDetail_Handler,
+		},
+		{
+			MethodName: "GetReportPrintConfig",
+			Handler:    _RcService_GetReportPrintConfig_Handler,
+		},
+		{
+			MethodName: "UpdateReportPrintConfig",
+			Handler:    _RcService_UpdateReportPrintConfig_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

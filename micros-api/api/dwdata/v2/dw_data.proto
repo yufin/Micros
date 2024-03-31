@@ -2,8 +2,9 @@ syntax = "proto3";
 
 package api.dwdata.v2;
 
-//import "google/api/annotations.proto";
 import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
 option go_package = "micros-dw/api/dwdata/v2;dwdataV2";
 option java_multiple_files = true;
 option java_outer_classname = "DwdataV2";
@@ -12,38 +13,55 @@ option java_package = "api.dwdata.v2";
 
 service DwdataService {
 
-  rpc GetEnterpriseIdent(GetEntIdentReq) returns (GetEntIdentResp) {
-  }
+  rpc GetEnterpriseIdent(GetEntIdentReq) returns (GetEntIdentResp) {}
 
-  rpc GetEnterpriseInfo(GetEntInfoReq) returns (GetEntInfoResp) {
-  }
+  rpc GetEnterpriseInfo(GetEntInfoReq) returns (GetEntInfoResp) {}
 
-  rpc GetEnterpriseCredential(GetEntInfoReq) returns (GetEntCredentialResp) {
-  }
+  rpc GetEnterpriseCredential(GetEntInfoReq) returns (GetEntCredentialResp) {}
 
-  rpc GetEnterpriseRankingList(GetEntInfoReq) returns (GetEntRankingListResp) {
-  }
+  rpc GetEnterpriseRankingList(GetEntInfoReq) returns (GetEntRankingListResp) {}
 
-  rpc GetEnterpriseIndustry(GetEntInfoReq) returns (GetEntStrArrayResp) {
-  }
+  rpc GetEnterpriseIndustry(GetEntInfoReq) returns (GetEntStrArrayResp) {}
 
-  rpc GetEnterpriseProduct(GetEntInfoReq) returns (GetEntStrArrayResp) {
-  }
+  rpc GetEnterpriseProduct(GetEntInfoReq) returns (GetEntStrArrayResp) {}
 
-  rpc GetEntEquityTransparency(GetEntInfoReq) returns (GetEquityTransparencyResp) {
-  }
+  rpc GetEntEquityTransparency(GetEntInfoReq) returns (GetEquityTransparencyResp) {}
 
-  rpc GetEntShareholders(GetEntInfoReq) returns (GetShareholdersResp) {
-  }
+  rpc GetEntShareholders(GetEntInfoReq) returns (GetShareholdersResp) {}
 
-  rpc GetEntInvestment(GetEntInfoReq) returns (GetInvestmentResp) {
-  }
+  rpc GetEntInvestment(GetEntInfoReq) returns (GetInvestmentResp) {}
 
-  rpc GetEntBranches(GetEntInfoReq) returns (GetBranchesResp) {
-  }
+  rpc GetEntBranches(GetEntInfoReq) returns (GetBranchesResp) {}
+
+  rpc GetForeclosureDisposition(GetEntInfoWithDurationReq) returns (GetJudicialInfoWithDurationResp) {}
+
+  rpc GetExecutive(GetEntInfoWithDurationReq) returns (GetJudicialInfoWithDurationResp) {}
+
+  rpc GetEquityFrozen(GetEntInfoWithDurationReq) returns (GetJudicialInfoWithDurationResp) {}
+
+  rpc GetHighConsumptionRestriction(GetEntInfoWithDurationReq) returns (GetJudicialInfoWithDurationResp) {}
+
+  rpc GetJudicialStatics(GetEntInfoWithDurationReq) returns (GetJudicialInfoWithDurationResp) {}
+
+  rpc GetCourtAnnouncement(GetEntInfoWithDurationReq) returns (GetJudicialInfoWithDurationResp) {}
+
+  rpc GetDiscreditedDebtor(GetEntInfoWithDurationReq) returns (GetJudicialInfoWithDurationResp) {}
 
 }
 
+
+message GetJudicialInfoWithDurationResp {
+  bool success = 1;
+  int32 code = 2;
+  string msg = 3;
+  google.protobuf.Struct data = 4;
+}
+
+message GetEntInfoWithDurationReq {
+  string usc_id = 1;
+  google.protobuf.Timestamp time_point = 2;
+  int32 validate_extend_date = 3;
+}
 
 message Shareholders {
   string shareholder_name = 1;
@@ -53,6 +71,7 @@ message Shareholders {
   string capital_type = 5;
   string percent = 6;
 }
+
 message GetShareholdersResp {
   bool success = 1;
   int32 code = 2;

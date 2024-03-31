@@ -19,7 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	PipelineService_GetContentProcess_FullMethodName = "/api.pipeline.v1.PipelineService/GetContentProcess"
+	PipelineService_GetContentProcess_FullMethodName  = "/api.pipeline.v1.PipelineService/GetContentProcess"
+	PipelineService_GetContentValidate_FullMethodName = "/api.pipeline.v1.PipelineService/GetContentValidate"
+	PipelineService_GetAhpScore_FullMethodName        = "/api.pipeline.v1.PipelineService/GetAhpScore"
+	PipelineService_GetTradeDetail_FullMethodName     = "/api.pipeline.v1.PipelineService/GetTradeDetail"
+	PipelineService_GetJsonTranslate_FullMethodName   = "/api.pipeline.v1.PipelineService/GetJsonTranslate"
 )
 
 // PipelineServiceClient is the client API for PipelineService service.
@@ -27,6 +31,10 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type PipelineServiceClient interface {
 	GetContentProcess(ctx context.Context, in *GetContentProcessReq, opts ...grpc.CallOption) (*GetContentProcessResp, error)
+	GetContentValidate(ctx context.Context, in *GetContentProcessReq, opts ...grpc.CallOption) (*GetContentValidateResp, error)
+	GetAhpScore(ctx context.Context, in *GetAhpScoreReq, opts ...grpc.CallOption) (*GetAhpScoreResp, error)
+	GetTradeDetail(ctx context.Context, in *GetTradeDetailReq, opts ...grpc.CallOption) (*GetTradeDetailResp, error)
+	GetJsonTranslate(ctx context.Context, in *GetJsonTranslateReq, opts ...grpc.CallOption) (*GetJsonTranslateResp, error)
 }
 
 type pipelineServiceClient struct {
@@ -46,11 +54,51 @@ func (c *pipelineServiceClient) GetContentProcess(ctx context.Context, in *GetCo
 	return out, nil
 }
 
+func (c *pipelineServiceClient) GetContentValidate(ctx context.Context, in *GetContentProcessReq, opts ...grpc.CallOption) (*GetContentValidateResp, error) {
+	out := new(GetContentValidateResp)
+	err := c.cc.Invoke(ctx, PipelineService_GetContentValidate_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pipelineServiceClient) GetAhpScore(ctx context.Context, in *GetAhpScoreReq, opts ...grpc.CallOption) (*GetAhpScoreResp, error) {
+	out := new(GetAhpScoreResp)
+	err := c.cc.Invoke(ctx, PipelineService_GetAhpScore_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pipelineServiceClient) GetTradeDetail(ctx context.Context, in *GetTradeDetailReq, opts ...grpc.CallOption) (*GetTradeDetailResp, error) {
+	out := new(GetTradeDetailResp)
+	err := c.cc.Invoke(ctx, PipelineService_GetTradeDetail_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pipelineServiceClient) GetJsonTranslate(ctx context.Context, in *GetJsonTranslateReq, opts ...grpc.CallOption) (*GetJsonTranslateResp, error) {
+	out := new(GetJsonTranslateResp)
+	err := c.cc.Invoke(ctx, PipelineService_GetJsonTranslate_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PipelineServiceServer is the server API for PipelineService service.
 // All implementations must embed UnimplementedPipelineServiceServer
 // for forward compatibility
 type PipelineServiceServer interface {
 	GetContentProcess(context.Context, *GetContentProcessReq) (*GetContentProcessResp, error)
+	GetContentValidate(context.Context, *GetContentProcessReq) (*GetContentValidateResp, error)
+	GetAhpScore(context.Context, *GetAhpScoreReq) (*GetAhpScoreResp, error)
+	GetTradeDetail(context.Context, *GetTradeDetailReq) (*GetTradeDetailResp, error)
+	GetJsonTranslate(context.Context, *GetJsonTranslateReq) (*GetJsonTranslateResp, error)
 	mustEmbedUnimplementedPipelineServiceServer()
 }
 
@@ -60,6 +108,18 @@ type UnimplementedPipelineServiceServer struct {
 
 func (UnimplementedPipelineServiceServer) GetContentProcess(context.Context, *GetContentProcessReq) (*GetContentProcessResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetContentProcess not implemented")
+}
+func (UnimplementedPipelineServiceServer) GetContentValidate(context.Context, *GetContentProcessReq) (*GetContentValidateResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetContentValidate not implemented")
+}
+func (UnimplementedPipelineServiceServer) GetAhpScore(context.Context, *GetAhpScoreReq) (*GetAhpScoreResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAhpScore not implemented")
+}
+func (UnimplementedPipelineServiceServer) GetTradeDetail(context.Context, *GetTradeDetailReq) (*GetTradeDetailResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTradeDetail not implemented")
+}
+func (UnimplementedPipelineServiceServer) GetJsonTranslate(context.Context, *GetJsonTranslateReq) (*GetJsonTranslateResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetJsonTranslate not implemented")
 }
 func (UnimplementedPipelineServiceServer) mustEmbedUnimplementedPipelineServiceServer() {}
 
@@ -92,6 +152,78 @@ func _PipelineService_GetContentProcess_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PipelineService_GetContentValidate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetContentProcessReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PipelineServiceServer).GetContentValidate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PipelineService_GetContentValidate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PipelineServiceServer).GetContentValidate(ctx, req.(*GetContentProcessReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PipelineService_GetAhpScore_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAhpScoreReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PipelineServiceServer).GetAhpScore(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PipelineService_GetAhpScore_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PipelineServiceServer).GetAhpScore(ctx, req.(*GetAhpScoreReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PipelineService_GetTradeDetail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTradeDetailReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PipelineServiceServer).GetTradeDetail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PipelineService_GetTradeDetail_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PipelineServiceServer).GetTradeDetail(ctx, req.(*GetTradeDetailReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PipelineService_GetJsonTranslate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetJsonTranslateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PipelineServiceServer).GetJsonTranslate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PipelineService_GetJsonTranslate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PipelineServiceServer).GetJsonTranslate(ctx, req.(*GetJsonTranslateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PipelineService_ServiceDesc is the grpc.ServiceDesc for PipelineService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -102,6 +234,22 @@ var PipelineService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetContentProcess",
 			Handler:    _PipelineService_GetContentProcess_Handler,
+		},
+		{
+			MethodName: "GetContentValidate",
+			Handler:    _PipelineService_GetContentValidate_Handler,
+		},
+		{
+			MethodName: "GetAhpScore",
+			Handler:    _PipelineService_GetAhpScore_Handler,
+		},
+		{
+			MethodName: "GetTradeDetail",
+			Handler:    _PipelineService_GetTradeDetail_Handler,
+		},
+		{
+			MethodName: "GetJsonTranslate",
+			Handler:    _PipelineService_GetJsonTranslate_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
